@@ -1,8 +1,12 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { BowIcon, SparkleIcon, HeartIcon, CloudShape } from "@/components/ui/decor";
 import ScrollHint from "@/components/ui/ScrollHint";
 import { withBasePath } from "@/lib/asset-path";
+import { getPreferredSize } from "@/lib/preferred-size";
 
 const HERO_IMAGE = withBasePath("/images/arborn-nightwear.png");
 
@@ -66,8 +70,19 @@ function SecureLine({ className }: { className?: string }) {
 }
 
 function StartShoppingButton({ className }: { className?: string }) {
+  const [href, setHref] = useState("/select-size");
+
+  useEffect(() => {
+    // One-time sync from localStorage (an external system) on mount. Starting
+    // state at the default href keeps SSR/client markup identical, avoiding a
+    // hydration mismatch that a lazy useState initializer would cause.
+    const preferredSize = getPreferredSize();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (preferredSize) setHref(`/products?size=${preferredSize}`);
+  }, []);
+
   return (
-    <Link href="/select-size" className={className}>
+    <Link href={href} className={className}>
       Start Shopping
       <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />

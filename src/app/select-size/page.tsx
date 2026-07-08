@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import type { Size } from "@/lib/types";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { setPreferredSize } from "@/lib/preferred-size";
 import { BowIcon, SparkleIcon, HeartIcon, CloudShape, BunnyIllustration } from "@/components/ui/decor";
 import ScrollHint from "@/components/ui/ScrollHint";
 
@@ -27,6 +28,7 @@ export default function SelectSizePage() {
 
   function handleContinue() {
     if (!selected) return;
+    setPreferredSize(selected);
     router.push(`/products?size=${selected}`);
   }
 
