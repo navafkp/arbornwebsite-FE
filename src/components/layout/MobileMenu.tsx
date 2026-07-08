@@ -83,34 +83,41 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
           ))}
         </ul>
 
-        <div className="mt-auto flex flex-col gap-1 pt-6 text-sm text-[var(--muted)]">
+        <div className="mt-auto flex flex-col gap-1 border-t border-black/10 pt-4 text-sm">
           {isLoggedIn && (
-            <p className="pb-1 text-xs text-black">
+            <p className="pb-2 text-xs font-medium text-black">
               Hi, {user?.name.split(" ")[0]}
             </p>
           )}
-          <Link href="/wishlist" onClick={onClose} className="py-2">
+          <Link href="/wishlist" onClick={onClose} className="py-2 font-medium text-black">
             Wishlist
           </Link>
-          <Link href="/cart" onClick={onClose} className="py-2">
+          <Link href="/cart" onClick={onClose} className="py-2 font-medium text-black">
             Cart
           </Link>
-          <Link href="/profile" onClick={onClose} className="py-2">
+          <Link href="/profile" onClick={onClose} className="py-2 font-medium text-black">
             My Profile
           </Link>
-          <Link href="/contact" onClick={onClose} className="py-2">
+          <Link href="/contact" onClick={onClose} className="py-2 font-medium text-black">
             Contact Us
           </Link>
           {isLoggedIn ? (
-            <button type="button" onClick={() => { logOut(); onClose(); }} className="py-2 text-left">
+            <button
+              type="button"
+              onClick={() => {
+                logOut();
+                onClose();
+              }}
+              className="py-2 text-left font-medium text-black"
+            >
               Log Out
             </button>
           ) : (
             <>
-              <Link href="/login" onClick={onClose} className="py-2 font-medium text-accent">
+              <Link href="/login" onClick={onClose} className="py-2 font-semibold text-accent-dark">
                 Log In
               </Link>
-              <Link href="/signup" onClick={onClose} className="py-2">
+              <Link href="/signup" onClick={onClose} className="py-2 font-medium text-black">
                 Sign Up
               </Link>
             </>
