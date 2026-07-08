@@ -27,14 +27,12 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void 
 }
 
 const NOTIFICATION_PREFS = [
-  { key: "orders", label: "Order Updates" },
   { key: "new-arrivals", label: "New Arrivals & Restocks" },
   { key: "offers", label: "Offers & Promotions" },
 ];
 
 export default function SettingsSection({ addresses }: { addresses: Address[] }) {
   const [prefs, setPrefs] = useState<Record<string, boolean>>({
-    orders: true,
     "new-arrivals": true,
     offers: false,
   });

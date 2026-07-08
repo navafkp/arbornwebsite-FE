@@ -3,7 +3,7 @@ import { categories } from "@/lib/data/categories";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-black/5 bg-white">
+    <footer className="border-t border-black/5 bg-white pb-[calc(4.5rem_+_env(safe-area-inset-bottom))] lg:pb-0">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-10 md:grid-cols-4">
           <div className="col-span-2 md:col-span-1">

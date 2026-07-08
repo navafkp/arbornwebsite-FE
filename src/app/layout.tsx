@@ -4,6 +4,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { ShopProvider } from "@/lib/shop-context";
+import { AuthProvider } from "@/lib/auth-context";
 import { SITE_URL, SITE_NAME } from "@/lib/site-config";
 import "./globals.css";
 
@@ -71,14 +72,14 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${cormorant.variable} h-full`}>
       <body className="flex min-h-full flex-col bg-background text-foreground antialiased">
-        <ShopProvider>
-          <Header />
-          <main className="flex-1 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:pb-0">
-            {children}
-          </main>
-          <Footer />
-          <MobileBottomNav />
-        </ShopProvider>
+        <AuthProvider>
+          <ShopProvider>
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <MobileBottomNav />
+          </ShopProvider>
+        </AuthProvider>
       </body>
     </html>
   );

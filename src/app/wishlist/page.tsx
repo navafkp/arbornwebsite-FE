@@ -1,16 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { useShop } from "@/lib/shop-context";
 import { products } from "@/lib/data/products";
-import ProductGrid from "@/components/product/ProductGrid";
-import QuickViewModal from "@/components/product/QuickViewModal";
-import type { Product } from "@/lib/types";
+import WishlistProductCard from "@/components/product/WishlistProductCard";
 
 export default function WishlistPage() {
   const { wishlist } = useShop();
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const items = products.filter((p) => wishlist.includes(p.id));
 
   if (items.length === 0) {
@@ -37,17 +33,17 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 lg:px-8">
       <h1 className="font-serif text-3xl">Your Wishlist</h1>
       <p className="mt-1 text-sm text-[var(--muted)]">
         {items.length} {items.length === 1 ? "item" : "items"} saved
       </p>
 
-      <div className="mt-8">
-        <ProductGrid products={items} onQuickView={setQuickViewProduct} />
+      <div className="mt-8 flex flex-col gap-4">
+        {items.map((product) => (
+          <WishlistProductCard key={product.id} product={product} />
+        ))}
       </div>
-
-      <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
     </div>
   );
 }

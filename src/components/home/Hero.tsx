@@ -145,7 +145,7 @@ export default function Hero() {
 
           <StartShoppingButton className="mt-8 flex items-center justify-center gap-2 rounded-full bg-accent px-7 py-4 text-xs font-medium tracking-widest text-white uppercase transition hover:bg-accent-dark" />
 
-          <SecureLine className="mt-5 flex items-center justify-center gap-2 text-xs text-[var(--muted)]" />
+          <SecureLine className="mt-3 flex items-center justify-center gap-2 text-xs text-[var(--muted)]" />
         </div>
       </div>
     </section>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { categories } from "@/lib/data/categories";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
 
 interface MobileMenuProps {
   open: boolean;
@@ -11,6 +12,8 @@ interface MobileMenuProps {
 }
 
 export default function MobileMenu({ open, onClose }: MobileMenuProps) {
+  const { isLoggedIn, user, logOut } = useAuth();
+
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -81,6 +84,11 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
         </ul>
 
         <div className="mt-auto flex flex-col gap-1 pt-6 text-sm text-[var(--muted)]">
+          {isLoggedIn && (
+            <p className="pb-1 text-xs text-black">
+              Hi, {user?.name.split(" ")[0]}
+            </p>
+          )}
           <Link href="/wishlist" onClick={onClose} className="py-2">
             Wishlist
           </Link>
@@ -93,6 +101,20 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
           <Link href="/contact" onClick={onClose} className="py-2">
             Contact Us
           </Link>
+          {isLoggedIn ? (
+            <button type="button" onClick={() => { logOut(); onClose(); }} className="py-2 text-left">
+              Log Out
+            </button>
+          ) : (
+            <>
+              <Link href="/login" onClick={onClose} className="py-2 font-medium text-accent">
+                Log In
+              </Link>
+              <Link href="/signup" onClick={onClose} className="py-2">
+                Sign Up
+              </Link>
+            </>
+          )}
         </div>
       </nav>
     </div>
