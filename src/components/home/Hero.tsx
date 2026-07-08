@@ -2,8 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { BowIcon, SparkleIcon, HeartIcon, CloudShape } from "@/components/ui/decor";
 import ScrollHint from "@/components/ui/ScrollHint";
+import { withBasePath } from "@/lib/asset-path";
 
-const HERO_IMAGE = "/images/arborn-nightwear.png";
+const HERO_IMAGE = withBasePath("/images/arborn-nightwear.png");
 
 const TRUST_ITEMS = [
   {

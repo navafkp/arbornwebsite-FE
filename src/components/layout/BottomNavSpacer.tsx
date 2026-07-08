@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { NO_CHROME_ROUTES } from "@/lib/constants";
+import { isNoChromeRoute } from "@/lib/constants";
 
 // Reserves space at the very bottom of the page so content (e.g. Footer's
 // last line) doesn't sit under the fixed MobileBottomNav. Pages with no
@@ -9,7 +9,7 @@ import { NO_CHROME_ROUTES } from "@/lib/constants";
 export default function BottomNavSpacer() {
   const pathname = usePathname();
 
-  if (NO_CHROME_ROUTES.includes(pathname)) return null;
+  if (isNoChromeRoute(pathname)) return null;
 
   return <div className="h-[calc(4.5rem_+_env(safe-area-inset-bottom))]" aria-hidden="true" />;
 }

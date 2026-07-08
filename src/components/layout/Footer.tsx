@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { categories } from "@/lib/data/categories";
-import { NO_CHROME_ROUTES } from "@/lib/constants";
+import { isNoChromeRoute } from "@/lib/constants";
 
 export default function Footer() {
   const pathname = usePathname();
-  if (NO_CHROME_ROUTES.includes(pathname)) return null;
+  if (isNoChromeRoute(pathname)) return null;
 
   return (
     <footer className="border-t border-black/5 bg-white">

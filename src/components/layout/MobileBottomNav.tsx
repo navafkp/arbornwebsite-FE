@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useShop } from "@/lib/shop-context";
 import { cn } from "@/lib/utils";
-import { NO_CHROME_ROUTES } from "@/lib/constants";
+import { isNoChromeRoute } from "@/lib/constants";
 
 const ITEMS = [
   {
@@ -52,7 +52,7 @@ export default function MobileBottomNav() {
   const pathname = usePathname();
   const { wishlistCount } = useShop();
 
-  if (NO_CHROME_ROUTES.includes(pathname)) return null;
+  if (isNoChromeRoute(pathname)) return null;
 
   return (
     <nav
