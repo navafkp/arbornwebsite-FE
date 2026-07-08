@@ -1,4 +1,4 @@
-export type Size = "XS" | "S" | "M" | "L" | "XL" | "XXL" | "3XL";
+export type Size = "XS" | "S" | "M" | "L" | "XL" | "2XL" | "3XL" | "4XL";
 
 export type ProductTag = "new" | "bestseller" | "premium" | "limited";
 

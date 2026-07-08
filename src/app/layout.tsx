@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Cormorant_Garamond } from "next/font/google";
-import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
+import BottomNavSpacer from "@/components/layout/BottomNavSpacer";
 import { ShopProvider } from "@/lib/shop-context";
 import { AuthProvider } from "@/lib/auth-context";
 import { SITE_URL, SITE_NAME } from "@/lib/site-config";
@@ -74,9 +74,9 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col bg-background text-foreground antialiased">
         <AuthProvider>
           <ShopProvider>
-            <Header />
             <main className="flex-1">{children}</main>
             <Footer />
+            <BottomNavSpacer />
             <MobileBottomNav />
           </ShopProvider>
         </AuthProvider>

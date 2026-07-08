@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useShop } from "@/lib/shop-context";
 import { cn } from "@/lib/utils";
+import { NO_CHROME_ROUTES } from "@/lib/constants";
 
 const ITEMS = [
   {
@@ -15,8 +16,7 @@ const ITEMS = [
   },
   {
     href: "/categories",
-    label: "Categories",
-    hideOnHome: true,
+    label: "Explore",
     icon: (
       <>
         <rect x="4" y="4" width="7" height="7" rx="1.5" />
@@ -51,15 +51,15 @@ const ITEMS = [
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const { wishlistCount } = useShop();
-  const isHome = pathname === "/";
-  const items = ITEMS.filter((item) => !(item.hideOnHome && isHome));
+
+  if (NO_CHROME_ROUTES.includes(pathname)) return null;
 
   return (
     <nav
-      className="fixed right-0 bottom-0 left-0 z-40 flex border-t border-black/5 bg-white/95 backdrop-blur-sm lg:hidden"
+      className="fixed right-0 bottom-0 left-0 z-40 flex border-t border-black/5 bg-white/95 backdrop-blur-sm"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      {items.map((item) => {
+      {ITEMS.map((item) => {
         const active = pathname === item.href;
         return (
           <Link

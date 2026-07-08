@@ -1,13 +1,14 @@
 import type { Size } from "@/lib/types";
 
 const MEASUREMENTS: Record<Size, { bust: string; waist: string; length: string }> = {
-  XS: { bust: '32"', waist: '26"', length: '38"' },
-  S: { bust: '34"', waist: '28"', length: '39"' },
-  M: { bust: '36"', waist: '30"', length: '40"' },
-  L: { bust: '38"', waist: '32"', length: '41"' },
-  XL: { bust: '40"', waist: '34"', length: '42"' },
-  XXL: { bust: '42"', waist: '36"', length: '43"' },
-  "3XL": { bust: '44"', waist: '38"', length: '44"' },
+  XS: { bust: 'Up to 25"', waist: '24"', length: '37"' },
+  S: { bust: 'Up to 27"', waist: '26"', length: '38"' },
+  M: { bust: '28"–32"', waist: '28"', length: '39"' },
+  L: { bust: 'Up to 34"', waist: '30"', length: '40"' },
+  XL: { bust: 'Up to 36"', waist: '32"', length: '41"' },
+  "2XL": { bust: '38"–42"', waist: '36"', length: '42"' },
+  "3XL": { bust: '44"–46"', waist: '40"', length: '43"' },
+  "4XL": { bust: '48"–50"', waist: '44"', length: '44"' },
 };
 
 export default function SizeGuideTable({ sizes }: { sizes: Size[] }) {

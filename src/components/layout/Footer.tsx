@@ -1,9 +1,16 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { categories } from "@/lib/data/categories";
+import { NO_CHROME_ROUTES } from "@/lib/constants";
 
 export default function Footer() {
+  const pathname = usePathname();
+  if (NO_CHROME_ROUTES.includes(pathname)) return null;
+
   return (
-    <footer className="border-t border-black/5 bg-white pb-[calc(4.5rem_+_env(safe-area-inset-bottom))] lg:pb-0">
+    <footer className="border-t border-black/5 bg-white">
       <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-10 md:grid-cols-4">
           <div className="col-span-2 md:col-span-1">

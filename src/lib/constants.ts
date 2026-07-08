@@ -14,3 +14,6 @@ export const SORT_OPTIONS = [
 ] as const;
 
 export type SortKey = (typeof SORT_OPTIONS)[number]["key"];
+
+// Pages with their own full-bleed layout — no Footer, no bottom nav.
+export const NO_CHROME_ROUTES = ["/", "/select-size"];

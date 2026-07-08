@@ -39,7 +39,7 @@ interface Draft {
   seed: number;
 }
 
-const ALL_SIZES: Size[] = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
+const ALL_SIZES: Size[] = ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"];
 
 function build(draft: Draft): Product {
   return {
@@ -74,7 +74,7 @@ export const products: Product[] = [
     rating: 4.6,
     reviewCount: 128,
     fabric: "100% Cotton",
-    sizes: ["S", "M", "L", "XL", "XXL"],
+    sizes: ["S", "M", "L", "XL", "2XL"],
     colorNames: [
       { name: "Charcoal", hex: "#2b2b2b" },
       { name: "Sage", hex: "#8a9a82" },
@@ -112,7 +112,7 @@ export const products: Product[] = [
     rating: 4.3,
     reviewCount: 54,
     fabric: "100% Cotton",
-    sizes: ["S", "M", "L", "XL", "XXL", "3XL"],
+    sizes: ["S", "M", "L", "XL", "2XL", "3XL", "4XL"],
     colorNames: [
       { name: "Navy Stripe", hex: "#26314a" },
       { name: "Grey Stripe", hex: "#9a9a9a" },
@@ -149,7 +149,7 @@ export const products: Product[] = [
     rating: 4.4,
     reviewCount: 203,
     fabric: "100% Cotton",
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+    sizes: ["XS", "S", "M", "L", "XL", "2XL"],
     colorNames: [
       { name: "Peach", hex: "#e8b7a4" },
       { name: "Sand", hex: "#d8c3a5" },
@@ -203,7 +203,7 @@ export const products: Product[] = [
     rating: 4.3,
     reviewCount: 112,
     fabric: "100% Cotton",
-    sizes: ["S", "M", "L", "XL", "XXL", "3XL"],
+    sizes: ["S", "M", "L", "XL", "2XL", "3XL", "4XL"],
     colorNames: [
       { name: "Olive", hex: "#7c7a4e" },
       { name: "Black", hex: "#1c1c1c" },
@@ -244,7 +244,7 @@ export const products: Product[] = [
     rating: 4.7,
     reviewCount: 58,
     fabric: "Satin",
-    sizes: ["S", "M", "L", "XL", "XXL"],
+    sizes: ["S", "M", "L", "XL", "2XL"],
     colorNames: [{ name: "Wine", hex: "#5c2331" }],
     shortDescription: "Long wrap robe with a self-tie belt.",
     description:
@@ -314,7 +314,7 @@ export const products: Product[] = [
     rating: 4.3,
     reviewCount: 61,
     fabric: "100% Cotton",
-    sizes: ["S", "M", "L", "XL", "XXL"],
+    sizes: ["S", "M", "L", "XL", "2XL"],
     colorNames: [{ name: "Grey Melange", hex: "#a7a7a7" }],
     shortDescription: "Classic tee and shorts set in soft cotton jersey.",
     description:
@@ -385,7 +385,7 @@ export const products: Product[] = [
     rating: 4.7,
     reviewCount: 33,
     fabric: "Bamboo Viscose",
-    sizes: ["S", "M", "L", "XL", "XXL"],
+    sizes: ["S", "M", "L", "XL", "2XL"],
     colorNames: [{ name: "Sage", hex: "#a9b39a" }],
     shortDescription: "Robe and cami set in sustainable bamboo fabric.",
     description:
