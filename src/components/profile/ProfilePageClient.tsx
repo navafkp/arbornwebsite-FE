@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { user as mockUser, orders } from "@/lib/data/user";
 import ProfileCard from "@/components/profile/ProfileCard";
@@ -9,7 +10,8 @@ import OrderHistoryItem from "@/components/profile/OrderHistoryItem";
 import SettingsSection from "@/components/profile/SettingsSection";
 
 export default function ProfilePageClient() {
-  const { isLoggedIn, user: authUser } = useAuth();
+  const router = useRouter();
+  const { isLoggedIn, user: authUser, logOut } = useAuth();
 
   if (!isLoggedIn) {
     return (
@@ -55,6 +57,16 @@ export default function ProfilePageClient() {
         <div className="flex flex-col gap-6 lg:col-span-1">
           <ProfileCard user={displayUser} />
           <RewardCard user={displayUser} />
+          <button
+            type="button"
+            onClick={() => {
+              logOut();
+              router.push("/");
+            }}
+            className="rounded-full border border-black/15 py-3 text-xs font-medium tracking-widest uppercase transition hover:border-black"
+          >
+            Log Out
+          </button>
         </div>
 
         <div className="flex flex-col gap-12 lg:col-span-2">
