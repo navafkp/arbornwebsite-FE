@@ -22,7 +22,7 @@ export default function Header() {
             type="button"
             aria-label="Open menu"
             onClick={() => setMenuOpen(true)}
-            className="-ml-2 p-2 text-black"
+            className="-ml-2 p-2 text-accent"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />

@@ -39,7 +39,7 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
       />
       <nav
         className={cn(
-          "absolute top-0 left-0 flex h-full w-[82%] max-w-xs flex-col bg-white px-6 py-6 shadow-xl transition-transform duration-300 ease-out",
+          "absolute top-0 left-0 flex h-full w-[82%] max-w-xs flex-col bg-accent-soft px-6 py-6 shadow-xl transition-transform duration-300 ease-out",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >

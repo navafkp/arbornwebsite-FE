@@ -7,6 +7,15 @@ const STATUS_STYLES: Record<OrderStatus, string> = {
   Shipped: "bg-[#eaf0f7] text-[#2f5a8f]",
   Processing: "bg-[#f7f1e3] text-[#9a7620]",
   Cancelled: "bg-[#f7eaea] text-[#a13a3a]",
+  contacted_whatsapp: "bg-[#e7f8ec] text-[#1f8a4c]",
+};
+
+const STATUS_LABELS: Record<OrderStatus, string> = {
+  Delivered: "Delivered",
+  Shipped: "Shipped",
+  Processing: "Processing",
+  Cancelled: "Cancelled",
+  contacted_whatsapp: "Contacted via WhatsApp",
 };
 
 export default function OrderHistoryItem({ order }: { order: Order }) {
@@ -44,7 +53,7 @@ export default function OrderHistoryItem({ order }: { order: Order }) {
         <span
           className={`rounded-full px-3 py-1 text-[11px] font-medium ${STATUS_STYLES[order.status]}`}
         >
-          {order.status}
+          {STATUS_LABELS[order.status]}
         </span>
         <span className="text-sm font-medium">{formatPrice(order.total)}</span>
       </div>

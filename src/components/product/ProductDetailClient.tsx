@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Product } from "@/lib/types";
 import { formatPrice, cn } from "@/lib/utils";
-import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { buildWhatsAppLink, buildOrderInquiryMessage } from "@/lib/whatsapp";
 import RatingStars from "@/components/ui/RatingStars";
 import ColorSwatch from "@/components/ui/ColorSwatch";
 import WishlistButton from "@/components/product/WishlistButton";
@@ -17,7 +17,12 @@ export default function ProductDetailClient({ product }: { product: Product }) {
   const color = product.colors[colorIndex];
 
   const whatsappLink = buildWhatsAppLink(
-    `Hi, I'd like to order the "${product.name}" — ${color.name}, size ${product.sizes[sizeIndex]} (${formatPrice(product.price)}). Please share availability and payment details.`,
+    buildOrderInquiryMessage({
+      productName: product.name,
+      color: color.name,
+      size: product.sizes[sizeIndex],
+      price: formatPrice(product.price),
+    }),
   );
 
   return (

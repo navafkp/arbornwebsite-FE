@@ -16,6 +16,7 @@ const ITEMS = [
   {
     href: "/categories",
     label: "Categories",
+    hideOnHome: true,
     icon: (
       <>
         <rect x="4" y="4" width="7" height="7" rx="1.5" />
@@ -37,16 +38,6 @@ const ITEMS = [
   },
   {
     href: "/profile",
-    label: "Orders",
-    icon: (
-      <>
-        <rect x="4" y="6" width="16" height="14" rx="1.5" />
-        <path d="M8 6V5a4 4 0 018 0v1" strokeLinecap="round" />
-      </>
-    ),
-  },
-  {
-    href: "/profile",
     label: "Profile",
     icon: (
       <>
@@ -60,10 +51,15 @@ const ITEMS = [
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const { wishlistCount } = useShop();
+  const isHome = pathname === "/";
+  const items = ITEMS.filter((item) => !(item.hideOnHome && isHome));
 
   return (
-    <nav className="fixed right-0 bottom-0 left-0 z-40 flex border-t border-black/5 bg-white/95 backdrop-blur-sm lg:hidden">
-      {ITEMS.map((item) => {
+    <nav
+      className="fixed right-0 bottom-0 left-0 z-40 flex border-t border-black/5 bg-white/95 backdrop-blur-sm lg:hidden"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
+      {items.map((item) => {
         const active = pathname === item.href;
         return (
           <Link

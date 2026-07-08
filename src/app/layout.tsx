@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -59,6 +59,10 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  viewportFit: "cover",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -69,7 +73,9 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col bg-background text-foreground antialiased">
         <ShopProvider>
           <Header />
-          <main className="flex-1 pb-16 lg:pb-0">{children}</main>
+          <main className="flex-1 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:pb-0">
+            {children}
+          </main>
           <Footer />
           <MobileBottomNav />
         </ShopProvider>

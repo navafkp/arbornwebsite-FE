@@ -32,6 +32,22 @@ export const user: UserProfile = {
 
 export const orders: Order[] = [
   {
+    id: "AB-10559",
+    date: "2026-07-05",
+    status: "contacted_whatsapp",
+    items: [
+      {
+        productId: products[9].id,
+        name: products[9].name,
+        image: products[9].colors[0].images[0],
+        quantity: 1,
+        price: products[9].price,
+        size: "M",
+      },
+    ],
+    total: products[9].price,
+  },
+  {
     id: "AB-10482",
     date: "2026-06-25",
     status: "Delivered",

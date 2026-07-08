@@ -65,7 +65,14 @@ export interface OrderItem {
   size: Size;
 }
 
-export type OrderStatus = "Delivered" | "Shipped" | "Processing" | "Cancelled";
+export type OrderStatus =
+  | "Delivered"
+  | "Shipped"
+  | "Processing"
+  | "Cancelled"
+  // Temporary status until real payment + order tracking exists: set when a
+  // customer taps "Order on WhatsApp" but hasn't confirmed the order yet.
+  | "contacted_whatsapp";
 
 export interface Order {
   id: string;
