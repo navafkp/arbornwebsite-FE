@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 import { user as mockUser, orders } from "@/lib/data/user";
 import ProfileCard from "@/components/profile/ProfileCard";
 import RewardCard from "@/components/profile/RewardCard";
-import OrderHistoryItem from "@/components/profile/OrderHistoryItem";
+import OrderPhotoGrid from "@/components/profile/OrderPhotoGrid";
 import SettingsSection from "@/components/profile/SettingsSection";
 
 export default function ProfilePageClient() {
@@ -57,6 +57,7 @@ export default function ProfilePageClient() {
         <div className="flex flex-col gap-6 lg:col-span-1">
           <ProfileCard user={displayUser} />
           <RewardCard user={displayUser} />
+          <OrderPhotoGrid orders={orders} />
           <button
             type="button"
             onClick={() => {
@@ -70,15 +71,6 @@ export default function ProfilePageClient() {
         </div>
 
         <div className="flex flex-col gap-12 lg:col-span-2">
-          <section>
-            <h2 className="mb-5 text-sm font-medium tracking-wide">Order History</h2>
-            <div className="flex flex-col gap-4">
-              {orders.map((order) => (
-                <OrderHistoryItem key={order.id} order={order} />
-              ))}
-            </div>
-          </section>
-
           <section>
             <h2 className="mb-5 text-sm font-medium tracking-wide">Settings</h2>
             <SettingsSection addresses={displayUser.addresses} />
