@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { Size } from "@/lib/types";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { BowIcon, SparkleIcon, HeartIcon, CloudShape, BunnyIllustration } from "@/components/ui/decor";
@@ -23,10 +23,16 @@ const BUST_RANGES: Record<Size, string> = {
 export default function SelectSizePage() {
   const router = useRouter();
   const [selected, setSelected] = useState<Size | null>(null);
+  const continueRef = useRef<HTMLButtonElement>(null);
 
   function handleContinue() {
     if (!selected) return;
     router.push(`/products?size=${selected}`);
+  }
+
+  function handleSelectSize(size: Size) {
+    setSelected(size);
+    continueRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   return (
@@ -61,7 +67,7 @@ export default function SelectSizePage() {
           <button
             key={size}
             type="button"
-            onClick={() => setSelected(size)}
+            onClick={() => handleSelectSize(size)}
             className={`relative flex flex-col items-center justify-center gap-0.5 rounded-2xl border py-3 transition ${
               selected === size
                 ? "border-accent bg-accent-soft"
@@ -133,6 +139,7 @@ export default function SelectSizePage() {
       </div>
 
       <button
+        ref={continueRef}
         type="button"
         onClick={handleContinue}
         disabled={!selected}
