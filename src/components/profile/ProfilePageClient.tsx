@@ -47,6 +47,7 @@ export default function ProfilePageClient() {
     name: authUser?.name || mockUser.name,
     phone: authUser?.phone || mockUser.phone,
     email: authUser?.email || mockUser.email,
+    avatar: authUser?.avatar || mockUser.avatar,
   };
 
   return (

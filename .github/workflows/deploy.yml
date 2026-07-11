@@ -36,6 +36,8 @@ jobs:
           fi
 
       - run: npm run build
+        env:
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
 
       - uses: actions/configure-pages@v5
 

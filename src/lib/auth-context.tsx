@@ -12,6 +12,7 @@ export interface AuthUser {
   name: string;
   phone: string;
   email: string;
+  avatar?: string;
 }
 
 interface AuthContextValue {

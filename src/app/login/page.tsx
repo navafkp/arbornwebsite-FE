@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth-context";
+import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
+import type { GoogleProfile } from "@/lib/google-auth";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { logIn } = useAuth();
+  const { logIn, signUp } = useAuth();
   const [form, setForm] = useState({ phone: "", password: "" });
 
   function handleSubmit(e: FormEvent) {
@@ -16,12 +18,27 @@ export default function LoginPage() {
     router.push("/profile");
   }
 
+  function handleGoogleSuccess(profile: GoogleProfile) {
+    signUp({ name: profile.name, email: profile.email, phone: "", avatar: profile.picture });
+    router.push("/profile");
+  }
+
   return (
     <div className="mx-auto max-w-sm px-4 py-14 sm:px-6">
       <h1 className="font-serif text-3xl">Log In</h1>
       <p className="mt-2 text-sm text-[var(--muted)]">Welcome back to Arborn.</p>
 
-      <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
+      <div className="mt-6">
+        <GoogleSignInButton onSuccess={handleGoogleSuccess} />
+      </div>
+
+      <div className="my-6 flex items-center gap-3 text-[11px] text-[var(--muted)] uppercase">
+        <span className="h-px flex-1 bg-black/10" />
+        or
+        <span className="h-px flex-1 bg-black/10" />
+      </div>
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1.5 text-xs text-[var(--muted)]">
           Mobile Number
           <input
