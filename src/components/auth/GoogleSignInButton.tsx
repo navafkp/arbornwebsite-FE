@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { GOOGLE_CLIENT_ID, decodeGoogleCredential, type GoogleProfile } from "@/lib/google-auth";
+import { GOOGLE_CLIENT_ID } from "@/lib/google-auth";
 
 declare global {
   interface Window {
@@ -22,9 +22,9 @@ declare global {
 const SCRIPT_SRC = "https://accounts.google.com/gsi/client";
 
 export default function GoogleSignInButton({
-  onSuccess,
+  onCredential,
 }: {
-  onSuccess: (profile: GoogleProfile) => void;
+  onCredential: (idToken: string) => void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scriptLoaded, setScriptLoaded] = useState(false);
@@ -54,8 +54,9 @@ export default function GoogleSignInButton({
     window.google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
       callback: (response) => {
-        const profile = decodeGoogleCredential(response.credential);
-        if (profile) onSuccess(profile);
+        // TEMP: for testing the id_token in Postman against the BE. Remove once BE auth is verified.
+        console.log("Google ID token:", response.credential);
+        onCredential(response.credential);
       },
     });
 
@@ -66,7 +67,7 @@ export default function GoogleSignInButton({
       width: 320,
       text: "continue_with",
     });
-  }, [scriptLoaded, onSuccess]);
+  }, [scriptLoaded, onCredential]);
 
   if (!GOOGLE_CLIENT_ID) {
     return (

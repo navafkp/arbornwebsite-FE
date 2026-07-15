@@ -4,8 +4,16 @@ import Image from "next/image";
 import { useState } from "react";
 import type { UserProfile } from "@/lib/types";
 
-export default function ProfileCard({ user }: { user: UserProfile }) {
+export default function ProfileCard({
+  user,
+  onSave,
+}: {
+  user: UserProfile;
+  onSave?: (data: { name: string; email: string; phone: string }) => Promise<void> | void;
+}) {
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({ name: user.name, email: user.email, phone: user.phone });
 
   const defaultAddress = user.addresses.find((a) => a.isDefault) ?? user.addresses[0];
@@ -24,9 +32,18 @@ export default function ProfileCard({ user }: { user: UserProfile }) {
 
       {editing ? (
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
-            setEditing(false);
+            setError("");
+            setSaving(true);
+            try {
+              await onSave?.(form);
+              setEditing(false);
+            } catch {
+              setError("Couldn't save changes. Please try again.");
+            } finally {
+              setSaving(false);
+            }
           }}
           className="mt-6 flex flex-col gap-3"
         >
@@ -55,12 +72,14 @@ export default function ProfileCard({ user }: { user: UserProfile }) {
               className="rounded-lg border border-black/15 px-3 py-2 text-sm text-black outline-none focus:border-accent"
             />
           </label>
+          {error && <p className="text-xs text-red-600">{error}</p>}
           <div className="mt-2 flex gap-2">
             <button
               type="submit"
-              className="flex-1 rounded-full bg-accent py-2.5 text-xs font-medium tracking-wide text-white transition hover:bg-accent-dark"
+              disabled={saving}
+              className="flex-1 rounded-full bg-accent py-2.5 text-xs font-medium tracking-wide text-white transition hover:bg-accent-dark disabled:opacity-60"
             >
-              Save Changes
+              {saving ? "Saving..." : "Save Changes"}
             </button>
             <button
               type="button"

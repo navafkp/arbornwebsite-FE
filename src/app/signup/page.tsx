@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth-context";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
-import type { GoogleProfile } from "@/lib/google-auth";
 
 export default function SignUpPage() {
   const router = useRouter();
-  const { signUp } = useAuth();
+  const { signUp, loginWithGoogle } = useAuth();
   const [form, setForm] = useState({ name: "", phone: "", email: "", password: "" });
+  const [googleError, setGoogleError] = useState("");
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -18,9 +18,14 @@ export default function SignUpPage() {
     router.push("/profile");
   }
 
-  function handleGoogleSuccess(profile: GoogleProfile) {
-    signUp({ name: profile.name, email: profile.email, phone: "", avatar: profile.picture });
-    router.push("/profile");
+  async function handleGoogleCredential(idToken: string) {
+    setGoogleError("");
+    try {
+      await loginWithGoogle(idToken);
+      router.push("/profile");
+    } catch {
+      setGoogleError("Google sign-in failed. Please try again.");
+    }
   }
 
   return (
@@ -31,7 +36,10 @@ export default function SignUpPage() {
       </p>
 
       <div className="mt-6">
-        <GoogleSignInButton onSuccess={handleGoogleSuccess} />
+        <GoogleSignInButton onCredential={handleGoogleCredential} />
+        {googleError && (
+          <p className="mt-2 text-center text-xs text-red-600">{googleError}</p>
+        )}
       </div>
 
       <div className="my-6 flex items-center gap-3 text-[11px] text-[var(--muted)] uppercase">

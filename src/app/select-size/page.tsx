@@ -1,30 +1,42 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Size } from "@/lib/types";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { setPreferredSize } from "@/lib/preferred-size";
+import { getSizes, type BackendSize } from "@/lib/api-client";
 import { BowIcon, SparkleIcon, HeartIcon, CloudShape, BunnyIllustration } from "@/components/ui/decor";
 import ScrollHint from "@/components/ui/ScrollHint";
 
-const QUICK_SIZES: Size[] = ["M", "L", "XL", "2XL", "3XL", "4XL"];
-
-const BUST_RANGES: Record<Size, string> = {
-  XS: 'Up to 25"',
-  S: 'Up to 27"',
-  M: '28"–32"',
-  L: 'Up to 34"',
-  XL: 'Up to 36"',
-  "2XL": '38"–42"',
-  "3XL": '44"–46"',
-  "4XL": '48"–50"',
+// The backend's size labels (XXL, XXXL, XXXXL) differ from the Size literals
+// the rest of the app (mock product catalog, /products filtering) expects
+// (2XL, 3XL, 4XL) — normalize so downstream filtering keeps working.
+const SIZE_ALIASES: Record<string, Size> = {
+  XXL: "2XL",
+  XXXL: "3XL",
+  XXXXL: "4XL",
 };
+
+function toAppSize(displayText: string): Size {
+  return (SIZE_ALIASES[displayText] ?? displayText) as Size;
+}
 
 export default function SelectSizePage() {
   const router = useRouter();
+  const [sizes, setSizes] = useState<BackendSize[]>([]);
+  const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
   const [selected, setSelected] = useState<Size | null>(null);
   const continueRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    getSizes()
+      .then((data) => {
+        setSizes(data);
+        setLoadState("ready");
+      })
+      .catch(() => setLoadState("error"));
+  }, []);
 
   function handleContinue() {
     if (!selected) return;
@@ -32,8 +44,8 @@ export default function SelectSizePage() {
     router.push(`/products?size=${selected}`);
   }
 
-  function handleSelectSize(size: Size) {
-    setSelected(size);
+  function handleSelectSize(displayText: string) {
+    setSelected(toAppSize(displayText));
     continueRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
@@ -64,31 +76,47 @@ export default function SelectSizePage() {
         <HeartIcon className="h-3.5 w-3.5 text-accent" />
       </p>
 
-      <div className="mt-5 grid grid-cols-3 gap-2">
-        {QUICK_SIZES.map((size) => (
-          <button
-            key={size}
-            type="button"
-            onClick={() => handleSelectSize(size)}
-            className={`relative flex flex-col items-center justify-center gap-0.5 rounded-2xl border py-3 transition ${
-              selected === size
-                ? "border-accent bg-accent-soft"
-                : "border-black/10 hover:border-black/25"
-            }`}
-          >
-            {selected === size && (
-              <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-white">
-                <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                  <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-            )}
-            <BowIcon className="h-4 w-4 text-accent" />
-            <span className="text-base font-medium">{size}</span>
-            <span className="text-[10px] text-[var(--muted)]">{BUST_RANGES[size]}</span>
-          </button>
-        ))}
-      </div>
+      {loadState === "loading" && (
+        <div className="mt-5 grid grid-cols-3 gap-2">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-[74px] animate-pulse rounded-2xl bg-black/5" />
+          ))}
+        </div>
+      )}
+
+      {loadState === "error" && (
+        <p className="mt-5 rounded-2xl border border-dashed border-black/15 px-4 py-3.5 text-sm text-[var(--muted)]">
+          Couldn&rsquo;t load sizes. Please check your connection and try again.
+        </p>
+      )}
+
+      {loadState === "ready" && (
+        <div className="mt-5 grid grid-cols-3 gap-2">
+          {sizes.map(({ size_code, display_text, measurement }) => (
+            <button
+              key={size_code}
+              type="button"
+              onClick={() => handleSelectSize(display_text)}
+              className={`relative flex flex-col items-center justify-center gap-0.5 rounded-2xl border py-3 transition ${
+                selected === toAppSize(display_text)
+                  ? "border-accent bg-accent-soft"
+                  : "border-black/10 hover:border-black/25"
+              }`}
+            >
+              {selected === toAppSize(display_text) && (
+                <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-white">
+                  <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                    <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+              )}
+              <BowIcon className="h-4 w-4 text-accent" />
+              <span className="text-base font-medium">{display_text}</span>
+              <span className="text-[10px] text-[var(--muted)]">{measurement}</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="mt-4 flex items-start gap-3 rounded-2xl border border-dashed border-accent/40 px-4 py-3.5">
         <span className="mt-0.5 text-accent">
