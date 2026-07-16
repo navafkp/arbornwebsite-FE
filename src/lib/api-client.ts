@@ -2,10 +2,10 @@
 // Specification" — base URL configurable since it differs between local
 // dev (Django's runserver) and wherever the backend ends up deployed.
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://13.201.70.114:8000/api/v1";
 
 const CATALOG_BASE_URL =
-  process.env.NEXT_PUBLIC_CATALOG_BASE_URL || "http://localhost:8000/catalog/v1";
+  process.env.NEXT_PUBLIC_CATALOG_BASE_URL || "http://13.201.70.114:8000/catalog/v1";
 
 export class ApiError extends Error {
   status: number;
