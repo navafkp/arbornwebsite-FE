@@ -1,11 +1,13 @@
 // Talks to the real Django backend per "Arborn V1 Authentication API
-// Specification" — base URL configurable since it differs between local
-// dev (Django's runserver) and wherever the backend ends up deployed.
+// Specification". The bare fallback here is for local dev only — the
+// deployed build always gets its real value from
+// .github/workflows/deploy.yml (currently https://api.arborn.shop), so
+// changing this default does not affect production.
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://13.201.70.114:8000/api/v1";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
 
 const CATALOG_BASE_URL =
-  process.env.NEXT_PUBLIC_CATALOG_BASE_URL || "http://13.201.70.114:8000/catalog/v1";
+  process.env.NEXT_PUBLIC_CATALOG_BASE_URL || "http://localhost:8000/catalog/v1";
 
 export class ApiError extends Error {
   status: number;
