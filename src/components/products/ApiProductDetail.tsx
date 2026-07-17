@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getProductDetail, type ApiProductDetail as ApiProductDetailData } from "@/lib/api-client";
 import { formatPrice } from "@/lib/utils";
@@ -28,6 +28,7 @@ export default function ApiProductDetail() {
   // last visible, and this fills in for price/size purposes instead.
   const [manualVariantIndex, setManualVariantIndex] = useState<number | null>(null);
   const [selectedSizeCode, setSelectedSizeCode] = useState<number | null>(null);
+  const galleryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!slug) {
@@ -42,9 +43,22 @@ export default function ApiProductDetail() {
         setManualVariantIndex(null);
         setSelectedSizeCode(data.variants[0]?.sizes[0]?.size_code ?? null);
         setLoadState("ready");
+        galleryRef.current?.scrollTo({ left: 0 });
       })
       .catch(() => setLoadState("error"));
   }, [slug]);
+
+  function scrollToImage(index: number) {
+    const el = galleryRef.current;
+    if (!el) return;
+    el.scrollTo({ left: index * el.clientWidth, behavior: "smooth" });
+  }
+
+  function handleGalleryScroll(e: React.UIEvent<HTMLDivElement>) {
+    const el = e.currentTarget;
+    const index = Math.round(el.scrollLeft / el.clientWidth);
+    setMainImageIndex((current) => (current === index ? current : index));
+  }
 
   // All variants' images combined into one scrollable gallery, instead of
   // swapping the whole gallery out per color — grouped by variant, primary
@@ -76,12 +90,11 @@ export default function ApiProductDetail() {
     if (firstImage >= 0) {
       setMainImageIndex(firstImage);
       setManualVariantIndex(null);
+      scrollToImage(firstImage);
     } else {
       setManualVariantIndex(index);
     }
   }
-
-  const mainImage = allImages[mainImageIndex] ?? allImages[0];
 
   if (loadState === "loading") {
     return (
@@ -121,22 +134,30 @@ export default function ApiProductDetail() {
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           <div>
-            <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#f4f2ee]">
-              {mainImage ? (
-                <Image
-                  src={mainImage.image_url}
-                  alt={product.name}
-                  fill
-                  sizes="(min-width: 1024px) 50vw, 100vw"
-                  className="object-cover"
-                  priority
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-sm text-[var(--muted)]">
-                  No image
-                </div>
-              )}
-            </div>
+            {allImages.length > 0 ? (
+              <div
+                ref={galleryRef}
+                onScroll={handleGalleryScroll}
+                className="no-scrollbar relative flex aspect-[3/4] w-full snap-x snap-mandatory gap-0 overflow-x-auto rounded-xl bg-[#f4f2ee]"
+              >
+                {allImages.map((img, i) => (
+                  <div key={img.id} className="relative h-full w-full flex-shrink-0 snap-start">
+                    <Image
+                      src={img.image_url}
+                      alt={product.name}
+                      fill
+                      sizes="(min-width: 1024px) 50vw, 100vw"
+                      className="object-cover"
+                      priority={i === 0}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex aspect-[3/4] w-full items-center justify-center rounded-xl bg-[#f4f2ee] text-sm text-[var(--muted)]">
+                No image
+              </div>
+            )}
 
             {allImages.length > 1 && (
               <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
@@ -147,6 +168,7 @@ export default function ApiProductDetail() {
                     onClick={() => {
                       setMainImageIndex(i);
                       setManualVariantIndex(null);
+                      scrollToImage(i);
                     }}
                     aria-label={`View image ${i + 1}`}
                     aria-current={i === mainImageIndex}

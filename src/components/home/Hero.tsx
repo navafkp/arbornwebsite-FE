@@ -145,7 +145,7 @@ export default function Hero() {
             <SecureLine className="mt-9 flex items-center gap-2 text-xs text-[var(--muted)]" />
           </div>
 
-          <div className="relative mt-3 aspect-[6/5] w-full overflow-hidden rounded-3xl md:mt-0 md:aspect-[4/5]">
+          <div className="relative mt-3 aspect-[11/10] w-full overflow-hidden rounded-3xl md:mt-0 md:aspect-[3/4]">
             <Image
               src={HERO_IMAGE}
               alt="Woman relaxing in Arborn nightwear"
