@@ -9,6 +9,7 @@ import { withBasePath } from "@/lib/asset-path";
 import { getPreferredSize } from "@/lib/preferred-size";
 
 const HERO_IMAGE = withBasePath("/images/arborn-nightwear.png");
+const LOGO_IMAGE = withBasePath("/arborn.webp");
 
 const TRUST_ITEMS = [
   {
@@ -103,9 +104,13 @@ export default function Hero() {
 
           <div className="flex flex-col items-center pt-2 text-center">
             <BowIcon className="h-10 w-10 text-accent" />
-            <span className="mt-1 font-serif text-2xl tracking-[0.18em] text-foreground">
-              ARBORN
-            </span>
+            <Image
+              src={LOGO_IMAGE}
+              alt="Arborn"
+              width={200}
+              height={200}
+              className="mt-1 h-24 w-24 object-contain"
+            />
             <span className="mt-0.5 text-[10px] tracking-[0.4em] text-[var(--muted)]">
               NIGHTWEAR
             </span>
