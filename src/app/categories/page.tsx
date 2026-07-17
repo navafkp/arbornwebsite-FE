@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getExplore, type ExploreItem } from "@/lib/api-client";
+import BackButton from "@/components/ui/BackButton";
 
 type ExploreCard = ExploreItem & { kind: "category" | "tag" };
 
@@ -25,6 +26,7 @@ export default function CategoriesPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <BackButton className="mb-4" />
       <h1 className="font-serif text-3xl">Categories</h1>
       <p className="mt-1 text-sm text-[var(--muted)]">Find your perfect fit by category.</p>
 

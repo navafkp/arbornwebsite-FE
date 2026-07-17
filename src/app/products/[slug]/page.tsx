@@ -5,6 +5,7 @@ import { getReviewsForProduct } from "@/lib/data/reviews";
 import ProductDetailClient from "@/components/product/ProductDetailClient";
 import ProductReviewsSection from "@/components/reviews/ProductReviewsSection";
 import ProductRailSection from "@/components/home/ProductRailSection";
+import BackButton from "@/components/ui/BackButton";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -43,6 +44,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   return (
     <div>
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <BackButton className="mb-4" />
         <ProductDetailClient product={product} />
         <ProductReviewsSection product={product} reviews={reviews} />
       </div>

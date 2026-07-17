@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { getProductBySlug } from "@/lib/data/products";
 import { formatPrice } from "@/lib/utils";
 import ContactForm from "@/components/contact/ContactForm";
+import BackButton from "@/components/ui/BackButton";
 
 // Static-export (GitHub Pages) version of the /contact page logic. There's no
 // server at request time to read the URL's query string, so this reads it in
@@ -23,6 +24,7 @@ export default function ContactPageBridge() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-14 sm:px-6 lg:px-8">
+      <BackButton className="mb-4" />
       <div className="mb-10 text-center">
         <h1 className="font-serif text-4xl">Contact Us</h1>
         <p className="mx-auto mt-3 max-w-md text-sm text-[var(--muted)]">

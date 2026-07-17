@@ -9,6 +9,7 @@ import { formatPrice } from "@/lib/utils";
 import ColorSwatch from "@/components/ui/ColorSwatch";
 import RatingStars from "@/components/ui/RatingStars";
 import ApiProductCard from "@/components/products/ApiProductCard";
+import BackButton from "@/components/ui/BackButton";
 
 function humanize(slug: string) {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -99,6 +100,7 @@ export default function ApiProductDetail() {
   if (loadState === "loading") {
     return (
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <BackButton className="mb-4" />
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           <div className="aspect-[3/4] w-full animate-pulse rounded-xl bg-black/5" />
           <div className="flex flex-col gap-3">
@@ -113,6 +115,7 @@ export default function ApiProductDetail() {
   if (loadState === "not-found" || loadState === "error" || !product) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <BackButton className="mb-4" />
         <p className="rounded-2xl border border-dashed border-black/15 px-4 py-3.5 text-sm text-[var(--muted)]">
           {loadState === "not-found"
             ? "No product specified."
@@ -132,6 +135,7 @@ export default function ApiProductDetail() {
   return (
     <div>
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <BackButton className="mb-4" />
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           <div>
             {allImages.length > 0 ? (

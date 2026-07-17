@@ -10,6 +10,7 @@ import ProfileCard from "@/components/profile/ProfileCard";
 import RewardCard from "@/components/profile/RewardCard";
 import OrderPhotoGrid from "@/components/profile/OrderPhotoGrid";
 import SettingsSection from "@/components/profile/SettingsSection";
+import BackButton from "@/components/ui/BackButton";
 
 export default function ProfilePageClient() {
   const router = useRouter();
@@ -44,6 +45,7 @@ export default function ProfilePageClient() {
   if (!isLoggedIn) {
     return (
       <div className="mx-auto flex max-w-sm flex-col items-center px-4 py-24 text-center sm:px-6">
+        <BackButton className="mb-6 self-start" />
         <svg className="h-12 w-12 text-black/20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
           <circle cx="12" cy="8" r="3.5" />
           <path d="M4.5 20c1.6-3.3 4.4-5 7.5-5s5.9 1.7 7.5 5" strokeLinecap="round" />
@@ -91,6 +93,7 @@ export default function ProfilePageClient() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <BackButton className="mb-4" />
       <h1 className="font-serif text-3xl">
         My Account{syncing && <span className="ml-2 text-xs font-sans text-[var(--muted)]">Syncing…</span>}
       </h1>

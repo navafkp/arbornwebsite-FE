@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { googleLogin, logoutRequest, type BackendUser } from "@/lib/api-client";
+import { clearPreferredSize } from "@/lib/preferred-size";
 
 export interface AuthUser {
   id?: number;
@@ -129,6 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setAccessToken(null);
     setRefreshToken(null);
+    clearPreferredSize();
   }
 
   return (

@@ -5,6 +5,7 @@ import { useState, type FormEvent } from "react";
 import { useShop } from "@/lib/shop-context";
 import { getProductBySlug } from "@/lib/data/products";
 import { formatPrice } from "@/lib/utils";
+import BackButton from "@/components/ui/BackButton";
 
 export default function CheckoutPage() {
   const { cart, cartSubtotal, clearCart } = useShop();
@@ -22,6 +23,7 @@ export default function CheckoutPage() {
   if (placed) {
     return (
       <div className="mx-auto flex max-w-lg flex-col items-center px-4 py-24 text-center sm:px-6">
+        <BackButton className="mb-6 self-start" />
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent-soft text-accent">
           <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
@@ -46,6 +48,7 @@ export default function CheckoutPage() {
   if (cart.length === 0) {
     return (
       <div className="mx-auto flex max-w-lg flex-col items-center px-4 py-24 text-center sm:px-6">
+        <BackButton className="mb-6 self-start" />
         <h1 className="font-serif text-2xl">Nothing to check out</h1>
         <p className="mt-2 text-sm text-[var(--muted)]">Your cart is currently empty.</p>
         <Link
@@ -62,6 +65,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+      <BackButton className="mb-4" />
       <h1 className="font-serif text-3xl">Checkout</h1>
 
       <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-3">

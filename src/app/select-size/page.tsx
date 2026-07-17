@@ -3,10 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
-import { setPreferredSize } from "@/lib/preferred-size";
+import { getPreferredSize, setPreferredSize } from "@/lib/preferred-size";
 import { getSizes, type BackendSize } from "@/lib/api-client";
 import { BowIcon, SparkleIcon, HeartIcon, CloudShape, BunnyIllustration } from "@/components/ui/decor";
 import ScrollHint from "@/components/ui/ScrollHint";
+import BackButton from "@/components/ui/BackButton";
 
 export default function SelectSizePage() {
   const router = useRouter();
@@ -20,6 +21,14 @@ export default function SelectSizePage() {
       .then((data) => {
         setSizes(data);
         setLoadState("ready");
+        // Pre-select whatever size is already stored, so re-opening this
+        // page (e.g. via "Change size") shows the current choice instead
+        // of nothing — and picking a different one still overwrites it.
+        const preferred = getPreferredSize();
+        if (preferred) {
+          const preferredCode = Number(preferred);
+          if (data.some((s) => s.size_code === preferredCode)) setSelected(preferredCode);
+        }
       })
       .catch(() => setLoadState("error"));
   }, []);
@@ -39,16 +48,7 @@ export default function SelectSizePage() {
 
   return (
     <div className="relative mx-auto flex min-h-screen max-w-xl flex-col overflow-hidden px-4 py-5 sm:px-6">
-      <button
-        type="button"
-        onClick={() => router.back()}
-        aria-label="Go back"
-        className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-accent-soft text-accent-dark"
-      >
-        <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
-          <path d="M15 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </button>
+      <BackButton className="mb-3" />
 
       <div className="flex items-start justify-between gap-4">
         <h1 className="font-serif text-2xl leading-tight font-bold sm:text-3xl">

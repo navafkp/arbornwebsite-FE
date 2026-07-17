@@ -15,3 +15,11 @@ export function setPreferredSize(size: string) {
     // ignore write failures (e.g. private browsing)
   }
 }
+
+export function clearPreferredSize() {
+  try {
+    localStorage.removeItem(KEY);
+  } catch {
+    // ignore write failures (e.g. private browsing)
+  }
+}

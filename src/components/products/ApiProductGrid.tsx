@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getProducts, getExplore, getSizes, type ApiProduct } from "@/lib/api-client";
 import ApiProductCard from "@/components/products/ApiProductCard";
+import BackButton from "@/components/ui/BackButton";
 
 function humanize(slug: string) {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -64,6 +65,8 @@ export default function ApiProductGrid({
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <BackButton className="mb-4" />
+
       {size && (
         <div className="mb-6 flex items-center justify-between rounded-xl bg-accent-soft px-4 py-3 text-sm">
           <span>

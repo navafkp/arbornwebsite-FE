@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth-context";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
+import BackButton from "@/components/ui/BackButton";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -30,6 +31,7 @@ export default function SignUpPage() {
 
   return (
     <div className="mx-auto max-w-sm px-4 py-14 sm:px-6">
+      <BackButton className="mb-4" />
       <h1 className="font-serif text-3xl">Create Account</h1>
       <p className="mt-2 text-sm text-[var(--muted)]">
         Sign up to track your orders and save your details.
