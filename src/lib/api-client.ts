@@ -139,10 +139,13 @@ export interface ApiProduct {
   tag: ApiProductTag | null;
 }
 
-export async function getProducts(filters: { category?: string; tag?: string } = {}) {
+export async function getProducts(
+  filters: { category?: string; tag?: string; size?: number } = {},
+) {
   const query = new URLSearchParams();
   if (filters.category) query.set("category", filters.category);
   if (filters.tag) query.set("tag", filters.tag);
+  if (filters.size) query.set("size", String(filters.size));
   const qs = query.toString();
   const res = await request<{ data: ApiProduct[] }>(`/products/${qs ? `?${qs}` : ""}`, {
     baseUrl: CATALOG_BASE_URL,

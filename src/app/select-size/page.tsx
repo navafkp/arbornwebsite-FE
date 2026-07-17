@@ -2,31 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import type { Size } from "@/lib/types";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { setPreferredSize } from "@/lib/preferred-size";
 import { getSizes, type BackendSize } from "@/lib/api-client";
 import { BowIcon, SparkleIcon, HeartIcon, CloudShape, BunnyIllustration } from "@/components/ui/decor";
 import ScrollHint from "@/components/ui/ScrollHint";
 
-// The backend's size labels (XXL, XXXL, XXXXL) differ from the Size literals
-// the rest of the app (mock product catalog, /products filtering) expects
-// (2XL, 3XL, 4XL) — normalize so downstream filtering keeps working.
-const SIZE_ALIASES: Record<string, Size> = {
-  XXL: "2XL",
-  XXXL: "3XL",
-  XXXXL: "4XL",
-};
-
-function toAppSize(displayText: string): Size {
-  return (SIZE_ALIASES[displayText] ?? displayText) as Size;
-}
-
 export default function SelectSizePage() {
   const router = useRouter();
   const [sizes, setSizes] = useState<BackendSize[]>([]);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
-  const [selected, setSelected] = useState<Size | null>(null);
+  const [selected, setSelected] = useState<number | null>(null);
   const continueRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -40,12 +26,14 @@ export default function SelectSizePage() {
 
   function handleContinue() {
     if (!selected) return;
-    setPreferredSize(selected);
+    // /products reads this size_code straight into the real products API
+    // (?size=<code>), so store the code itself rather than the display text.
+    setPreferredSize(String(selected));
     router.push(`/products?size=${selected}`);
   }
 
-  function handleSelectSize(displayText: string) {
-    setSelected(toAppSize(displayText));
+  function handleSelectSize(sizeCode: number) {
+    setSelected(sizeCode);
     continueRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
@@ -96,14 +84,14 @@ export default function SelectSizePage() {
             <button
               key={size_code}
               type="button"
-              onClick={() => handleSelectSize(display_text)}
+              onClick={() => handleSelectSize(size_code)}
               className={`relative flex flex-col items-center justify-center gap-0.5 rounded-2xl border py-3 transition ${
-                selected === toAppSize(display_text)
+                selected === size_code
                   ? "border-accent bg-accent-soft"
                   : "border-black/10 hover:border-black/25"
               }`}
             >
-              {selected === toAppSize(display_text) && (
+              {selected === size_code && (
                 <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-white">
                   <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                     <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />

@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getProducts, getExplore, type ApiProduct } from "@/lib/api-client";
+import { getProducts, getExplore, getSizes, type ApiProduct } from "@/lib/api-client";
 import ApiProductCard from "@/components/products/ApiProductCard";
 
 function humanize(slug: string) {
@@ -11,9 +12,11 @@ function humanize(slug: string) {
 export default function ApiProductGrid({
   category,
   tag,
+  size,
 }: {
   category?: string;
   tag?: string;
+  size?: number;
 }) {
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
@@ -25,16 +28,17 @@ export default function ApiProductGrid({
   // was clicked, instead of trusting each product's own (possibly
   // different) tag.
   const [activeTagName, setActiveTagName] = useState<string | null>(null);
+  const [activeSizeName, setActiveSizeName] = useState<string | null>(null);
 
   useEffect(() => {
     setLoadState("loading");
-    getProducts({ category, tag })
+    getProducts({ category, tag, size })
       .then((data) => {
         setProducts(data);
         setLoadState("ready");
       })
       .catch(() => setLoadState("error"));
-  }, [category, tag]);
+  }, [category, tag, size]);
 
   useEffect(() => {
     if (!tag) {
@@ -46,10 +50,34 @@ export default function ApiProductGrid({
       .catch(() => setActiveTagName(null));
   }, [tag]);
 
+  useEffect(() => {
+    if (!size) {
+      setActiveSizeName(null);
+      return;
+    }
+    getSizes()
+      .then((sizes) => setActiveSizeName(sizes.find((s) => s.size_code === size)?.display_text ?? null))
+      .catch(() => setActiveSizeName(null));
+  }, [size]);
+
   const heading = category ? humanize(category) : tag ? (activeTagName ?? humanize(tag)) : "Products";
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      {size && (
+        <div className="mb-6 flex items-center justify-between rounded-xl bg-accent-soft px-4 py-3 text-sm">
+          <span>
+            Showing products for size: <strong>{activeSizeName ?? size}</strong>
+          </span>
+          <Link
+            href="/select-size"
+            className="text-xs font-medium text-accent-dark underline underline-offset-2"
+          >
+            Change
+          </Link>
+        </div>
+      )}
+
       <h1 className="font-serif text-3xl">{heading}</h1>
       <p className="mt-1 text-sm text-[var(--muted)]">
         {loadState === "ready"

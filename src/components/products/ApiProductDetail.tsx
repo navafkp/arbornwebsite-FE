@@ -22,8 +22,11 @@ export default function ApiProductDetail() {
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error" | "not-found">(
     "loading",
   );
-  const [variantIndex, setVariantIndex] = useState(0);
   const [mainImageIndex, setMainImageIndex] = useState(0);
+  // Set only when a color has no images of its own, so there's nothing to
+  // scroll the shared gallery to — the gallery keeps showing whatever was
+  // last visible, and this fills in for price/size purposes instead.
+  const [manualVariantIndex, setManualVariantIndex] = useState<number | null>(null);
   const [selectedSizeCode, setSelectedSizeCode] = useState<number | null>(null);
 
   useEffect(() => {
@@ -35,31 +38,50 @@ export default function ApiProductDetail() {
     getProductDetail(slug)
       .then((data) => {
         setProduct(data);
-        setVariantIndex(0);
         setMainImageIndex(0);
+        setManualVariantIndex(null);
         setSelectedSizeCode(data.variants[0]?.sizes[0]?.size_code ?? null);
         setLoadState("ready");
       })
       .catch(() => setLoadState("error"));
   }, [slug]);
 
+  // All variants' images combined into one scrollable gallery, instead of
+  // swapping the whole gallery out per color — grouped by variant, primary
+  // image first within each group.
+  const allImages = useMemo(() => {
+    if (!product) return [];
+    return product.variants.flatMap((v, variantIndex) =>
+      [...v.images]
+        .sort((a, b) => {
+          if (a.is_primary !== b.is_primary) return a.is_primary ? -1 : 1;
+          return a.display_order - b.display_order;
+        })
+        .map((img) => ({ ...img, variantIndex })),
+    );
+  }, [product]);
+
+  const activeVariantIndex = allImages[mainImageIndex]?.variantIndex ?? manualVariantIndex ?? 0;
+  const variant = product?.variants[activeVariantIndex];
+
+  // Reset size/price selection whenever scrolling the gallery (or picking an
+  // imageless color) lands on a different variant.
+  useEffect(() => {
+    setSelectedSizeCode(product?.variants[activeVariantIndex]?.sizes[0]?.size_code ?? null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeVariantIndex]);
+
   function selectVariant(index: number) {
-    setVariantIndex(index);
-    setMainImageIndex(0);
-    setSelectedSizeCode(product?.variants[index]?.sizes[0]?.size_code ?? null);
+    const firstImage = allImages.findIndex((img) => img.variantIndex === index);
+    if (firstImage >= 0) {
+      setMainImageIndex(firstImage);
+      setManualVariantIndex(null);
+    } else {
+      setManualVariantIndex(index);
+    }
   }
 
-  const variant = product?.variants[variantIndex];
-
-  const images = useMemo(() => {
-    if (!variant) return [];
-    return [...variant.images].sort((a, b) => {
-      if (a.is_primary !== b.is_primary) return a.is_primary ? -1 : 1;
-      return a.display_order - b.display_order;
-    });
-  }, [variant]);
-
-  const mainImage = images[mainImageIndex] ?? images[0];
+  const mainImage = allImages[mainImageIndex] ?? allImages[0];
 
   if (loadState === "loading") {
     return (
@@ -116,13 +138,16 @@ export default function ApiProductDetail() {
               )}
             </div>
 
-            {images.length > 1 && (
-              <div className="mt-3 flex gap-2">
-                {images.map((img, i) => (
+            {allImages.length > 1 && (
+              <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                {allImages.map((img, i) => (
                   <button
                     key={img.id}
                     type="button"
-                    onClick={() => setMainImageIndex(i)}
+                    onClick={() => {
+                      setMainImageIndex(i);
+                      setManualVariantIndex(null);
+                    }}
                     aria-label={`View image ${i + 1}`}
                     aria-current={i === mainImageIndex}
                     className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg ring-1 ring-offset-2 transition ${
@@ -177,7 +202,7 @@ export default function ApiProductDetail() {
                       hex={v.color_code}
                       name={v.color}
                       size="md"
-                      selected={i === variantIndex}
+                      selected={i === activeVariantIndex}
                       onClick={() => selectVariant(i)}
                     />
                   ))}
@@ -252,9 +277,20 @@ export default function ApiProductDetail() {
         )}
       </div>
 
+      {product.recommended_products.length > 0 && (
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <h2 className="font-serif text-2xl">Recommended for You</h2>
+          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {product.recommended_products.map((p) => (
+              <ApiProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {product.related_products.length > 0 && (
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-2xl">You May Also Like</h2>
+          <h2 className="font-serif text-2xl">Related Products</h2>
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {product.related_products.map((p) => (
               <ApiProductCard key={p.id} product={p} />
