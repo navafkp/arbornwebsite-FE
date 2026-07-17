@@ -123,3 +123,92 @@ export async function getExplore() {
   const res = await request<{ data: ExploreData }>("/explore/", { baseUrl: CATALOG_BASE_URL });
   return res.data;
 }
+
+export interface ApiProductTag {
+  name: string;
+  slug: string;
+}
+
+export interface ApiProduct {
+  id: number;
+  name: string;
+  slug: string;
+  base_price: string;
+  base_discount_price: string | null;
+  image_url: string | null;
+  tag: ApiProductTag | null;
+}
+
+export async function getProducts(filters: { category?: string; tag?: string } = {}) {
+  const query = new URLSearchParams();
+  if (filters.category) query.set("category", filters.category);
+  if (filters.tag) query.set("tag", filters.tag);
+  const qs = query.toString();
+  const res = await request<{ data: ApiProduct[] }>(`/products/${qs ? `?${qs}` : ""}`, {
+    baseUrl: CATALOG_BASE_URL,
+  });
+  return res.data;
+}
+
+export interface ApiProductVariantImage {
+  id: number;
+  image_url: string;
+  display_order: number;
+  is_primary: boolean;
+}
+
+export interface ApiProductVariantSize {
+  size_code: number;
+  display_text: string;
+  measurement: string;
+}
+
+export interface ApiProductVariant {
+  id: number;
+  color: string;
+  color_code: string;
+  price: string;
+  discount_price: string | null;
+  stock_quantity: number;
+  sizes: ApiProductVariantSize[];
+  images: ApiProductVariantImage[];
+}
+
+export interface ApiProductCategory {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+export interface ApiReview {
+  id?: number;
+  rating: number;
+  title?: string;
+  review?: string;
+  user_name?: string;
+  created_at?: string;
+}
+
+export interface ApiProductDetail {
+  id: number;
+  name: string;
+  slug: string;
+  short_description: string;
+  description: string;
+  base_price: string;
+  base_discount_price: string | null;
+  category: ApiProductCategory;
+  tags: string[];
+  variants: ApiProductVariant[];
+  recommended_products: ApiProduct[];
+  related_products: ApiProduct[];
+  review_summary: { average_rating: number; review_count: number };
+  reviews: ApiReview[];
+}
+
+export async function getProductDetail(slug: string) {
+  const res = await request<{ data: ApiProductDetail }>(`/products/${slug}/`, {
+    baseUrl: CATALOG_BASE_URL,
+  });
+  return res.data;
+}

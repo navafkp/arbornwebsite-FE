@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import ProductsPageClient from "@/components/products/ProductsPageClient";
+import ApiProductGrid from "@/components/products/ApiProductGrid";
 import { SORT_OPTIONS, type SortKey } from "@/lib/constants";
 import { getAllSizes } from "@/lib/data/products";
 import type { Size } from "@/lib/types";
@@ -13,9 +14,17 @@ import type { Size } from "@/lib/types";
 export default function ProductsSearchParamsBridge() {
   const searchParams = useSearchParams();
   const category = searchParams.get("category");
+  const tag = searchParams.get("tag");
   const search = searchParams.get("search");
   const sort = searchParams.get("sort");
   const size = searchParams.get("size");
+
+  // Category/tag entry points (e.g. from /categories) hit the real backend
+  // for live product data. Everything else still uses the mock catalog
+  // until the rest of the API (price/color/size filters) exists.
+  if (category || tag) {
+    return <ApiProductGrid category={category ?? undefined} tag={tag ?? undefined} />;
+  }
 
   const validSort = SORT_OPTIONS.find((o) => o.key === sort)?.key as SortKey | undefined;
   const validSize = getAllSizes().find((s) => s === size) as Size | undefined;
