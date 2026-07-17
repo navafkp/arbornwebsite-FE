@@ -4,8 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { getProductDetail, type ApiProductDetail as ApiProductDetailData } from "@/lib/api-client";
+import {
+  getProductDetail,
+  getSizes,
+  type ApiProductDetail as ApiProductDetailData,
+  type ApiProductVariant,
+} from "@/lib/api-client";
 import { formatPrice } from "@/lib/utils";
+import { getPreferredSize } from "@/lib/preferred-size";
 import ColorSwatch from "@/components/ui/ColorSwatch";
 import RatingStars from "@/components/ui/RatingStars";
 import ApiProductCard from "@/components/products/ApiProductCard";
@@ -13,6 +19,17 @@ import BackButton from "@/components/ui/BackButton";
 
 function humanize(slug: string) {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+// Which color variants to show: only the ones that offer the user's saved
+// size, so a product with e.g. an XL-only red and an L-available blue only
+// shows blue. Falls back to every variant if none of them have that size
+// (or no size is saved) — hiding everything would leave nothing to buy.
+function getVisibleVariantIndices(variants: ApiProductVariant[], preferredSizeCode: number | null) {
+  const all = variants.map((_, i) => i);
+  if (preferredSizeCode == null) return all;
+  const matching = all.filter((i) => variants[i].sizes.some((s) => s.size_code === preferredSizeCode));
+  return matching.length > 0 ? matching : all;
 }
 
 export default function ApiProductDetail() {
@@ -29,6 +46,8 @@ export default function ApiProductDetail() {
   // last visible, and this fills in for price/size purposes instead.
   const [manualVariantIndex, setManualVariantIndex] = useState<number | null>(null);
   const [selectedSizeCode, setSelectedSizeCode] = useState<number | null>(null);
+  const [preferredSizeCode, setPreferredSizeCode] = useState<number | null>(null);
+  const [preferredSizeName, setPreferredSizeName] = useState<string | null>(null);
   const galleryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,15 +58,40 @@ export default function ApiProductDetail() {
     setLoadState("loading");
     getProductDetail(slug)
       .then((data) => {
+        const preferred = getPreferredSize();
+        const preferredCode = preferred ? Number(preferred) : null;
+        const visibleIndices = getVisibleVariantIndices(data.variants, preferredCode);
+        const initialVariant = data.variants[visibleIndices[0] ?? 0];
+        const initialSize =
+          preferredCode != null && initialVariant?.sizes.some((s) => s.size_code === preferredCode)
+            ? preferredCode
+            : (initialVariant?.sizes[0]?.size_code ?? null);
+
         setProduct(data);
-        setMainImageIndex(0);
+        setPreferredSizeCode(preferredCode);
         setManualVariantIndex(null);
-        setSelectedSizeCode(data.variants[0]?.sizes[0]?.size_code ?? null);
+        // The first visible variant's images always start at position 0 in
+        // the (filtered) gallery, since it's built by iterating visible
+        // variants in order.
+        setMainImageIndex(0);
+        setSelectedSizeCode(initialSize);
         setLoadState("ready");
         galleryRef.current?.scrollTo({ left: 0 });
       })
       .catch(() => setLoadState("error"));
   }, [slug]);
+
+  useEffect(() => {
+    if (preferredSizeCode == null) {
+      setPreferredSizeName(null);
+      return;
+    }
+    getSizes()
+      .then((sizes) =>
+        setPreferredSizeName(sizes.find((s) => s.size_code === preferredSizeCode)?.display_text ?? null),
+      )
+      .catch(() => setPreferredSizeName(null));
+  }, [preferredSizeCode]);
 
   function scrollToImage(index: number) {
     const el = galleryRef.current;
@@ -61,30 +105,40 @@ export default function ApiProductDetail() {
     setMainImageIndex((current) => (current === index ? current : index));
   }
 
-  // All variants' images combined into one scrollable gallery, instead of
-  // swapping the whole gallery out per color — grouped by variant, primary
-  // image first within each group.
+  const visibleVariantIndices = useMemo(() => {
+    if (!product) return [];
+    return getVisibleVariantIndices(product.variants, preferredSizeCode);
+  }, [product, preferredSizeCode]);
+
+  // Only the visible variants' images, combined into one scrollable gallery
+  // instead of swapping the whole gallery out per color — grouped by
+  // variant (in visible order), primary image first within each group.
   const allImages = useMemo(() => {
     if (!product) return [];
-    return product.variants.flatMap((v, variantIndex) =>
-      [...v.images]
+    return visibleVariantIndices.flatMap((variantIndex) =>
+      [...product.variants[variantIndex].images]
         .sort((a, b) => {
           if (a.is_primary !== b.is_primary) return a.is_primary ? -1 : 1;
           return a.display_order - b.display_order;
         })
         .map((img) => ({ ...img, variantIndex })),
     );
-  }, [product]);
+  }, [product, visibleVariantIndices]);
 
-  const activeVariantIndex = allImages[mainImageIndex]?.variantIndex ?? manualVariantIndex ?? 0;
+  const activeVariantIndex =
+    allImages[mainImageIndex]?.variantIndex ?? manualVariantIndex ?? visibleVariantIndices[0] ?? 0;
   const variant = product?.variants[activeVariantIndex];
 
   // Reset size/price selection whenever scrolling the gallery (or picking an
-  // imageless color) lands on a different variant.
+  // imageless color) lands on a different variant — locking back to the
+  // saved size if this variant offers it, else falling back to its first.
   useEffect(() => {
-    setSelectedSizeCode(product?.variants[activeVariantIndex]?.sizes[0]?.size_code ?? null);
+    const v = product?.variants[activeVariantIndex];
+    if (!v) return;
+    const matchesPreferred = preferredSizeCode != null && v.sizes.some((s) => s.size_code === preferredSizeCode);
+    setSelectedSizeCode(matchesPreferred ? preferredSizeCode : (v.sizes[0]?.size_code ?? null));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeVariantIndex]);
+  }, [activeVariantIndex, preferredSizeCode]);
 
   function selectVariant(index: number) {
     const firstImage = allImages.findIndex((img) => img.variantIndex === index);
@@ -131,6 +185,10 @@ export default function ApiProductDetail() {
     : product.base_discount_price
       ? Number(product.base_discount_price)
       : null;
+
+  const sizeMatchExists =
+    preferredSizeCode != null &&
+    product.variants.some((v) => v.sizes.some((s) => s.size_code === preferredSizeCode));
 
   return (
     <div>
@@ -212,26 +270,52 @@ export default function ApiProductDetail() {
               />
             )}
 
+            {preferredSizeCode != null && (
+              <div className="flex items-center justify-between rounded-xl bg-accent-soft px-4 py-3 text-sm">
+                <span>
+                  {sizeMatchExists ? (
+                    <>
+                      Showing your size: <strong>{preferredSizeName ?? preferredSizeCode}</strong>
+                    </>
+                  ) : (
+                    <>
+                      Not available in size <strong>{preferredSizeName ?? preferredSizeCode}</strong> —
+                      showing all sizes
+                    </>
+                  )}
+                </span>
+                <Link
+                  href="/select-size"
+                  className="text-xs font-medium text-accent-dark underline underline-offset-2"
+                >
+                  Change
+                </Link>
+              </div>
+            )}
+
             {product.short_description && (
               <p className="text-sm text-[var(--muted)]">{product.short_description}</p>
             )}
 
-            {product.variants.length > 0 && (
+            {visibleVariantIndices.length > 1 && (
               <div>
                 <span className="text-xs tracking-wide text-[var(--muted)] uppercase">
                   Color: <span className="normal-case text-black">{variant?.color}</span>
                 </span>
                 <div className="mt-2 flex items-center gap-2">
-                  {product.variants.map((v, i) => (
-                    <ColorSwatch
-                      key={v.id}
-                      hex={v.color_code}
-                      name={v.color}
-                      size="md"
-                      selected={i === activeVariantIndex}
-                      onClick={() => selectVariant(i)}
-                    />
-                  ))}
+                  {visibleVariantIndices.map((i) => {
+                    const v = product.variants[i];
+                    return (
+                      <ColorSwatch
+                        key={v.id}
+                        hex={v.color_code}
+                        name={v.color}
+                        size="md"
+                        selected={i === activeVariantIndex}
+                        onClick={() => selectVariant(i)}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -240,21 +324,34 @@ export default function ApiProductDetail() {
               <div>
                 <span className="text-xs tracking-wide text-[var(--muted)] uppercase">Size</span>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {variant.sizes.map((s) => (
-                    <button
-                      key={s.size_code}
-                      type="button"
-                      onClick={() => setSelectedSizeCode(s.size_code)}
-                      title={s.measurement}
-                      className={`rounded-full border px-4 py-2 text-xs font-medium transition ${
-                        selectedSizeCode === s.size_code
-                          ? "border-accent bg-accent-soft"
-                          : "border-black/15 hover:border-black/30"
-                      }`}
-                    >
-                      {s.display_text}
-                    </button>
-                  ))}
+                  {(sizeMatchExists
+                    ? variant.sizes.filter((s) => s.size_code === preferredSizeCode)
+                    : variant.sizes
+                  ).map((s) =>
+                    sizeMatchExists ? (
+                      <span
+                        key={s.size_code}
+                        title={s.measurement}
+                        className="rounded-full border border-accent bg-accent-soft px-4 py-2 text-xs font-medium"
+                      >
+                        {s.display_text}
+                      </span>
+                    ) : (
+                      <button
+                        key={s.size_code}
+                        type="button"
+                        onClick={() => setSelectedSizeCode(s.size_code)}
+                        title={s.measurement}
+                        className={`rounded-full border px-4 py-2 text-xs font-medium transition ${
+                          selectedSizeCode === s.size_code
+                            ? "border-accent bg-accent-soft"
+                            : "border-black/15 hover:border-black/30"
+                        }`}
+                      >
+                        {s.display_text}
+                      </button>
+                    ),
+                  )}
                 </div>
               </div>
             )}
@@ -303,22 +400,22 @@ export default function ApiProductDetail() {
         )}
       </div>
 
-      {product.recommended_products.length > 0 && (
+      {product.related_products.length > 0 && (
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-2xl">Recommended for You</h2>
+          <h2 className="font-serif text-2xl">Related Products</h2>
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {product.recommended_products.map((p) => (
+            {product.related_products.map((p) => (
               <ApiProductCard key={p.id} product={p} />
             ))}
           </div>
         </div>
       )}
 
-      {product.related_products.length > 0 && (
+      {product.recommended_products.length > 0 && (
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-2xl">Related Products</h2>
+          <h2 className="font-serif text-2xl">Recommended for You</h2>
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {product.related_products.map((p) => (
+            {product.recommended_products.map((p) => (
               <ApiProductCard key={p.id} product={p} />
             ))}
           </div>
