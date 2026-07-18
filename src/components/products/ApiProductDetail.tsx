@@ -11,7 +11,7 @@ import {
   type ApiProductVariant,
 } from "@/lib/api-client";
 import { formatPrice } from "@/lib/utils";
-import { getPreferredSize } from "@/lib/preferred-size";
+import { getPreferredSizes, clearPreferredSize } from "@/lib/preferred-size";
 import ColorSwatch from "@/components/ui/ColorSwatch";
 import RatingStars from "@/components/ui/RatingStars";
 import ApiProductCard from "@/components/products/ApiProductCard";
@@ -25,10 +25,10 @@ function humanize(slug: string) {
 // size, so a product with e.g. an XL-only red and an L-available blue only
 // shows blue. Falls back to every variant if none of them have that size
 // (or no size is saved) — hiding everything would leave nothing to buy.
-function getVisibleVariantIndices(variants: ApiProductVariant[], preferredSizeCode: number | null) {
+function getVisibleVariantIndices(variants: ApiProductVariant[], preferredSizeCodes: number[]) {
   const all = variants.map((_, i) => i);
-  if (preferredSizeCode == null) return all;
-  const matching = all.filter((i) => variants[i].sizes.some((s) => s.size_code === preferredSizeCode));
+  if (preferredSizeCodes.length === 0) return all;
+  const matching = all.filter((i) => variants[i].sizes.some((s) => preferredSizeCodes.includes(s.size_code)));
   return matching.length > 0 ? matching : all;
 }
 
@@ -46,8 +46,8 @@ export default function ApiProductDetail() {
   // last visible, and this fills in for price/size purposes instead.
   const [manualVariantIndex, setManualVariantIndex] = useState<number | null>(null);
   const [selectedSizeCode, setSelectedSizeCode] = useState<number | null>(null);
-  const [preferredSizeCode, setPreferredSizeCode] = useState<number | null>(null);
-  const [preferredSizeName, setPreferredSizeName] = useState<string | null>(null);
+  const [preferredSizeCodes, setPreferredSizeCodes] = useState<number[]>([]);
+  const [preferredSizeNames, setPreferredSizeNames] = useState<string[]>([]);
   const galleryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -56,19 +56,18 @@ export default function ApiProductDetail() {
       return;
     }
     setLoadState("loading");
-    const preferred = getPreferredSize();
-    const preferredCode = preferred ? Number(preferred) : null;
-    getProductDetail(slug, preferredCode ?? undefined)
+    const preferredCodes = getPreferredSizes();
+    getProductDetail(slug, preferredCodes)
       .then((data) => {
-        const visibleIndices = getVisibleVariantIndices(data.variants, preferredCode);
+        const visibleIndices = getVisibleVariantIndices(data.variants, preferredCodes);
         const initialVariant = data.variants[visibleIndices[0] ?? 0];
         const initialSize =
-          preferredCode != null && initialVariant?.sizes.some((s) => s.size_code === preferredCode)
-            ? preferredCode
+          preferredCodes.length > 0 && initialVariant?.sizes.some((s) => preferredCodes.includes(s.size_code))
+            ? initialVariant.sizes.find(s => preferredCodes.includes(s.size_code))?.size_code ?? null
             : (initialVariant?.sizes[0]?.size_code ?? null);
 
         setProduct(data);
-        setPreferredSizeCode(preferredCode);
+        setPreferredSizeCodes(preferredCodes);
         setManualVariantIndex(null);
         // The first visible variant's images always start at position 0 in
         // the (filtered) gallery, since it's built by iterating visible
@@ -82,16 +81,25 @@ export default function ApiProductDetail() {
   }, [slug]);
 
   useEffect(() => {
-    if (preferredSizeCode == null) {
-      setPreferredSizeName(null);
+    if (preferredSizeCodes.length === 0) {
+      setPreferredSizeNames([]);
       return;
     }
     getSizes()
-      .then((sizes) =>
-        setPreferredSizeName(sizes.find((s) => s.size_code === preferredSizeCode)?.display_text ?? null),
-      )
-      .catch(() => setPreferredSizeName(null));
-  }, [preferredSizeCode]);
+      .then((sizes) => {
+        const names = preferredSizeCodes.map(
+          (code) => sizes.find((s) => s.size_code === code)?.display_text ?? String(code)
+        );
+        setPreferredSizeNames(names);
+      })
+      .catch(() => setPreferredSizeNames([]));
+  }, [preferredSizeCodes]);
+
+  function handleClearSize() {
+    clearPreferredSize();
+    setPreferredSizeCodes([]);
+    setPreferredSizeNames([]);
+  }
 
   function scrollToImage(index: number) {
     const el = galleryRef.current;
@@ -107,8 +115,8 @@ export default function ApiProductDetail() {
 
   const visibleVariantIndices = useMemo(() => {
     if (!product) return [];
-    return getVisibleVariantIndices(product.variants, preferredSizeCode);
-  }, [product, preferredSizeCode]);
+    return getVisibleVariantIndices(product.variants, preferredSizeCodes);
+  }, [product, preferredSizeCodes]);
 
   // Only the visible variants' images, combined into one scrollable gallery
   // instead of swapping the whole gallery out per color — grouped by
@@ -135,10 +143,10 @@ export default function ApiProductDetail() {
   useEffect(() => {
     const v = product?.variants[activeVariantIndex];
     if (!v) return;
-    const matchesPreferred = preferredSizeCode != null && v.sizes.some((s) => s.size_code === preferredSizeCode);
-    setSelectedSizeCode(matchesPreferred ? preferredSizeCode : (v.sizes[0]?.size_code ?? null));
+    const matchedSize = v.sizes.find(s => preferredSizeCodes.includes(s.size_code));
+    setSelectedSizeCode(matchedSize ? matchedSize.size_code : (v.sizes[0]?.size_code ?? null));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeVariantIndex, preferredSizeCode]);
+  }, [activeVariantIndex, preferredSizeCodes]);
 
   function selectVariant(index: number) {
     const firstImage = allImages.findIndex((img) => img.variantIndex === index);
@@ -187,8 +195,8 @@ export default function ApiProductDetail() {
       : null;
 
   const sizeMatchExists =
-    preferredSizeCode != null &&
-    product.variants.some((v) => v.sizes.some((s) => s.size_code === preferredSizeCode));
+    preferredSizeCodes.length > 0 &&
+    product.variants.some((v) => v.sizes.some((s) => preferredSizeCodes.includes(s.size_code)));
 
   return (
     <div>
@@ -234,9 +242,8 @@ export default function ApiProductDetail() {
                     }}
                     aria-label={`View image ${i + 1}`}
                     aria-current={i === mainImageIndex}
-                    className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg ring-1 ring-offset-2 transition ${
-                      i === mainImageIndex ? "ring-accent" : "ring-black/10 hover:ring-black/30"
-                    }`}
+                    className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg ring-1 ring-offset-2 transition ${i === mainImageIndex ? "ring-accent" : "ring-black/10 hover:ring-black/30"
+                      }`}
                   >
                     <Image src={img.image_url} alt="" fill sizes="64px" className="object-cover" />
                   </button>
@@ -270,25 +277,44 @@ export default function ApiProductDetail() {
               />
             )}
 
-            {preferredSizeCode != null && (
+            {preferredSizeCodes.length > 0 ? (
               <div className="flex items-center justify-between rounded-xl bg-accent-soft px-4 py-3 text-sm">
                 <span>
                   {sizeMatchExists ? (
                     <>
-                      Showing your size: <strong>{preferredSizeName ?? preferredSizeCode}</strong>
+                      Showing your size{preferredSizeNames.length > 1 ? "s" : ""}: <strong>{preferredSizeNames.join(", ")}</strong>
                     </>
                   ) : (
                     <>
-                      Not available in size <strong>{preferredSizeName ?? preferredSizeCode}</strong> —
+                      Not available in size{preferredSizeNames.length > 1 ? "s" : ""} <strong>{preferredSizeNames.join(", ")}</strong> —
                       showing all sizes
                     </>
                   )}
                 </span>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleClearSize}
+                    className="text-xs font-medium text-[var(--muted)] underline underline-offset-2 hover:text-black transition-colors"
+                  >
+                    Clear size
+                  </button>
+                  <Link
+                    href="/select-size"
+                    className="text-xs font-medium text-accent-dark underline underline-offset-2"
+                  >
+                    Change
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between rounded-xl border border-dashed border-accent/40 px-4 py-3 text-sm">
+                <span>Choose your size for a better fit.</span>
                 <Link
                   href="/select-size"
                   className="text-xs font-medium text-accent-dark underline underline-offset-2"
                 >
-                  Change
+                  Choose size
                 </Link>
               </div>
             )}
@@ -325,7 +351,7 @@ export default function ApiProductDetail() {
                 <span className="text-xs tracking-wide text-[var(--muted)] uppercase">Size</span>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {(sizeMatchExists
-                    ? variant.sizes.filter((s) => s.size_code === preferredSizeCode)
+                    ? variant.sizes.filter((s) => preferredSizeCodes.includes(s.size_code))
                     : variant.sizes
                   ).map((s) =>
                     sizeMatchExists ? (
@@ -342,11 +368,10 @@ export default function ApiProductDetail() {
                         type="button"
                         onClick={() => setSelectedSizeCode(s.size_code)}
                         title={s.measurement}
-                        className={`rounded-full border px-4 py-2 text-xs font-medium transition ${
-                          selectedSizeCode === s.size_code
-                            ? "border-accent bg-accent-soft"
-                            : "border-black/15 hover:border-black/30"
-                        }`}
+                        className={`rounded-full border px-4 py-2 text-xs font-medium transition ${selectedSizeCode === s.size_code
+                          ? "border-accent bg-accent-soft"
+                          : "border-black/15 hover:border-black/30"
+                          }`}
                       >
                         {s.display_text}
                       </button>

@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getProducts, getExplore, getSizes, type ApiProduct } from "@/lib/api-client";
-import { getPreferredSize } from "@/lib/preferred-size";
+import { getPreferredSizes, clearPreferredSize } from "@/lib/preferred-size";
 import ApiProductCard from "@/components/products/ApiProductCard";
 import BackButton from "@/components/ui/BackButton";
 
@@ -14,12 +15,13 @@ function humanize(slug: string) {
 export default function ApiProductGrid({
   category,
   tag,
-  size,
+  sizes = [],
 }: {
   category?: string;
   tag?: string;
-  size?: number;
+  sizes?: number[];
 }) {
+  const router = useRouter();
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
   // The backend's per-product `tag` field is just that product's primary
@@ -30,31 +32,31 @@ export default function ApiProductGrid({
   // was clicked, instead of trusting each product's own (possibly
   // different) tag.
   const [activeTagName, setActiveTagName] = useState<string | null>(null);
-  const [activeSizeName, setActiveSizeName] = useState<string | null>(null);
+  const [activeSizeNames, setActiveSizeNames] = useState<string[]>([]);
   // The URL's own ?size= (e.g. from /select-size) wins when present;
   // otherwise fall back to whatever size the user already has saved, so
-  // plain/category/tag browsing is still scoped to their size without
+  // plain/category/tag browsing is still scoped to their sizes without
   // requiring them to go through /select-size again.
-  const [effectiveSize, setEffectiveSize] = useState<number | undefined>(size);
+  const [effectiveSizes, setEffectiveSizes] = useState<number[]>(sizes);
 
   useEffect(() => {
-    if (size) {
-      setEffectiveSize(size);
+    if (sizes && sizes.length > 0) {
+      setEffectiveSizes(sizes);
       return;
     }
-    const preferred = getPreferredSize();
-    setEffectiveSize(preferred ? Number(preferred) : undefined);
-  }, [size]);
+    const preferred = getPreferredSizes();
+    setEffectiveSizes(preferred);
+  }, [sizes]);
 
   useEffect(() => {
     setLoadState("loading");
-    getProducts({ category, tag, size: effectiveSize })
+    getProducts({ category, tag, sizes: effectiveSizes })
       .then((data) => {
         setProducts(data);
         setLoadState("ready");
       })
       .catch(() => setLoadState("error"));
-  }, [category, tag, effectiveSize]);
+  }, [category, tag, effectiveSizes]);
 
   useEffect(() => {
     if (!tag) {
@@ -67,31 +69,71 @@ export default function ApiProductGrid({
   }, [tag]);
 
   useEffect(() => {
-    if (!effectiveSize) {
-      setActiveSizeName(null);
+    if (effectiveSizes.length === 0) {
+      setActiveSizeNames([]);
       return;
     }
     getSizes()
-      .then((sizes) => setActiveSizeName(sizes.find((s) => s.size_code === effectiveSize)?.display_text ?? null))
-      .catch(() => setActiveSizeName(null));
-  }, [effectiveSize]);
+      .then((data) => {
+        const names = effectiveSizes.map((code) => {
+          const matched = data.find((s) => s.size_code === code);
+          return matched ? matched.display_text : String(code);
+        });
+        setActiveSizeNames(names);
+      })
+      .catch(() => setActiveSizeNames([]));
+  }, [effectiveSizes]);
 
   const heading = category ? humanize(category) : tag ? (activeTagName ?? humanize(tag)) : "Products";
+
+  function handleClearSize() {
+    clearPreferredSize();
+    setEffectiveSizes([]);
+    // Drop ?size= from the URL too, so a refresh doesn't bring it back via
+    // the `size` prop (it otherwise wins over the now-cleared saved size).
+    const params = new URLSearchParams();
+    if (category) params.set("category", category);
+    if (tag) params.set("tag", tag);
+    const qs = params.toString();
+    router.replace(`/products${qs ? `?${qs}` : ""}`);
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <BackButton className="mb-4" />
 
-      {effectiveSize && (
+      {effectiveSizes.length > 0 ? (
         <div className="mb-6 flex items-center justify-between rounded-xl bg-accent-soft px-4 py-3 text-sm">
           <span>
-            Showing products for size: <strong>{activeSizeName ?? effectiveSize}</strong>
+            Showing products for size:{" "}
+            <strong>
+              {activeSizeNames.length > 0 ? activeSizeNames.join(", ") : effectiveSizes.join(", ")}
+            </strong>
           </span>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleClearSize}
+              className="text-xs font-medium text-[var(--muted)] underline underline-offset-2 hover:text-black transition-colors"
+            >
+              Clear size
+            </button>
+            <Link
+              href="/select-size"
+              className="text-xs font-medium text-accent-dark underline underline-offset-2"
+            >
+              Change
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="mb-6 flex items-center justify-between rounded-xl border border-dashed border-accent/40 px-4 py-3 text-sm">
+          <span>Choose your size for a better fit.</span>
           <Link
             href="/select-size"
             className="text-xs font-medium text-accent-dark underline underline-offset-2"
           >
-            Change
+            Choose size
           </Link>
         </div>
       )}

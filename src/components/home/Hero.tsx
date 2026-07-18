@@ -3,10 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { BowIcon, SparkleIcon, HeartIcon, CloudShape } from "@/components/ui/decor";
 import ScrollHint from "@/components/ui/ScrollHint";
 import { withBasePath } from "@/lib/asset-path";
-import { getPreferredSize } from "@/lib/preferred-size";
+import { getPreferredSizes } from "@/lib/preferred-size";
 
 const HERO_IMAGE = withBasePath("/images/arborn-nightwear.png");
 const LOGO_IMAGE = withBasePath("/arborn.webp");
@@ -77,9 +78,11 @@ function StartShoppingButton({ className }: { className?: string }) {
     // One-time sync from localStorage (an external system) on mount. Starting
     // state at the default href keeps SSR/client markup identical, avoiding a
     // hydration mismatch that a lazy useState initializer would cause.
-    const preferredSize = getPreferredSize();
+    const preferredSizes = getPreferredSizes();
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (preferredSize) setHref(`/products?size=${preferredSize}`);
+    if (preferredSizes.length > 0) {
+      setHref(`/products?size=${preferredSizes.join("&size=")}`);
+    }
   }, []);
 
   return (
@@ -92,7 +95,35 @@ function StartShoppingButton({ className }: { className?: string }) {
   );
 }
 
+const VISITED_KEY = "arborn_visited";
+
 export default function Hero() {
+  const router = useRouter();
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(VISITED_KEY)) {
+        // Returning visitor — redirect immediately, no need to show hero.
+        const sizes = localStorage.getItem("arborn_preferred_size");
+        if (sizes) {
+          router.replace(`/products?size=${sizes.split(",").join("&size=")}`);
+        } else {
+          router.replace("/products");
+        }
+      } else {
+        // First visit — mark visited and show the hero.
+        localStorage.setItem(VISITED_KEY, "1");
+        setReady(true);
+      }
+    } catch {
+      // localStorage unavailable — just show the hero.
+      setReady(true);
+    }
+  }, [router]);
+
+  if (!ready) return null;
+
   return (
     <section className="relative overflow-hidden bg-background">
       <div className="mx-auto max-w-7xl px-4 pt-3 pb-8 sm:px-6 md:px-8 md:py-16 lg:px-12">

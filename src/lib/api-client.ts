@@ -140,12 +140,14 @@ export interface ApiProduct {
 }
 
 export async function getProducts(
-  filters: { category?: string; tag?: string; size?: number } = {},
+  filters: { category?: string; tag?: string; sizes?: number[] } = {},
 ) {
   const query = new URLSearchParams();
   if (filters.category) query.set("category", filters.category);
   if (filters.tag) query.set("tag", filters.tag);
-  if (filters.size) query.set("size", String(filters.size));
+  if (filters.sizes && filters.sizes.length > 0) {
+    query.set("size", filters.sizes.join(","));
+  }
   const qs = query.toString();
   const res = await request<{ data: ApiProduct[] }>(`/products/${qs ? `?${qs}` : ""}`, {
     baseUrl: CATALOG_BASE_URL,
@@ -209,10 +211,15 @@ export interface ApiProductDetail {
   reviews: ApiReview[];
 }
 
-export async function getProductDetail(slug: string, size?: number) {
-  const qs = size ? `?size=${size}` : "";
-  const res = await request<{ data: ApiProductDetail }>(`/products/${slug}/${qs}`, {
-    baseUrl: CATALOG_BASE_URL,
-  });
+export async function getProductDetail(slug: string, sizes?: number[]) {
+  const query = new URLSearchParams();
+  if (sizes && sizes.length > 0) {
+    query.set("size", sizes.join(","));
+  }
+  const qs = query.toString();
+  const res = await request<{ data: ApiProductDetail }>(
+    `/products/${slug}/${qs ? `?${qs}` : ""}`,
+    { baseUrl: CATALOG_BASE_URL },
+  );
   return res.data;
 }
