@@ -103,14 +103,14 @@ export default function ApiProductGrid({
       <BackButton className="mb-4" />
 
       {effectiveSizes.length > 0 ? (
-        <div className="mb-6 flex items-center justify-between rounded-xl bg-accent-soft px-4 py-3 text-sm">
-          <span>
+        <div className="mb-6 flex items-center justify-between gap-2 rounded-xl bg-accent-soft px-3 py-3 text-xs sm:px-4 sm:text-sm">
+          <span className="truncate">
             Showing products for size:{" "}
             <strong>
               {activeSizeNames.length > 0 ? activeSizeNames.join(", ") : "..."}
             </strong>
           </span>
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={handleClearSize}

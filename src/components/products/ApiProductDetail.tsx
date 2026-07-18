@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   getProductDetail,
   getSizes,
@@ -33,6 +33,7 @@ function getVisibleVariantIndices(variants: ApiProductVariant[], preferredSizeCo
 }
 
 export default function ApiProductDetail() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug");
 
@@ -99,6 +100,7 @@ export default function ApiProductDetail() {
     clearPreferredSize();
     setPreferredSizeCodes([]);
     setPreferredSizeNames([]);
+    router.push("/products");
   }
 
   function scrollToImage(index: number) {
@@ -278,8 +280,8 @@ export default function ApiProductDetail() {
             )}
 
             {preferredSizeCodes.length > 0 ? (
-              <div className="flex items-center justify-between rounded-xl bg-accent-soft px-4 py-3 text-sm">
-                <span>
+              <div className="flex items-center justify-between gap-2 rounded-xl bg-accent-soft px-3 py-3 text-xs sm:px-4 sm:text-sm">
+                <span className="truncate">
                   {sizeMatchExists ? (
                     <>
                       Showing your size{preferredSizeNames.length > 1 ? "s" : ""}: <strong>{preferredSizeNames.length > 0 ? preferredSizeNames.join(", ") : "..."}</strong>
@@ -291,7 +293,7 @@ export default function ApiProductDetail() {
                     </>
                   )}
                 </span>
-                <div className="flex items-center gap-3">
+                <div className="flex shrink-0 items-center gap-2 sm:gap-3">
                   <button
                     type="button"
                     onClick={handleClearSize}
