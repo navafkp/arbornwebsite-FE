@@ -282,11 +282,11 @@ export default function ApiProductDetail() {
                 <span>
                   {sizeMatchExists ? (
                     <>
-                      Showing your size{preferredSizeNames.length > 1 ? "s" : ""}: <strong>{preferredSizeNames.join(", ")}</strong>
+                      Showing your size{preferredSizeNames.length > 1 ? "s" : ""}: <strong>{preferredSizeNames.length > 0 ? preferredSizeNames.join(", ") : "..."}</strong>
                     </>
                   ) : (
                     <>
-                      Not available in size{preferredSizeNames.length > 1 ? "s" : ""} <strong>{preferredSizeNames.join(", ")}</strong> —
+                      Not available in size{preferredSizeNames.length > 1 ? "s" : ""} <strong>{preferredSizeNames.length > 0 ? preferredSizeNames.join(", ") : "..."}</strong> —
                       showing all sizes
                     </>
                   )}

@@ -107,7 +107,7 @@ export default function ApiProductGrid({
           <span>
             Showing products for size:{" "}
             <strong>
-              {activeSizeNames.length > 0 ? activeSizeNames.join(", ") : effectiveSizes.join(", ")}
+              {activeSizeNames.length > 0 ? activeSizeNames.join(", ") : "..."}
             </strong>
           </span>
           <div className="flex items-center gap-3">
