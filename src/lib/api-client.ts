@@ -209,8 +209,9 @@ export interface ApiProductDetail {
   reviews: ApiReview[];
 }
 
-export async function getProductDetail(slug: string) {
-  const res = await request<{ data: ApiProductDetail }>(`/products/${slug}/`, {
+export async function getProductDetail(slug: string, size?: number) {
+  const qs = size ? `?size=${size}` : "";
+  const res = await request<{ data: ApiProductDetail }>(`/products/${slug}/${qs}`, {
     baseUrl: CATALOG_BASE_URL,
   });
   return res.data;

@@ -56,10 +56,10 @@ export default function ApiProductDetail() {
       return;
     }
     setLoadState("loading");
-    getProductDetail(slug)
+    const preferred = getPreferredSize();
+    const preferredCode = preferred ? Number(preferred) : null;
+    getProductDetail(slug, preferredCode ?? undefined)
       .then((data) => {
-        const preferred = getPreferredSize();
-        const preferredCode = preferred ? Number(preferred) : null;
         const visibleIndices = getVisibleVariantIndices(data.variants, preferredCode);
         const initialVariant = data.variants[visibleIndices[0] ?? 0];
         const initialSize =

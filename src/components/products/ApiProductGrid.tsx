@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getProducts, getExplore, getSizes, type ApiProduct } from "@/lib/api-client";
+import { getPreferredSize } from "@/lib/preferred-size";
 import ApiProductCard from "@/components/products/ApiProductCard";
 import BackButton from "@/components/ui/BackButton";
 
@@ -30,16 +31,30 @@ export default function ApiProductGrid({
   // different) tag.
   const [activeTagName, setActiveTagName] = useState<string | null>(null);
   const [activeSizeName, setActiveSizeName] = useState<string | null>(null);
+  // The URL's own ?size= (e.g. from /select-size) wins when present;
+  // otherwise fall back to whatever size the user already has saved, so
+  // plain/category/tag browsing is still scoped to their size without
+  // requiring them to go through /select-size again.
+  const [effectiveSize, setEffectiveSize] = useState<number | undefined>(size);
+
+  useEffect(() => {
+    if (size) {
+      setEffectiveSize(size);
+      return;
+    }
+    const preferred = getPreferredSize();
+    setEffectiveSize(preferred ? Number(preferred) : undefined);
+  }, [size]);
 
   useEffect(() => {
     setLoadState("loading");
-    getProducts({ category, tag, size })
+    getProducts({ category, tag, size: effectiveSize })
       .then((data) => {
         setProducts(data);
         setLoadState("ready");
       })
       .catch(() => setLoadState("error"));
-  }, [category, tag, size]);
+  }, [category, tag, effectiveSize]);
 
   useEffect(() => {
     if (!tag) {
@@ -52,14 +67,14 @@ export default function ApiProductGrid({
   }, [tag]);
 
   useEffect(() => {
-    if (!size) {
+    if (!effectiveSize) {
       setActiveSizeName(null);
       return;
     }
     getSizes()
-      .then((sizes) => setActiveSizeName(sizes.find((s) => s.size_code === size)?.display_text ?? null))
+      .then((sizes) => setActiveSizeName(sizes.find((s) => s.size_code === effectiveSize)?.display_text ?? null))
       .catch(() => setActiveSizeName(null));
-  }, [size]);
+  }, [effectiveSize]);
 
   const heading = category ? humanize(category) : tag ? (activeTagName ?? humanize(tag)) : "Products";
 
@@ -67,10 +82,10 @@ export default function ApiProductGrid({
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <BackButton className="mb-4" />
 
-      {size && (
+      {effectiveSize && (
         <div className="mb-6 flex items-center justify-between rounded-xl bg-accent-soft px-4 py-3 text-sm">
           <span>
-            Showing products for size: <strong>{activeSizeName ?? size}</strong>
+            Showing products for size: <strong>{activeSizeName ?? effectiveSize}</strong>
           </span>
           <Link
             href="/select-size"
