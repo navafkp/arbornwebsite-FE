@@ -402,7 +402,7 @@ export default function ApiProductDetail() {
 
       {product.related_products.length > 0 && (
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <h2 className="font-serif text-2xl">Related Products</h2>
+          <h2 className="font-serif text-2xl">More Patterns Like This</h2>
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {product.related_products.map((p) => (
               <ApiProductCard key={p.id} product={p} />
