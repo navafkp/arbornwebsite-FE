@@ -96,12 +96,6 @@ export default function ApiProductDetail() {
       .catch(() => setPreferredSizeNames([]));
   }, [preferredSizeCodes]);
 
-  function handleClearSize() {
-    clearPreferredSize();
-    setPreferredSizeCodes([]);
-    setPreferredSizeNames([]);
-    router.push("/products");
-  }
 
   function scrollToImage(index: number) {
     const el = galleryRef.current;
@@ -294,13 +288,6 @@ export default function ApiProductDetail() {
                   )}
                 </span>
                 <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-                  <button
-                    type="button"
-                    onClick={handleClearSize}
-                    className="text-xs font-medium text-[var(--muted)] underline underline-offset-2 hover:text-black transition-colors"
-                  >
-                    Clear size
-                  </button>
                   <Link
                     href="/select-size"
                     className="text-xs font-medium text-accent-dark underline underline-offset-2"

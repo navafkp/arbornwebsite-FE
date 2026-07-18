@@ -86,18 +86,6 @@ export default function ApiProductGrid({
 
   const heading = category ? humanize(category) : tag ? (activeTagName ?? humanize(tag)) : "Products";
 
-  function handleClearSize() {
-    clearPreferredSize();
-    setEffectiveSizes([]);
-    // Drop ?size= from the URL too, so a refresh doesn't bring it back via
-    // the `size` prop (it otherwise wins over the now-cleared saved size).
-    const params = new URLSearchParams();
-    if (category) params.set("category", category);
-    if (tag) params.set("tag", tag);
-    const qs = params.toString();
-    router.replace(`/products${qs ? `?${qs}` : ""}`);
-  }
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <BackButton className="mb-4" />
@@ -111,13 +99,6 @@ export default function ApiProductGrid({
             </strong>
           </span>
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-            <button
-              type="button"
-              onClick={handleClearSize}
-              className="text-xs font-medium text-[var(--muted)] underline underline-offset-2 hover:text-black transition-colors"
-            >
-              Clear size
-            </button>
             <Link
               href="/select-size"
               className="text-xs font-medium text-accent-dark underline underline-offset-2"
