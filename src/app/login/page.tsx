@@ -53,13 +53,13 @@ export default function LoginPage() {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1.5 text-xs text-[var(--muted)]">
-          Username / Mobile Number
+          Username
           <input
             required
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
             className="rounded-lg border border-black/15 px-3.5 py-2.5 text-sm text-black outline-none focus:border-accent"
-            placeholder="Username or +91 98765 43210"
+            placeholder="Username"
             autoComplete="username"
           />
         </label>
