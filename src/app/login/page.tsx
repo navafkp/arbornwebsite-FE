@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { ApiError } from "@/lib/api-client";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 import BackButton from "@/components/ui/BackButton";
 
@@ -24,8 +25,10 @@ export default function LoginPage() {
     try {
       await loginWithGoogle(idToken);
       router.push("/profile");
-    } catch {
-      setGoogleError("Google sign-in failed. Please try again.");
+    } catch (err) {
+      setGoogleError(
+        err instanceof ApiError ? err.message : "Google sign-in failed. Please try again.",
+      );
     }
   }
 
@@ -50,13 +53,14 @@ export default function LoginPage() {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1.5 text-xs text-[var(--muted)]">
-          Mobile Number
+          Username / Mobile Number
           <input
             required
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
             className="rounded-lg border border-black/15 px-3.5 py-2.5 text-sm text-black outline-none focus:border-accent"
-            placeholder="+91 98765 43210"
+            placeholder="Username or +91 98765 43210"
+            autoComplete="username"
           />
         </label>
         <label className="flex flex-col gap-1.5 text-xs text-[var(--muted)]">
@@ -68,6 +72,7 @@ export default function LoginPage() {
             onChange={(e) => setForm({ ...form, password: e.target.value })}
             className="rounded-lg border border-black/15 px-3.5 py-2.5 text-sm text-black outline-none focus:border-accent"
             placeholder="••••••••"
+            autoComplete="current-password"
           />
         </label>
 

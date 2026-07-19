@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { getMyProfile, updateMyProfile } from "@/lib/api-client";
+import { getMyProfile, updateMyProfile, ApiError } from "@/lib/api-client";
 import { user as mockUser, orders } from "@/lib/data/user";
 import ProfileCard from "@/components/profile/ProfileCard";
 import RewardCard from "@/components/profile/RewardCard";
@@ -14,15 +14,17 @@ import BackButton from "@/components/ui/BackButton";
 
 export default function ProfilePageClient() {
   const router = useRouter();
-  const { isLoggedIn, user: authUser, accessToken, hasBackendSession, logOut, setUser } = useAuth();
+  const { isLoggedIn, user: authUser, accessToken, hasBackendSession, logOut, setUser, refreshSession } = useAuth();
   const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     if (!hasBackendSession || !accessToken) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSyncing(true);
-    getMyProfile(accessToken)
-      .then((profile) => {
+
+    async function loadProfile(token: string) {
+      try {
+        const profile = await getMyProfile(token);
         setUser({
           id: profile.id,
           name: profile.name || `${profile.first_name} ${profile.last_name}`.trim(),
@@ -32,11 +34,32 @@ export default function ProfilePageClient() {
           phone: authUser?.phone || "",
           avatar: profile.profile_image,
         });
-      })
-      .catch(() => {
+      } catch (err) {
+        if (err instanceof ApiError && err.status === 401) {
+          try {
+            const nextToken = await refreshSession();
+            const profile = await getMyProfile(nextToken);
+            setUser({
+              id: profile.id,
+              name: profile.name || `${profile.first_name} ${profile.last_name}`.trim(),
+              firstName: profile.first_name,
+              lastName: profile.last_name,
+              email: profile.email,
+              phone: authUser?.phone || "",
+              avatar: profile.profile_image,
+            });
+            return;
+          } catch {
+            // refresh failed — keep last-known local user
+          }
+        }
         // keep last-known local user if the refresh fails
-      })
-      .finally(() => setSyncing(false));
+      } finally {
+        setSyncing(false);
+      }
+    }
+
+    loadProfile(accessToken);
     // Only re-sync when the backend session identity changes, not on every
     // local user edit (that would refetch right after a save and overwrite it).
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -107,7 +130,7 @@ export default function ProfilePageClient() {
             type="button"
             onClick={() => {
               logOut();
-              router.push("/");
+              router.push("/login");
             }}
             className="rounded-full border border-black/15 py-3 text-xs font-medium tracking-widest uppercase transition hover:border-black"
           >

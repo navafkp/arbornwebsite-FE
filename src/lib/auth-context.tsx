@@ -7,7 +7,12 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { googleLogin, logoutRequest, type BackendUser } from "@/lib/api-client";
+import {
+  googleLogin,
+  logoutRequest,
+  refreshAccessToken,
+  type BackendUser,
+} from "@/lib/api-client";
 import { clearPreferredSize } from "@/lib/preferred-size";
 
 export interface AuthUser {
@@ -28,6 +33,7 @@ interface AuthContextValue {
   signUp: (data: AuthUser) => void;
   logIn: (phone: string) => void;
   loginWithGoogle: (idToken: string) => Promise<void>;
+  refreshSession: () => Promise<string>;
   logOut: () => void;
   setUser: (user: AuthUser) => void;
 }
@@ -55,8 +61,8 @@ function userFromBackend(backendUser: BackendUser): AuthUser {
 }
 
 // NOTE: signUp/logIn (phone + password) remain a mock, frontend-only flow
-// with no real backend check — see conversation notes. loginWithGoogle is
-// the real path, calling the Django backend per the V1 auth spec.
+// with no real backend check. loginWithGoogle is the real path via
+// POST /accounts/v1/auth/google/.
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -120,6 +126,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(userFromBackend(data.user));
   }
 
+  async function refreshSession() {
+    if (!refreshToken) {
+      throw new Error("No refresh token available");
+    }
+    const data = await refreshAccessToken(refreshToken);
+    setAccessToken(data.access_token);
+    if (data.refresh_token) {
+      setRefreshToken(data.refresh_token);
+    }
+    return data.access_token;
+  }
+
   function logOut() {
     // Best-effort — the user is logged out locally regardless of whether
     // this call succeeds (backend may be unreachable, token may already be
@@ -143,6 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signUp,
         logIn,
         loginWithGoogle,
+        refreshSession,
         logOut,
         setUser,
       }}

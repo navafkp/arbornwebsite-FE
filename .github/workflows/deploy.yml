@@ -38,7 +38,7 @@ jobs:
       - run: npm run build
         env:
           NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
-          NEXT_PUBLIC_API_BASE_URL: https://api.arborn.shop/api/v1
+          NEXT_PUBLIC_ACCOUNTS_BASE_URL: https://api.arborn.shop/accounts/v1
           NEXT_PUBLIC_CATALOG_BASE_URL: https://api.arborn.shop/catalog/v1
 
       - uses: actions/configure-pages@v5

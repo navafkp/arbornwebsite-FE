@@ -54,8 +54,6 @@ export default function GoogleSignInButton({
     window.google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
       callback: (response) => {
-        // TEMP: for testing the id_token in Postman against the BE. Remove once BE auth is verified.
-        console.log("Google ID token:", response.credential);
         onCredential(response.credential);
       },
     });

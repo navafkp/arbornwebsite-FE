@@ -2,30 +2,35 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { ApiError } from "@/lib/api-client";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
 import BackButton from "@/components/ui/BackButton";
 
 export default function SignUpPage() {
   const router = useRouter();
-  const { signUp, loginWithGoogle } = useAuth();
-  const [form, setForm] = useState({ name: "", phone: "", email: "", password: "" });
+  const { loginWithGoogle } = useAuth();
   const [googleError, setGoogleError] = useState("");
 
-  function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    signUp({ name: form.name, phone: form.phone, email: form.email });
-    router.push("/profile");
-  }
+  // TEMP: normal email/mobile signup disabled to reduce fraud. Restore later if needed.
+  // const { signUp } = useAuth();
+  // const [form, setForm] = useState({ name: "", phone: "", email: "", password: "" });
+  // function handleSubmit(e: FormEvent) {
+  //   e.preventDefault();
+  //   signUp({ name: form.name, phone: form.phone, email: form.email });
+  //   router.push("/profile");
+  // }
 
   async function handleGoogleCredential(idToken: string) {
     setGoogleError("");
     try {
       await loginWithGoogle(idToken);
       router.push("/profile");
-    } catch {
-      setGoogleError("Google sign-in failed. Please try again.");
+    } catch (err) {
+      setGoogleError(
+        err instanceof ApiError ? err.message : "Google sign-in failed. Please try again.",
+      );
     }
   }
 
@@ -34,16 +39,17 @@ export default function SignUpPage() {
       <BackButton className="mb-4" />
       <h1 className="font-serif text-3xl">Create Account</h1>
       <p className="mt-2 text-sm text-[var(--muted)]">
-        Sign up to track your orders and save your details.
+        Sign up with Google to track your orders and save your details.
       </p>
 
-      <div className="mt-6">
+      <div className="mt-8">
         <GoogleSignInButton onCredential={handleGoogleCredential} />
         {googleError && (
           <p className="mt-2 text-center text-xs text-red-600">{googleError}</p>
         )}
       </div>
 
+      {/*
       <div className="my-6 flex items-center gap-3 text-[11px] text-[var(--muted)] uppercase">
         <span className="h-px flex-1 bg-black/10" />
         or
@@ -101,8 +107,9 @@ export default function SignUpPage() {
           Sign Up
         </button>
       </form>
+      */}
 
-      <p className="mt-6 text-center text-xs text-[var(--muted)]">
+      <p className="mt-8 text-center text-xs text-[var(--muted)]">
         Already have an account?{" "}
         <Link href="/login" className="text-accent underline underline-offset-2">
           Log In

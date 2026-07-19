@@ -1,13 +1,10 @@
-// Talks to the real Django backend per "Arborn V1 Authentication API
-// Specification". The bare fallback here is for local dev only — the
-// deployed build always gets its real value from
-// .github/workflows/deploy.yml (currently https://api.arborn.shop), so
-// changing this default does not affect production.
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
+// Talks to the real Django backend. Auth/profile live under /accounts/v1;
+// catalog under /catalog/v1. Override with NEXT_PUBLIC_* env vars if needed.
+const ACCOUNTS_BASE_URL =
+  process.env.NEXT_PUBLIC_ACCOUNTS_BASE_URL || "https://api.arborn.shop/accounts/v1";
 
 const CATALOG_BASE_URL =
-  process.env.NEXT_PUBLIC_CATALOG_BASE_URL || "http://localhost:8000/catalog/v1";
+  process.env.NEXT_PUBLIC_CATALOG_BASE_URL || "https://api.arborn.shop/catalog/v1";
 
 export class ApiError extends Error {
   status: number;
@@ -17,11 +14,24 @@ export class ApiError extends Error {
   }
 }
 
+interface ApiEnvelope<T> {
+  status_code: number;
+  message: string;
+  data: T;
+}
+
+function unwrapData<T>(json: ApiEnvelope<T> | T): T {
+  if (json && typeof json === "object" && "data" in json && "status_code" in json) {
+    return (json as ApiEnvelope<T>).data;
+  }
+  return json as T;
+}
+
 async function request<T>(
   path: string,
   options: { method?: string; body?: unknown; accessToken?: string; baseUrl?: string } = {},
 ): Promise<T> {
-  const { method = "GET", body, accessToken, baseUrl = API_BASE_URL } = options;
+  const { method = "GET", body, accessToken, baseUrl = ACCOUNTS_BASE_URL } = options;
 
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
@@ -55,43 +65,52 @@ export interface AuthTokens {
   user: BackendUser;
 }
 
-export function googleLogin(idToken: string) {
-  return request<AuthTokens>("/auth/google", {
+export async function googleLogin(idToken: string) {
+  const json = await request<ApiEnvelope<AuthTokens> | AuthTokens>("/auth/google/", {
     method: "POST",
     body: { id_token: idToken },
   });
+  return unwrapData(json);
 }
 
-export function refreshAccessToken(refreshToken: string) {
-  return request<{ access_token: string }>("/auth/refresh", {
+export async function refreshAccessToken(refreshToken: string) {
+  const json = await request<
+    ApiEnvelope<{ access_token: string; refresh_token?: string }> | { access_token: string; refresh_token?: string }
+  >("/auth/refresh/", {
     method: "POST",
     body: { refresh_token: refreshToken },
   });
+  return unwrapData(json);
 }
 
-export function logoutRequest(accessToken: string, refreshToken: string) {
-  return request<{ message: string }>("/auth/logout", {
+export async function logoutRequest(accessToken: string, refreshToken: string) {
+  const json = await request<ApiEnvelope<{ message?: string }> | { message: string }>("/auth/logout/", {
     method: "POST",
     accessToken,
     body: { refresh_token: refreshToken },
   });
+  return unwrapData(json);
 }
 
-export function getMyProfile(accessToken: string) {
-  return request<BackendUser & { first_name: string; last_name: string }>("/users/me", {
+export async function getMyProfile(accessToken: string) {
+  const json = await request<
+    ApiEnvelope<BackendUser & { first_name: string; last_name: string }> | (BackendUser & { first_name: string; last_name: string })
+  >("/users/profile/", {
     accessToken,
   });
+  return unwrapData(json);
 }
 
-export function updateMyProfile(
+export async function updateMyProfile(
   accessToken: string,
   data: { first_name?: string; last_name?: string },
 ) {
-  return request<{ message: string }>("/users/me", {
+  const json = await request<ApiEnvelope<{ message?: string }> | { message: string }>("/users/profile/", {
     method: "PATCH",
     accessToken,
     body: data,
   });
+  return unwrapData(json);
 }
 
 export interface BackendSize {

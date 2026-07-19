@@ -17,6 +17,7 @@ import ColorSwatch from "@/components/ui/ColorSwatch";
 import RatingStars from "@/components/ui/RatingStars";
 import ApiProductCard from "@/components/products/ApiProductCard";
 import BackButton from "@/components/ui/BackButton";
+import { useAuth } from "@/lib/auth-context";
 
 function humanize(slug: string) {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -37,6 +38,7 @@ export default function ApiProductDetail() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug");
+  const { isLoggedIn } = useAuth();
 
   const [product, setProduct] = useState<ApiProductDetailData | null>(null);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error" | "not-found">(
@@ -428,23 +430,6 @@ export default function ApiProductDetail() {
             )}
           </div>
         </div>
-
-        {product.reviews.length > 0 && (
-          <div className="mt-12">
-            <h2 className="font-serif text-2xl">Reviews</h2>
-            <div className="mt-4 flex flex-col gap-4">
-              {product.reviews.map((review, i) => (
-                <div key={review.id ?? i} className="rounded-xl border border-black/10 p-4">
-                  <RatingStars rating={review.rating} />
-                  {review.title && <p className="mt-1 text-sm font-medium">{review.title}</p>}
-                  {review.review && (
-                    <p className="mt-1 text-sm text-[var(--muted)]">{review.review}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       {product.related_products.length > 0 && (
@@ -468,6 +453,54 @@ export default function ApiProductDetail() {
           </div>
         </div>
       )}
+
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="font-serif text-2xl tracking-wide uppercase">Review</h2>
+          {isLoggedIn ? (
+            <button
+              type="button"
+              className="rounded-full bg-accent px-4 py-2 text-xs font-medium tracking-widest text-white uppercase transition hover:bg-accent-dark"
+            >
+              Add here
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-full bg-accent px-4 py-2 text-xs font-medium tracking-widest text-white uppercase transition hover:bg-accent-dark"
+            >
+              Add here
+            </Link>
+          )}
+        </div>
+
+        {!isLoggedIn && (
+          <div className="mt-4">
+            <Link
+              href="/login"
+              className="inline-flex rounded-full bg-accent px-5 py-3 text-xs font-medium tracking-widest text-white uppercase transition hover:bg-accent-dark"
+            >
+              Login to review
+            </Link>
+          </div>
+        )}
+
+        {product.reviews.length > 0 ? (
+          <div className="mt-6 flex flex-col gap-4">
+            {product.reviews.map((review, i) => (
+              <div key={review.id ?? i} className="rounded-xl border border-black/10 p-4">
+                <RatingStars rating={review.rating} />
+                {review.title && <p className="mt-1 text-sm font-medium">{review.title}</p>}
+                {review.review && (
+                  <p className="mt-1 text-sm text-[var(--muted)]">{review.review}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-4 text-sm text-[var(--muted)]">No reviews yet.</p>
+        )}
+      </div>
     </div>
   );
 }
