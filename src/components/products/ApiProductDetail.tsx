@@ -10,8 +10,9 @@ import {
   type ApiProductDetail as ApiProductDetailData,
   type ApiProductVariant,
 } from "@/lib/api-client";
-import { formatPrice } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { getPreferredSizes, clearPreferredSize } from "@/lib/preferred-size";
+import { buildOrderInquiryMessage, buildWhatsAppLink } from "@/lib/whatsapp";
 import ColorSwatch from "@/components/ui/ColorSwatch";
 import RatingStars from "@/components/ui/RatingStars";
 import ApiProductCard from "@/components/products/ApiProductCard";
@@ -190,6 +191,17 @@ export default function ApiProductDetail() {
       ? Number(product.base_discount_price)
       : null;
 
+  const selectedSize = variant?.sizes.find((s) => s.size_code === selectedSizeCode);
+  const inStock = (variant?.stock_quantity ?? 0) > 0;
+  const whatsappLink = buildWhatsAppLink(
+    buildOrderInquiryMessage({
+      productName: product.name,
+      color: variant?.color ?? "—",
+      size: selectedSize?.display_text ?? "—",
+      price: formatPrice(discountPrice ?? price),
+    }),
+  );
+
   const sizeMatchExists =
     preferredSizeCodes.length > 0 &&
     product.variants.some((v) => v.sizes.some((s) => preferredSizeCodes.includes(s.size_code)));
@@ -250,6 +262,13 @@ export default function ApiProductDetail() {
 
           <div className="flex flex-col gap-4">
             <div>
+              {/* TODO: re-enable when reviews are live
+              <RatingStars
+                rating={product.review_summary.average_rating}
+                count={product.review_summary.review_count}
+                className="mb-2"
+              />
+              */}
               <Link
                 href={`/products?category=${product.category.slug}`}
                 className="text-xs tracking-widest text-[var(--muted)] uppercase"
@@ -265,13 +284,6 @@ export default function ApiProductDetail() {
                 <span className="text-sm text-black/40 line-through">{formatPrice(price)}</span>
               )}
             </div>
-
-            {product.review_summary.review_count > 0 && (
-              <RatingStars
-                rating={product.review_summary.average_rating}
-                count={product.review_summary.review_count}
-              />
-            )}
 
             {preferredSizeCodes.length > 0 ? (
               <div className="flex items-center justify-between gap-2 rounded-xl bg-accent-soft px-3 py-3 text-xs sm:px-4 sm:text-sm">
@@ -372,9 +384,30 @@ export default function ApiProductDetail() {
 
             {variant && (
               <p className="text-xs text-[var(--muted)]">
-                {variant.stock_quantity > 0 ? "In stock" : "Out of stock"}
+                {inStock ? "In stock" : "Out of stock"}
               </p>
             )}
+
+            <div className="mt-2 flex flex-col gap-3 sm:flex-row">
+              <a
+                href={inStock ? whatsappLink : undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-disabled={!inStock}
+                className={cn(
+                  "flex flex-1 items-center justify-center gap-2 rounded-full bg-accent py-3.5 text-center text-xs font-medium tracking-widest text-white uppercase transition hover:bg-accent-dark",
+                  !inStock && "pointer-events-none cursor-not-allowed opacity-40",
+                )}
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                  <path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.5A10 10 0 1012 2zm0 18.2a8.2 8.2 0 01-4.2-1.2l-.3-.2-3 .9.9-2.9-.2-.3A8.2 8.2 0 1112 20.2zm4.5-6.1c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1-.2.2-.6.8-.7.9-.1.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.3.1-.5l.4-.4c.1-.1.2-.3.2-.4.1-.2 0-.3 0-.5s-.5-1.2-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2 1 2.4c.1.2 1.6 2.5 4 3.5.5.2.9.4 1.3.5.5.2 1 .1 1.4.1.4-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.2-.4-.3z" />
+                </svg>
+                Order from WhatsApp
+              </a>
+            </div>
+            <p className="text-center text-[11px] text-[var(--muted)] sm:text-left">
+              Chat with us to confirm size, color and delivery.
+            </p>
 
             {product.description && (
               <p className="text-sm whitespace-pre-line">{product.description}</p>
