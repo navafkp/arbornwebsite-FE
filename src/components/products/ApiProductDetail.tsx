@@ -399,16 +399,25 @@ export default function ApiProductDetail() {
       )}
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-4">
+        <div>
           <h2 className="font-serif text-2xl tracking-wide uppercase">Review</h2>
 
           <button
             type="button"
-            className="rounded-full bg-black px-2 py-1 text-xs font-medium tracking-widest text-white uppercase transition hover:bg-accent-dark"
+            aria-label="Add your review"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-[#f3c8d5] bg-[#fff1f5] px-3 py-1.5 text-xs font-medium text-[#b94f71] transition-colors hover:border-[#e9a8bd] hover:bg-[#ffe7ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d95f88]"
           >
-            add here
+            <svg aria-hidden="true" viewBox="0 0 16 16" className="size-3.5" fill="none">
+              <path
+                d="M9.9 2.1 13.9 6l-7 7-4.1.7.8-4.1 7-7Z"
+                stroke="currentColor"
+                strokeWidth="1.35"
+                strokeLinejoin="round"
+              />
+              <path d="m8.5 3.5 4 3.9" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
+            </svg>
+            Add your review
           </button>
-
         </div>
 
         {/* {!isLoggedIn && (
