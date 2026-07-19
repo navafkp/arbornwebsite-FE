@@ -131,8 +131,11 @@ export default function ApiProductCard({
         .map((cue) => [cue.colour.toLowerCase(), cue.colour]),
     ).values(),
   );
+  // Keep the price legible on narrow cards: mobile shows two swatches, while
+  // larger cards retain a third preview colour.
   const visibleFooterColours = footerColours.slice(0, 3);
-  const remainingFooterColours = footerColours.length - visibleFooterColours.length;
+  const remainingMobileFooterColours = footerColours.length - 2;
+  const remainingDesktopFooterColours = footerColours.length - 3;
 
   return (
     <article ref={cardRef} className="group relative overflow-hidden rounded-[15px] border border-[#f2dfe2] bg-[#fffefd] shadow-[0_2px_9px_rgba(85,43,55,0.07)] transition-shadow duration-300 hover:shadow-[0_6px_16px_rgba(85,43,55,0.11)]">
@@ -163,9 +166,9 @@ export default function ApiProductCard({
           <VariantPatternPreviews cues={variantCues} />
         </div>
 
-        <div className="flex min-h-12 items-center justify-between gap-1.5 border-t border-[#f8ebed] bg-[#fffafa] px-2 py-1.5 sm:min-h-[54px] sm:px-2.5 sm:py-2">
-          <div className="min-w-0 shrink-0">
-            <span className="block truncate text-[13px] leading-4 font-semibold tracking-[-0.035em] text-[#1e1719] sm:text-[15px] sm:leading-5">
+        <div className="grid min-h-12 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 border-t border-[#f8ebed] bg-[#fffafa] px-2 py-1.5 sm:min-h-[54px] sm:gap-1.5 sm:px-2.5 sm:py-2">
+          <div className="min-w-0">
+            <span className="block whitespace-nowrap text-[12px] leading-4 font-semibold tracking-[-0.045em] text-[#1e1719] sm:text-[15px] sm:leading-5 sm:tracking-[-0.035em]">
               {formatPrice(discountPrice ?? price)}
             </span>
             {discountPrice && (
@@ -175,16 +178,19 @@ export default function ApiProductCard({
             )}
           </div>
           {visibleFooterColours.length > 0 && (
-            <div aria-hidden="true" className="flex min-w-0 items-center justify-end gap-0.5 sm:gap-1">
+            <div aria-hidden="true" className="flex shrink-0 items-center justify-end gap-[2px] whitespace-nowrap sm:gap-1">
               {visibleFooterColours.map((colour, index) => (
                 <span
                   key={`${colour}-${index}`}
-                  className="h-4 w-4 shrink-0 rounded-full border border-white shadow-[0_1px_2px_rgba(85,43,55,0.16)] sm:h-[17px] sm:w-[17px]"
+                  className={`h-[9px] w-[9px] shrink-0 rounded-full border border-white shadow-[0_1px_2px_rgba(85,43,55,0.16)] sm:h-[17px] sm:w-[17px] ${index === 2 ? "hidden sm:block" : ""}`}
                   style={{ backgroundColor: colour }}
                 />
               ))}
-              {remainingFooterColours > 0 && (
-                <span className="ml-0.5 shrink-0 text-[9px] font-semibold leading-none text-[#2a2022] sm:text-[10px]">+{remainingFooterColours}</span>
+              {remainingMobileFooterColours > 0 && (
+                <span className="ml-px shrink-0 text-[9px] font-semibold leading-none text-[#2a2022] sm:hidden">+{remainingMobileFooterColours}</span>
+              )}
+              {remainingDesktopFooterColours > 0 && (
+                <span className="ml-0.5 hidden shrink-0 text-[10px] leading-none font-semibold text-[#2a2022] sm:inline">+{remainingDesktopFooterColours}</span>
               )}
             </div>
           )}
