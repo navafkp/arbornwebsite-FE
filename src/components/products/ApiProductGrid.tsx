@@ -91,8 +91,9 @@ export default function ApiProductGrid({
       {/* <BackButton className="mb-4" /> */}
 
 
-      <div className="relative mb-6 border-b border-black/5 pb-4">
+      <div className="fixed top-0 left-0 right-0 z-50 border-b border-black/5 bg-background px-4 pt-4 pb-4">
         {/* Left Back Button */}
+
         <div className="absolute left-0 top-1/2 -translate-y-1/2">
           <BackButton />
         </div>
@@ -108,11 +109,18 @@ export default function ApiProductGrid({
           </h1>
         </div>
       </div>
+      <div className="h-[72px]" />
 
 
 
 
-      <div className="fixed top-26 left-1/2 z-40 w-[92%] max-w-7xl -translate-x-1/2">
+      <div
+        className={
+          effectiveSizes.length === 0
+            ? "sticky top-[74px] z-40 mb-6"
+            : "mb-6"
+        }
+      >
         {effectiveSizes.length > 0 ? (
 
           <div className="flex items-center justify-between gap-2 rounded-lg border border-black/5 bg-accent-soft px-3 py-2 shadow-sm">
@@ -146,7 +154,7 @@ export default function ApiProductGrid({
 
 
 
-      <div className="mt-25">
+      <div className="mt-2">
         <h1 className="font-serif text-3xl">{heading}</h1>
         <p className="mt-0.5 text-sm text-[var(--muted)]">
           {loadState === "ready"
