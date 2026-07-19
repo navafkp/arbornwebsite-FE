@@ -6,7 +6,6 @@ import { useState, type FormEvent } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { ApiError } from "@/lib/api-client";
 import GoogleSignInButton from "@/components/auth/GoogleSignInButton";
-import BackButton from "@/components/ui/BackButton";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,7 +33,6 @@ export default function LoginPage() {
 
   return (
     <div className="mx-auto max-w-sm px-4 py-14 sm:px-6">
-      <BackButton className="mb-4" />
       <h1 className="font-serif text-3xl">Log In</h1>
       <p className="mt-2 text-sm text-[var(--muted)]">Welcome back to Arborn.</p>
 

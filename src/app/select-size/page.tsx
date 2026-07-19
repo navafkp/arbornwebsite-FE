@@ -7,7 +7,6 @@ import { getPreferredSizes, setPreferredSizes, clearPreferredSize } from "@/lib/
 import { getSizes, type BackendSize } from "@/lib/api-client";
 import { BowIcon, SparkleIcon, HeartIcon, CloudShape, BunnyIllustration } from "@/components/ui/decor";
 import ScrollHint from "@/components/ui/ScrollHint";
-import BackButton from "@/components/ui/BackButton";
 
 export default function SelectSizePage() {
   const router = useRouter();
@@ -53,7 +52,6 @@ export default function SelectSizePage() {
 
   return (
     <div className="relative mx-auto flex min-h-screen max-w-xl flex-col overflow-hidden px-4 py-5 sm:px-6">
-      <BackButton className="mb-3" />
 
       <div className="flex items-start justify-between gap-4">
         <h1 className="font-serif text-2xl leading-tight font-bold sm:text-3xl">

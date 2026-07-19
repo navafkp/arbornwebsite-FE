@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { getProducts, getExplore, getSizes, type ApiProduct } from "@/lib/api-client";
 import { getPreferredSizes, clearPreferredSize } from "@/lib/preferred-size";
 import ApiProductCard from "@/components/products/ApiProductCard";
-import BackButton from "@/components/ui/BackButton";
 
 function humanize(slug: string) {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -88,32 +87,6 @@ export default function ApiProductGrid({
 
   return (
     <div className="mx-auto max-w-7xl px-4 pt-4 pb-10 sm:px-6 lg:px-8">
-      {/* <BackButton className="mb-4" /> */}
-
-
-      <div className="fixed top-0 left-0 right-0 z-50 border-b border-black/5 bg-background px-4 pt-4 pb-4">
-        {/* Left Back Button */}
-
-        <div className="absolute left-0 top-1/2 -translate-y-1/2">
-          <BackButton />
-        </div>
-
-        {/* Center Logo */}
-        <div className="flex flex-col items-center">
-          <p className="text-[20px] font-medium tracking-[0.35em] uppercase text-neutral-500">
-            ARBORN
-          </p>
-
-          <h1 className="mt-0 font-serif text-sm tracking-[0.25em] text-[#D88FA0]">
-            NIGHTWEAR
-          </h1>
-        </div>
-      </div>
-      <div className="h-[72px]" />
-
-
-
-
       <div
         className={
           effectiveSizes.length === 0

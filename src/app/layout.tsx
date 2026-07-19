@@ -3,6 +3,7 @@ import { Inter, Cormorant_Garamond } from "next/font/google";
 import Footer from "@/components/layout/Footer";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import BottomNavSpacer from "@/components/layout/BottomNavSpacer";
+import PageShell from "@/components/layout/PageShell";
 import { ShopProvider } from "@/lib/shop-context";
 import { AuthProvider } from "@/lib/auth-context";
 import { SITE_URL, SITE_NAME } from "@/lib/site-config";
@@ -74,7 +75,7 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col bg-background text-foreground antialiased">
         <AuthProvider>
           <ShopProvider>
-            <main className="flex-1">{children}</main>
+            <PageShell>{children}</PageShell>
             <Footer />
             <BottomNavSpacer />
             <MobileBottomNav />

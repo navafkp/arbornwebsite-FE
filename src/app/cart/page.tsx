@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useShop } from "@/lib/shop-context";
 import { formatPrice } from "@/lib/utils";
 import CartLineItem from "@/components/cart/CartLineItem";
-import BackButton from "@/components/ui/BackButton";
 
 export default function CartPage() {
   const { cart, cartSubtotal } = useShop();
@@ -12,7 +11,6 @@ export default function CartPage() {
   if (cart.length === 0) {
     return (
       <div className="mx-auto flex max-w-xl flex-col items-center px-4 py-24 text-center sm:px-6">
-        <BackButton className="mb-6 self-start" />
         <svg className="h-12 w-12 text-black/20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
           <path d="M6 8h12l-1 12a1.5 1.5 0 01-1.5 1.4h-7A1.5 1.5 0 017 20L6 8z" strokeLinejoin="round" />
           <path d="M9 8V6a3 3 0 016 0v2" strokeLinecap="round" />
@@ -36,7 +34,6 @@ export default function CartPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
-      <BackButton className="mb-4" />
       <h1 className="font-serif text-3xl">Your Cart</h1>
 
       <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-3">
