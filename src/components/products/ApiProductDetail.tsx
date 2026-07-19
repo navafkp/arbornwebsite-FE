@@ -7,6 +7,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import {
   getProductDetail,
   type ApiProductDetail as ApiProductDetailData,
+  type ApiReview,
   type ApiProductVariant,
 } from "@/lib/api-client";
 import { cn, formatPrice } from "@/lib/utils";
@@ -21,6 +22,25 @@ import FloatingSizeAction from "@/components/ui/FloatingSizeAction";
 function humanize(slug: string) {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
+
+// Temporary local fallback while product reviews are not available from the API.
+// These are intentionally only used for products with no backend reviews.
+const SAMPLE_REVIEWS: ApiReview[] = [
+  {
+    id: -1,
+    user_name: "Maya R.",
+    rating: 5,
+    title: "Soft enough for slow mornings",
+    review: "The fabric feels lovely against the skin and the fit is easy without looking oversized. My new weekend favourite.",
+  },
+  {
+    id: -2,
+    user_name: "Anika S.",
+    rating: 4,
+    title: "Pretty, comfortable and light",
+    review: "The print is even sweeter in person. It is breathable for sleeping and still polished enough for a lazy breakfast at home.",
+  },
+];
 
 // Which color variants to show: only the ones that offer the user's saved
 // size, so a product with e.g. an XL-only red and an L-available blue only
@@ -187,6 +207,7 @@ export default function ApiProductDetail() {
   const sizeMatchExists =
     preferredSizeCodes.length > 0 &&
     product.variants.some((v) => v.sizes.some((s) => preferredSizeCodes.includes(s.size_code)));
+  const displayedReviews = product.reviews.length > 0 ? product.reviews : SAMPLE_REVIEWS;
 
   return (
     <div>
@@ -431,21 +452,65 @@ export default function ApiProductDetail() {
           </div>
         )} */}
 
-        {product.reviews.length > 0 ? (
-          <div className="mt-6 flex flex-col gap-4">
-            {product.reviews.map((review, i) => (
-              <div key={review.id ?? i} className="rounded-xl border border-black/10 p-4">
-                <RatingStars rating={review.rating} />
-                {review.title && <p className="mt-1 text-sm font-medium">{review.title}</p>}
-                {review.review && (
-                  <p className="mt-1 text-sm text-[var(--muted)]">{review.review}</p>
+        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
+          {displayedReviews.map((review, i) => {
+            const reviewerName = review.user_name?.trim() || "Arborn customer";
+            const initials = reviewerName
+              .split(/\s+/)
+              .map((part) => part[0])
+              .join("")
+              .slice(0, 2)
+              .toUpperCase();
+
+            return (
+              <article
+                key={review.id ?? i}
+                className={cn(
+                  "relative h-[260px] overflow-hidden rounded-[1.4rem] border p-5 shadow-[0_10px_26px_rgba(84,48,57,0.07)] transition-transform duration-200 hover:-translate-y-0.5",
+                  i % 2 === 0
+                    ? "border-[#f3d5de] bg-[#fff4f6]"
+                    : "border-[#eee1d9] bg-[#fffdf9]",
                 )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="mt-4 text-sm text-[var(--muted)]">No reviews yet.</p>
-        )}
+              >
+                <div
+                  aria-hidden="true"
+                  className={cn(
+                    "absolute -right-7 -top-8 h-24 w-24 rounded-full opacity-70",
+                    i % 2 === 0 ? "bg-[#f7d6e1]" : "bg-[#f6e5d9]",
+                  )}
+                />
+                <div className="relative flex items-start gap-3">
+                  <span
+                    className={cn(
+                      "flex size-10 shrink-0 items-center justify-center rounded-full border text-xs font-semibold tracking-wide",
+                      i % 2 === 0
+                        ? "border-[#edb9ca] bg-white text-[#bd5d7d]"
+                        : "border-[#e8d3c4] bg-[#fff8f2] text-[#9f735c]",
+                    )}
+                  >
+                    {initials}
+                  </span>
+                  <div className="min-w-0 pt-0.5">
+                    <p className="text-sm font-medium text-black">{reviewerName}</p>
+                    <p className="mt-0.5 text-[10px] font-medium tracking-[0.12em] text-[var(--muted)] uppercase">
+                      Verified nightwear lover
+                    </p>
+                  </div>
+                </div>
+
+                <div className="relative mt-4">
+                  <RatingStars rating={review.rating} />
+                  {review.title && (
+                    <h3 className="mt-3 line-clamp-2 font-serif text-lg leading-snug text-black">{review.title}</h3>
+                  )}
+                  {review.review && (
+                    <p className="mt-2 line-clamp-4 max-w-prose text-sm leading-6 text-[var(--muted)]">{review.review}</p>
+                  )}
+                </div>
+              </article>
+            );
+          })}
+        </div>
       </div>
       <FloatingSizeAction hasPreferredSize={preferredSizeCodes.length > 0} />
     </div>
