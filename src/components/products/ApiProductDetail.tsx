@@ -6,17 +6,17 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   getProductDetail,
-  getSizes,
   type ApiProductDetail as ApiProductDetailData,
   type ApiProductVariant,
 } from "@/lib/api-client";
 import { cn, formatPrice } from "@/lib/utils";
-import { getPreferredSizes, clearPreferredSize } from "@/lib/preferred-size";
+import { getPreferredSizes } from "@/lib/preferred-size";
 import { buildOrderInquiryMessage, buildWhatsAppLink } from "@/lib/whatsapp";
 import ColorSwatch from "@/components/ui/ColorSwatch";
 import RatingStars from "@/components/ui/RatingStars";
 import ApiProductCard from "@/components/products/ApiProductCard";
 import { useAuth } from "@/lib/auth-context";
+import FloatingSizeAction from "@/components/ui/FloatingSizeAction";
 
 function humanize(slug: string) {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -50,7 +50,6 @@ export default function ApiProductDetail() {
   const [manualVariantIndex, setManualVariantIndex] = useState<number | null>(null);
   const [selectedSizeCode, setSelectedSizeCode] = useState<number | null>(null);
   const [preferredSizeCodes, setPreferredSizeCodes] = useState<number[]>([]);
-  const [preferredSizeNames, setPreferredSizeNames] = useState<string[]>([]);
   const galleryRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -82,22 +81,6 @@ export default function ApiProductDetail() {
       })
       .catch(() => setLoadState("error"));
   }, [slug]);
-
-  useEffect(() => {
-    if (preferredSizeCodes.length === 0) {
-      setPreferredSizeNames([]);
-      return;
-    }
-    getSizes()
-      .then((sizes) => {
-        const names = preferredSizeCodes.map(
-          (code) => sizes.find((s) => s.size_code === code)?.display_text ?? String(code)
-        );
-        setPreferredSizeNames(names);
-      })
-      .catch(() => setPreferredSizeNames([]));
-  }, [preferredSizeCodes]);
-
 
   function scrollToImage(index: number) {
     const el = galleryRef.current;
@@ -283,41 +266,6 @@ export default function ApiProductDetail() {
               )}
             </div>
 
-            {preferredSizeCodes.length > 0 ? (
-              <div className="flex items-center justify-between gap-2 rounded-xl bg-accent-soft px-3 py-3 text-xs sm:px-4 sm:text-sm">
-                <span className="truncate">
-                  {sizeMatchExists ? (
-                    <>
-                      Showing your size{preferredSizeNames.length > 1 ? "s" : ""}: <strong>{preferredSizeNames.length > 0 ? preferredSizeNames.join(", ") : "..."}</strong>
-                    </>
-                  ) : (
-                    <>
-                      Not available in size{preferredSizeNames.length > 1 ? "s" : ""} <strong>{preferredSizeNames.length > 0 ? preferredSizeNames.join(", ") : "..."}</strong> —
-                      showing all sizes
-                    </>
-                  )}
-                </span>
-                <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-                  <Link
-                    href="/select-size"
-                    className="text-xs font-medium text-accent-dark underline underline-offset-2"
-                  >
-                    Change
-                  </Link>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center justify-between rounded-xl border border-dashed border-accent/40 px-4 py-3 text-sm">
-                <span>Choose your size for a better fit.</span>
-                <Link
-                  href="/select-size"
-                  className="text-xs font-medium text-accent-dark underline underline-offset-2"
-                >
-                  Choose size
-                </Link>
-              </div>
-            )}
-
             {product.short_description && (
               <p className="text-sm text-[var(--muted)]">{product.short_description}</p>
             )}
@@ -490,6 +438,7 @@ export default function ApiProductDetail() {
           <p className="mt-4 text-sm text-[var(--muted)]">No reviews yet.</p>
         )}
       </div>
+      <FloatingSizeAction hasPreferredSize={preferredSizeCodes.length > 0} />
     </div>
   );
 }

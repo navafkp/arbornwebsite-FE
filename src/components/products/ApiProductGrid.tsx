@@ -1,11 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getProducts, getExplore, getSizes, type ApiProduct } from "@/lib/api-client";
-import { getPreferredSizes, clearPreferredSize } from "@/lib/preferred-size";
+import { getProducts, getExplore, type ApiProduct } from "@/lib/api-client";
+import { getPreferredSizes } from "@/lib/preferred-size";
 import ApiProductCard from "@/components/products/ApiProductCard";
+import FloatingSizeAction from "@/components/ui/FloatingSizeAction";
 
 function humanize(slug: string) {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -20,7 +19,6 @@ export default function ApiProductGrid({
   tag?: string;
   sizes?: number[];
 }) {
-  const router = useRouter();
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
   // The backend's per-product `tag` field is just that product's primary
@@ -31,7 +29,6 @@ export default function ApiProductGrid({
   // was clicked, instead of trusting each product's own (possibly
   // different) tag.
   const [activeTagName, setActiveTagName] = useState<string | null>(null);
-  const [activeSizeNames, setActiveSizeNames] = useState<string[]>([]);
   // The URL's own ?size= (e.g. from /select-size) wins when present;
   // otherwise fall back to whatever size the user already has saved, so
   // plain/category/tag browsing is still scoped to their sizes without
@@ -67,66 +64,9 @@ export default function ApiProductGrid({
       .catch(() => setActiveTagName(null));
   }, [tag]);
 
-  useEffect(() => {
-    if (effectiveSizes.length === 0) {
-      setActiveSizeNames([]);
-      return;
-    }
-    getSizes()
-      .then((data) => {
-        const names = effectiveSizes.map((code) => {
-          const matched = data.find((s) => s.size_code === code);
-          return matched ? matched.display_text : String(code);
-        });
-        setActiveSizeNames(names);
-      })
-      .catch(() => setActiveSizeNames([]));
-  }, [effectiveSizes]);
-
   const heading = category ? humanize(category) : tag ? (activeTagName ?? humanize(tag)) : "Products";
-
   return (
     <div className="mx-auto max-w-7xl px-4 pt-4 pb-10 sm:px-6 lg:px-8">
-      <div
-        className={
-          effectiveSizes.length === 0
-            ? "sticky top-[74px] z-40 mb-6"
-            : "mb-6"
-        }
-      >
-        {effectiveSizes.length > 0 ? (
-
-          <div className="flex items-center justify-between gap-2 rounded-lg border border-black/5 bg-accent-soft px-3 py-2 shadow-sm">
-            <span className="truncate text-xs">
-              Showing products for size{" "}
-              <strong>
-                {activeSizeNames.length > 0 ? activeSizeNames.join(", ") : "..."}
-              </strong>
-            </span>
-
-            <Link
-              href="/select-size"
-              className="text-[11px] font-medium text-accent-dark underline underline-offset-2"
-            >
-              Change
-            </Link>
-          </div>
-        ) : (
-          <div className="flex items-center justify-between rounded-xl border border-dashed border-pink-200 bg-accent-soft px-4 py-3 shadow-lg backdrop-blur">
-            <span className="text-sm">Choose your size for a better fit.</span>
-
-            <Link
-              href="/select-size"
-              className="text-[11px] font-medium text-accent-dark underline underline-offset-2"
-            >
-              Choose Size
-            </Link>
-          </div>
-        )}
-      </div>
-
-
-
       <div className="mt-2">
         <h1 className="font-serif text-3xl">{heading}</h1>
         <p className="mt-0.5 text-sm text-[var(--muted)]">
@@ -167,6 +107,8 @@ export default function ApiProductGrid({
           ))}
         </div>
       )}
+
+      <FloatingSizeAction hasPreferredSize={effectiveSizes.length > 0} />
 
       <div className="fixed bottom-20 left-1/2 z-40 w-[90%] max-w-sm -translate-x-1/2 md:hidden">        <button
         type="button"
