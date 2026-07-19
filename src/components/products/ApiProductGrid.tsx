@@ -66,10 +66,10 @@ export default function ApiProductGrid({
 
   const heading = category ? humanize(category) : tag ? (activeTagName ?? humanize(tag)) : "Products";
   return (
-    <div className="mx-auto max-w-7xl px-4 pt-4 pb-10 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-3 pt-4 pb-10 sm:px-6 lg:px-8">
       <div className="mt-2">
-        <h1 className="font-serif text-3xl">{heading}</h1>
-        <p className="mt-0.5 text-sm text-[var(--muted)]">
+        <h1 className="font-serif text-2xl leading-tight sm:text-3xl">{heading}</h1>
+        <p className="mt-0.5 hidden text-sm text-[var(--muted)] sm:block">
           {loadState === "ready"
             ? `${products.length} ${products.length === 1 ? "product" : "products"}`
             : " "}
@@ -77,9 +77,12 @@ export default function ApiProductGrid({
       </div>
 
       {loadState === "loading" && (
-        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-3 grid grid-cols-3 gap-2 sm:mt-6 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5 lg:gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="aspect-[3/4] w-full animate-pulse rounded-xl bg-black/5" />
+            <div key={i} className="w-full overflow-hidden rounded-[15px] border border-[#f2dfe2] bg-[#fffefd] shadow-[0_2px_9px_rgba(85,43,55,0.07)]">
+              <div className="aspect-[3/4] animate-pulse bg-[#f9f3f2]" />
+              <div className="h-12 border-t border-[#f8ebed] bg-[#fffafa]" />
+            </div>
           ))}
         </div>
       )}
@@ -97,7 +100,7 @@ export default function ApiProductGrid({
       )}
 
       {loadState === "ready" && products.length > 0 && (
-        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-3 grid grid-cols-3 gap-2 sm:mt-6 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5 lg:gap-4">
           {products.map((product) => (
             <ApiProductCard
               key={product.id}
