@@ -106,6 +106,7 @@ export default function ProductsPageClient({
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <BackButton className="mb-4" />
 
+
       {sizeBanner && (
         <div className="mb-6 flex items-center justify-between rounded-xl bg-accent-soft px-4 py-3 text-sm">
           <span>

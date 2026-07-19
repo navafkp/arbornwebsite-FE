@@ -87,44 +87,73 @@ export default function ApiProductGrid({
   const heading = category ? humanize(category) : tag ? (activeTagName ?? humanize(tag)) : "Products";
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <BackButton className="mb-4" />
+    <div className="mx-auto max-w-7xl px-4 pt-4 pb-10 sm:px-6 lg:px-8">
+      {/* <BackButton className="mb-4" /> */}
 
-      {effectiveSizes.length > 0 ? (
-        <div className="mb-6 flex items-center justify-between gap-2 rounded-xl bg-accent-soft px-3 py-3 text-xs sm:px-4 sm:text-sm">
-          <span className="truncate">
-            Showing products for size:{" "}
-            <strong>
-              {activeSizeNames.length > 0 ? activeSizeNames.join(", ") : "..."}
-            </strong>
-          </span>
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+
+      <div className="relative mb-6 border-b border-black/5 pb-4">
+        {/* Left Back Button */}
+        <div className="absolute left-0 top-1/2 -translate-y-1/2">
+          <BackButton />
+        </div>
+
+        {/* Center Logo */}
+        <div className="flex flex-col items-center">
+          <p className="text-[20px] font-medium tracking-[0.35em] uppercase text-neutral-500">
+            ARBORN
+          </p>
+
+          <h1 className="mt-0 font-serif text-sm tracking-[0.25em] text-[#D88FA0]">
+            NIGHTWEAR
+          </h1>
+        </div>
+      </div>
+
+
+
+
+      <div className="fixed top-26 left-1/2 z-40 w-[92%] max-w-7xl -translate-x-1/2">
+        {effectiveSizes.length > 0 ? (
+
+          <div className="flex items-center justify-between gap-2 rounded-lg border border-black/5 bg-accent-soft px-3 py-2 shadow-sm">
+            <span className="truncate text-xs">
+              Showing products for size{" "}
+              <strong>
+                {activeSizeNames.length > 0 ? activeSizeNames.join(", ") : "..."}
+              </strong>
+            </span>
+
             <Link
               href="/select-size"
-              className="text-xs font-medium text-accent-dark underline underline-offset-2"
+              className="text-[11px] font-medium text-accent-dark underline underline-offset-2"
             >
               Change
             </Link>
           </div>
-        </div>
-      ) : (
-        <div className="mb-6 flex items-center justify-between rounded-xl border border-dashed border-accent/40 px-4 py-3 text-sm">
-          <span>Choose your size for a better fit.</span>
-          <Link
-            href="/select-size"
-            className="text-xs font-medium text-accent-dark underline underline-offset-2"
-          >
-            Choose size
-          </Link>
-        </div>
-      )}
+        ) : (
+          <div className="flex items-center justify-between rounded-xl border border-dashed border-pink-200 bg-accent-soft px-4 py-3 shadow-lg backdrop-blur">
+            <span className="text-sm">Choose your size for a better fit.</span>
 
-      <h1 className="font-serif text-3xl">{heading}</h1>
-      <p className="mt-1 text-sm text-[var(--muted)]">
-        {loadState === "ready"
-          ? `${products.length} ${products.length === 1 ? "product" : "products"}`
-          : " "}
-      </p>
+            <Link
+              href="/select-size"
+              className="text-[11px] font-medium text-accent-dark underline underline-offset-2"
+            >
+              Choose Size
+            </Link>
+          </div>
+        )}
+      </div>
+
+
+
+      <div className="mt-25">
+        <h1 className="font-serif text-3xl">{heading}</h1>
+        <p className="mt-0.5 text-sm text-[var(--muted)]">
+          {loadState === "ready"
+            ? `${products.length} ${products.length === 1 ? "product" : "products"}`
+            : " "}
+        </p>
+      </div>
 
       {loadState === "loading" && (
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -157,6 +186,29 @@ export default function ApiProductGrid({
           ))}
         </div>
       )}
+
+      <div className="fixed bottom-20 left-1/2 z-40 w-[90%] max-w-sm -translate-x-1/2 md:hidden">        <button
+        type="button"
+        // onClick={() => setMobileFiltersOpen(true)}
+        className="flex w-full max-w-sm items-center justify-center gap-2 rounded-full bg-accent py-3.5 text-sm font-medium text-white shadow-xl"
+      >
+        <svg
+          className="h-4 w-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path
+            d="M3 5h18M6 12h12M10 19h4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+
+        <span>Filter & Sort</span>
+      </button>
+      </div>
     </div>
   );
 }
