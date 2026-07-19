@@ -36,13 +36,63 @@ export default function ApiProductCard({
           </span>
         )}
       </div>
-      <span className="mt-3 text-sm tracking-wide text-black">{product.name}</span>
-      <div className="mt-0.5 flex items-baseline gap-2">
+      {/* <span className="mt-3 text-sm tracking-wide text-black">{product.name}</span> */}
+      {/* <div className="mt-0.5 flex items-baseline gap-2">
         <span className="text-sm font-medium">{formatPrice(discountPrice ?? price)}</span>
         {discountPrice && (
           <span className="text-xs text-black/40 line-through">{formatPrice(price)}</span>
         )}
+      </div> */}
+
+      <div className="mt-2 flex items-center justify-between">
+        <div className="flex items-baseline gap-2">
+          <span className="text-sm font-medium">
+            {formatPrice(discountPrice ?? price)}
+          </span>
+
+          {discountPrice && (
+            <span className="text-xs text-black/40 line-through">
+              {formatPrice(price)}
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <span className="h-4 w-4 rounded-full border border-gray-200 bg-red-500"></span>
+          <span className="h-4 w-4 rounded-full border border-gray-200 bg-blue-500"></span>
+        </div>
       </div>
+
+      <div className="mt-3 flex items-center justify-between">
+        <span className="text-xs font-medium text-gray-500">
+          Pattern
+        </span>
+
+        <div className="flex items-center">
+          {[1, 2, 3].map((_, i) => (
+            <div
+              key={i}
+              className={`h-4 w-4 overflow-hidden border border-gray-200 ${i !== 0 ? "-ml-2" : ""
+                }`}
+            >
+              <Image
+                src={product.image_url ?? "/placeholder.png"}
+                alt={`Pattern ${i + 1}`}
+                width={16}
+                height={16}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          ))}
+          ..
+
+          {/* <div className="-ml-2 flex h-4 w-4 items-center justify-center border border-gray-200 bg-white text-[8px] text-gray-500">
+            ..
+          </div> */}
+        </div>
+      </div>
+
+
     </Link>
   );
 }
