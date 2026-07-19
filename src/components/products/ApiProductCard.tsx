@@ -58,8 +58,8 @@ export default function ApiProductCard({
         </div>
 
         <div className="flex items-center gap-1.5">
-          <span className="h-4 w-4 rounded-full border border-gray-200 bg-red-500"></span>
-          <span className="h-4 w-4 rounded-full border border-gray-200 bg-blue-500"></span>
+          <span className="h-2 w-2 rounded-full border border-gray-200 bg-red-500"></span>
+          <span className="h-2 w-2 rounded-full border border-gray-200 bg-blue-500"></span>
         </div>
       </div>
 
@@ -78,8 +78,8 @@ export default function ApiProductCard({
               <Image
                 src={product.image_url ?? "/placeholder.png"}
                 alt={`Pattern ${i + 1}`}
-                width={16}
-                height={16}
+                width={10}
+                height={10}
                 className="h-full w-full object-cover"
               />
             </div>
