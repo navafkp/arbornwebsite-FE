@@ -40,9 +40,34 @@ export default function SelectSizePage() {
   }
 
   function handleSelectSize(sizeCode: number) {
+    const isChoosingFirstSize = selected.length === 0 && !selected.includes(sizeCode);
+
     setSelected((prev) =>
       prev.includes(sizeCode) ? prev.filter((code) => code !== sizeCode) : [...prev, sizeCode],
     );
+
+    // A first selection enables Continue below the supporting fit guidance. On
+    // shorter screens, bring that next step into a comfortable viewing position
+    // without moving keyboard focus away from the selected size.
+    if (isChoosingFirstSize) {
+      requestAnimationFrame(() => {
+        const continueButton = continueRef.current;
+        if (!continueButton) return;
+
+        const buttonBounds = continueButton.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const isComfortablyVisible =
+          buttonBounds.top >= viewportHeight * 0.35 && buttonBounds.bottom <= viewportHeight - 24;
+
+        if (isComfortablyVisible) return;
+
+        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        window.scrollBy({
+          top: buttonBounds.top - viewportHeight * 0.62,
+          behavior: prefersReducedMotion ? "auto" : "smooth",
+        });
+      });
+    }
   }
 
   function handleSkip() {
