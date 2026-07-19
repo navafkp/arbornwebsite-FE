@@ -26,26 +26,26 @@ const ITEMS = [
       </>
     ),
   },
-  {
-    href: "/wishlist",
-    label: "Wishlist",
-    icon: (
-      <path
-        d="M12 20s-7-4.5-9.5-9C1 8 2 4.5 5.5 4 8 3.6 10 5 12 7c2-2 4-3.4 6.5-3 3.5.5 4.5 4 3 7-2.5 4.5-9.5 9-9.5 9z"
-        strokeLinejoin="round"
-      />
-    ),
-  },
-  {
-    href: "/profile",
-    label: "Profile",
-    icon: (
-      <>
-        <circle cx="12" cy="8" r="3.5" />
-        <path d="M4.5 20c1.6-3.3 4.4-5 7.5-5s5.9 1.7 7.5 5" strokeLinecap="round" />
-      </>
-    ),
-  },
+  // {
+  //   href: "/wishlist",
+  //   label: "Wishlist",
+  //   icon: (
+  //     <path
+  //       d="M12 20s-7-4.5-9.5-9C1 8 2 4.5 5.5 4 8 3.6 10 5 12 7c2-2 4-3.4 6.5-3 3.5.5 4.5 4 3 7-2.5 4.5-9.5 9-9.5 9z"
+  //       strokeLinejoin="round"
+  //     />
+  //   ),
+  // },
+  // {
+  //   href: "/profile",
+  //   label: "Profile",
+  //   icon: (
+  //     <>
+  //       <circle cx="12" cy="8" r="3.5" />
+  //       <path d="M4.5 20c1.6-3.3 4.4-5 7.5-5s5.9 1.7 7.5 5" strokeLinecap="round" />
+  //     </>
+  //   ),
+  // },
 ];
 
 export default function MobileBottomNav() {

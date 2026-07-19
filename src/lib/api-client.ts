@@ -92,14 +92,14 @@ export async function logoutRequest(accessToken: string, refreshToken: string) {
   return unwrapData(json);
 }
 
-export async function getMyProfile(accessToken: string) {
-  const json = await request<
-    ApiEnvelope<BackendUser & { first_name: string; last_name: string }> | (BackendUser & { first_name: string; last_name: string })
-  >("/users/profile/", {
-    accessToken,
-  });
-  return unwrapData(json);
-}
+// export async function getMyProfile(accessToken: string) {
+//   const json = await request<
+//     ApiEnvelope<BackendUser & { first_name: string; last_name: string }> | (BackendUser & { first_name: string; last_name: string })
+//   >("/users/profile/", {
+//     accessToken,
+//   });
+//   return unwrapData(json);
+// }
 
 export async function updateMyProfile(
   accessToken: string,

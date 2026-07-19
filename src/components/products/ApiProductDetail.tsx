@@ -457,24 +457,17 @@ export default function ApiProductDetail() {
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-4">
           <h2 className="font-serif text-2xl tracking-wide uppercase">Review</h2>
-          {isLoggedIn ? (
-            <button
-              type="button"
-              className="rounded-full bg-accent px-4 py-2 text-xs font-medium tracking-widest text-white uppercase transition hover:bg-accent-dark"
-            >
-              Add here
-            </button>
-          ) : (
-            <Link
-              href="/login"
-              className="rounded-full bg-accent px-4 py-2 text-xs font-medium tracking-widest text-white uppercase transition hover:bg-accent-dark"
-            >
-              Add here
-            </Link>
-          )}
+
+          <button
+            type="button"
+            className="rounded-full bg-black px-2 py-1 text-xs font-medium tracking-widest text-white uppercase transition hover:bg-accent-dark"
+          >
+            add here
+          </button>
+
         </div>
 
-        {!isLoggedIn && (
+        {/* {!isLoggedIn && (
           <div className="mt-4">
             <Link
               href="/login"
@@ -483,7 +476,7 @@ export default function ApiProductDetail() {
               Login to review
             </Link>
           </div>
-        )}
+        )} */}
 
         {product.reviews.length > 0 ? (
           <div className="mt-6 flex flex-col gap-4">
