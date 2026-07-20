@@ -77,14 +77,14 @@ export default function NewInSection() {
           <button
             type="button"
             onClick={() => setOpenPanel((p) => (p === "filter" ? null : "filter"))}
-            className="flex w-full items-center justify-center gap-1 rounded-full border border-black/15 py-1.5 text-[9px]"
+            className="flex w-full items-center justify-center gap-[3.9px] rounded-full border border-black/15 py-[5.8px] text-[8.7px]"
           >
-            <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+            <svg className="h-[9.7px] w-[9.7px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
               <path d="M4 6h16M7 12h10M10 18h4" strokeLinecap="round" />
             </svg>
             Filter
-            {pricePreset && <span className="h-1 w-1 rounded-full bg-accent" />}
-            <svg className="h-2 w-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            {pricePreset && <span className="h-[3.9px] w-[3.9px] rounded-full bg-accent" />}
+            <svg className="h-[7.8px] w-[7.8px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
@@ -114,13 +114,13 @@ export default function NewInSection() {
           <button
             type="button"
             onClick={() => setOpenPanel((p) => (p === "sort" ? null : "sort"))}
-            className="flex w-full items-center justify-center gap-1 rounded-full border border-black/15 py-1.5 text-[9px]"
+            className="flex w-full items-center justify-center gap-[3.9px] rounded-full border border-black/15 py-[5.8px] text-[8.7px]"
           >
-            <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+            <svg className="h-[9.7px] w-[9.7px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
               <path d="M7 4v16M4 7l3-3 3 3M17 20V4m3 13l-3 3-3-3" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             Sort
-            <svg className="h-2 w-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg className="h-[7.8px] w-[7.8px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
@@ -173,7 +173,9 @@ export default function NewInSection() {
       {loadState === "ready" && visibleProducts.length > 0 && (
         <div className="mt-3 grid grid-cols-3 gap-2">
           {visibleProducts.map((product) => (
-            <ApiProductCard key={product.id} product={product} />
+            <div key={product.id} className="mx-auto w-[85.2%]">
+              <ApiProductCard product={product} />
+            </div>
           ))}
         </div>
       )}

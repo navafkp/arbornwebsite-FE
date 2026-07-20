@@ -21,8 +21,8 @@ function CollectionBadge({ name }: { name: string }) {
   if (!match) return null;
 
   return (
-    <span className="absolute bottom-0 left-1/2 flex h-5 w-5 -translate-x-1/2 items-center justify-center rounded-full bg-white text-accent shadow-sm">
-      {match.icon("h-3 w-3")}
+    <span className="absolute bottom-0 left-1/2 flex h-[19px] w-[19px] -translate-x-1/2 items-center justify-center rounded-full bg-white text-accent shadow-sm">
+      {match.icon("h-2.5 w-2.5")}
     </span>
   );
 }
@@ -63,10 +63,10 @@ export default function ShopByCollectionSection() {
           <Link
             key={`${card.kind}-${card.id}`}
             href={`/products?${card.kind}=${card.slug}`}
-            className="flex w-16 shrink-0 flex-col items-center gap-1.5 text-center"
+            className="flex w-[58.8px] shrink-0 flex-col items-center gap-1.5 text-center"
           >
-            <span className="relative block h-16 w-16 overflow-hidden rounded-full border border-[#f2dfe2] bg-[#f8f1ef]">
-              <Image src={card.image_url} alt={card.name} fill sizes="64px" className="object-cover" />
+            <span className="relative block h-[58.8px] w-[58.8px] overflow-hidden rounded-full border border-[#f2dfe2] bg-[#f8f1ef]">
+              <Image src={card.image_url} alt={card.name} fill sizes="59px" className="object-cover" />
               <CollectionBadge name={card.name} />
             </span>
             <span className="line-clamp-2 text-[11px] leading-tight text-[#241a1d]">{card.name}</span>
