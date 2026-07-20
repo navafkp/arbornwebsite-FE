@@ -82,7 +82,7 @@ function ContinueShoppingButton({ className }: { className?: string }) {
 export default function Hero() {
   return (
     <>
-      <PageHeader showBackButton={false} />
+      <PageHeader showBackButton={false} showSearch={false} />
       <section className="relative overflow-hidden bg-background pt-[67px]">
       <div className="mx-auto max-w-7xl px-4 pt-3 pb-4 sm:px-6 md:px-8 md:py-16 md:pb-8 lg:px-12">
         {/* Mobile-only headline (text sits above the photo, not overlaid) */}

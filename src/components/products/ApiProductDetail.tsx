@@ -17,7 +17,7 @@ import ColorSwatch from "@/components/ui/ColorSwatch";
 import RatingStars from "@/components/ui/RatingStars";
 import ApiProductCard from "@/components/products/ApiProductCard";
 import { useAuth } from "@/lib/auth-context";
-import FloatingSizeAction from "@/components/ui/FloatingSizeAction";
+import BustSizeBanner from "@/components/home/BustSizeBanner";
 
 function humanize(slug: string) {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -212,7 +212,9 @@ export default function ApiProductDetail() {
   return (
     <div>
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <BustSizeBanner />
+
+        <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2">
           <div>
             {allImages.length > 0 ? (
               <div
@@ -512,7 +514,6 @@ export default function ApiProductDetail() {
           })}
         </div>
       </div>
-      <FloatingSizeAction hasPreferredSize={preferredSizeCodes.length > 0} />
     </div>
   );
 }

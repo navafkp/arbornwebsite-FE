@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { getExplore, getProducts, type ApiProduct } from "@/lib/api-client";
+import { getProducts, type ApiProduct } from "@/lib/api-client";
 import { PRICE_PRESETS } from "@/lib/constants";
 import { HeartIcon } from "@/components/ui/decor";
 import ApiProductCard from "@/components/products/ApiProductCard";
@@ -18,18 +18,13 @@ const SORT_LABELS: Record<SortKey, string> = {
 export default function NewInSection() {
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
-  const [tagSlug, setTagSlug] = useState<string | null>(null);
   const [sort, setSort] = useState<SortKey>("newest");
   const [pricePreset, setPricePreset] = useState<string | null>(null);
   const [openPanel, setOpenPanel] = useState<"sort" | "filter" | null>(null);
 
   useEffect(() => {
-    getExplore()
-      .then(({ tags }) => {
-        const newTag = tags.find((t) => /new/i.test(t.name));
-        setTagSlug(newTag?.slug ?? null);
-        return getProducts(newTag ? { tag: newTag.slug } : {});
-      })
+    // Showing all products for now instead of filtering to a "New" tag.
+    getProducts({})
       .then((data) => {
         setProducts(data);
         setLoadState("ready");
@@ -55,8 +50,6 @@ export default function NewInSection() {
     return list.slice(0, 6);
   }, [products, sort, pricePreset]);
 
-  const viewAllHref = tagSlug ? `/products?tag=${tagSlug}` : "/products";
-
   return (
     <div className="mt-3">
       <div className="flex items-center justify-between">
@@ -64,7 +57,7 @@ export default function NewInSection() {
           New In
           <HeartIcon className="h-4 w-4 text-accent" />
         </h2>
-        <Link href={viewAllHref} className="flex items-center gap-1 text-xs font-medium text-accent">
+        <Link href="/products" className="flex items-center gap-1 text-xs font-medium text-accent">
           View all
           <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />

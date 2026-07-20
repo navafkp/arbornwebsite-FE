@@ -1,10 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getProducts, getExplore, type ApiProduct } from "@/lib/api-client";
 import { getPreferredSizes } from "@/lib/preferred-size";
+import { PRICE_PRESETS } from "@/lib/constants";
 import ApiProductCard from "@/components/products/ApiProductCard";
-import FloatingSizeAction from "@/components/ui/FloatingSizeAction";
+import BustSizeBanner from "@/components/home/BustSizeBanner";
+
+type SortKey = "newest" | "price-asc" | "price-desc";
+
+const SORT_LABELS: Record<SortKey, string> = {
+  newest: "Newest",
+  "price-asc": "Price: Low to High",
+  "price-desc": "Price: High to Low",
+};
 
 function humanize(slug: string) {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -34,6 +43,9 @@ export default function ApiProductGrid({
   // plain/category/tag browsing is still scoped to their sizes without
   // requiring them to go through /select-size again.
   const [effectiveSizes, setEffectiveSizes] = useState<number[]>(sizes);
+  const [sort, setSort] = useState<SortKey>("newest");
+  const [pricePreset, setPricePreset] = useState<string | null>(null);
+  const [openPanel, setOpenPanel] = useState<"sort" | "filter" | null>(null);
 
   useEffect(() => {
     if (sizes && sizes.length > 0) {
@@ -64,16 +76,101 @@ export default function ApiProductGrid({
       .catch(() => setActiveTagName(null));
   }, [tag]);
 
-  const heading = category ? humanize(category) : tag ? (activeTagName ?? humanize(tag)) : "Products";
+  const visibleProducts = useMemo(() => {
+    let list = products;
+    const preset = PRICE_PRESETS.find((p) => p.key === pricePreset);
+    if (preset) {
+      list = list.filter((p) => {
+        const price = Number(p.base_discount_price ?? p.base_price);
+        return price >= preset.min && price < preset.max;
+      });
+    }
+    list = [...list];
+    if (sort === "price-asc") {
+      list.sort((a, b) => Number(a.base_discount_price ?? a.base_price) - Number(b.base_discount_price ?? b.base_price));
+    } else if (sort === "price-desc") {
+      list.sort((a, b) => Number(b.base_discount_price ?? b.base_price) - Number(a.base_discount_price ?? a.base_price));
+    }
+    return list;
+  }, [products, sort, pricePreset]);
+
   return (
     <div className="mx-auto max-w-7xl px-3 pt-4 pb-10 sm:px-6 lg:px-8">
-      <div className="mt-2">
-        <h1 className="font-serif text-2xl leading-tight sm:text-3xl">{heading}</h1>
-        <p className="mt-0.5 hidden text-sm text-[var(--muted)] sm:block">
-          {loadState === "ready"
-            ? `${products.length} ${products.length === 1 ? "product" : "products"}`
-            : " "}
-        </p>
+      <BustSizeBanner />
+
+      <div className="relative mt-3 flex gap-2.5">
+        <div className="relative flex-1">
+          <button
+            type="button"
+            onClick={() => setOpenPanel((p) => (p === "filter" ? null : "filter"))}
+            className="flex w-full items-center justify-center gap-[3.9px] rounded-full border border-black/15 py-[5.8px] text-[8.7px]"
+          >
+            <svg className="h-[9.7px] w-[9.7px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+              <path d="M4 6h16M7 12h10M10 18h4" strokeLinecap="round" />
+            </svg>
+            Filter
+            {pricePreset && <span className="h-[3.9px] w-[3.9px] rounded-full bg-accent" />}
+            <svg className="h-[7.8px] w-[7.8px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+
+          {openPanel === "filter" && (
+            <div className="absolute top-full left-0 z-20 mt-2 w-56 rounded-xl border border-black/10 bg-white p-2 shadow-lg">
+              {PRICE_PRESETS.map((preset) => (
+                <button
+                  key={preset.key}
+                  type="button"
+                  onClick={() => {
+                    setPricePreset((p) => (p === preset.key ? null : preset.key));
+                    setOpenPanel(null);
+                  }}
+                  className={`block w-full rounded-lg px-3 py-2 text-left text-sm ${
+                    pricePreset === preset.key ? "bg-accent-soft text-accent" : "hover:bg-black/[0.03]"
+                  }`}
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="relative flex-1">
+          <button
+            type="button"
+            onClick={() => setOpenPanel((p) => (p === "sort" ? null : "sort"))}
+            className="flex w-full items-center justify-center gap-[3.9px] rounded-full border border-black/15 py-[5.8px] text-[8.7px]"
+          >
+            <svg className="h-[9.7px] w-[9.7px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+              <path d="M7 4v16M4 7l3-3 3 3M17 20V4m3 13l-3 3-3-3" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Sort
+            <svg className="h-[7.8px] w-[7.8px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+
+          {openPanel === "sort" && (
+            <div className="absolute top-full right-0 z-20 mt-2 w-52 rounded-xl border border-black/10 bg-white p-2 shadow-lg">
+              {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => {
+                    setSort(key);
+                    setOpenPanel(null);
+                  }}
+                  className={`block w-full rounded-lg px-3 py-2 text-left text-sm ${
+                    sort === key ? "bg-accent-soft text-accent" : "hover:bg-black/[0.03]"
+                  }`}
+                >
+                  {SORT_LABELS[key]}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {loadState === "loading" && (
@@ -93,15 +190,15 @@ export default function ApiProductGrid({
         </p>
       )}
 
-      {loadState === "ready" && products.length === 0 && (
+      {loadState === "ready" && visibleProducts.length === 0 && (
         <p className="mt-8 rounded-2xl border border-dashed border-black/15 px-4 py-3.5 text-sm text-[var(--muted)]">
           No products found here yet.
         </p>
       )}
 
-      {loadState === "ready" && products.length > 0 && (
+      {loadState === "ready" && visibleProducts.length > 0 && (
         <div className="mt-3 grid grid-cols-2 gap-3 sm:mt-6 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5 lg:gap-4">
-          {products.map((product) => (
+          {visibleProducts.map((product) => (
             <ApiProductCard
               key={product.id}
               product={product}
@@ -110,31 +207,6 @@ export default function ApiProductGrid({
           ))}
         </div>
       )}
-
-      <FloatingSizeAction hasPreferredSize={effectiveSizes.length > 0} />
-
-      <div className="fixed bottom-20 left-1/2 z-40 w-[90%] max-w-sm -translate-x-1/2 md:hidden">        <button
-        type="button"
-        // onClick={() => setMobileFiltersOpen(true)}
-        className="flex w-full max-w-sm items-center justify-center gap-2 rounded-full bg-accent py-3.5 text-sm font-medium text-white shadow-xl"
-      >
-        <svg
-          className="h-4 w-4"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path
-            d="M3 5h18M6 12h12M10 19h4"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-
-        <span>Filter & Sort</span>
-      </button>
-      </div>
     </div>
   );
 }
