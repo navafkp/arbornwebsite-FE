@@ -188,7 +188,7 @@ export default function ApiProductCard({
               {visibleFooterColours.map((colour, index) => (
                 <span
                   key={`${colour}-${index}`}
-                  className={`h-[5px] w-[5px] shrink-0 rounded-full border border-white shadow-[0_1px_2px_rgba(85,43,55,0.16)] sm:h-[9px] sm:w-[9px] ${index === 2 ? "hidden sm:block" : ""}`}
+                  className={`h-[9px] w-[9px] shrink-0 rounded-full border border-white shadow-[0_1px_2px_rgba(85,43,55,0.16)] sm:h-[14px] sm:w-[14px] ${index === 2 ? "hidden sm:block" : ""}`}
                   style={{ backgroundColor: colour }}
                 />
               ))}
