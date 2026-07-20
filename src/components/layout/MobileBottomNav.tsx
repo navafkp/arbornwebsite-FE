@@ -16,7 +16,7 @@ const ITEMS = [
   },
   {
     href: "/categories",
-    label: "Explore",
+    label: "Collections",
     icon: (
       <>
         <rect x="4" y="4" width="7" height="7" rx="1.5" />
@@ -26,68 +26,98 @@ const ITEMS = [
       </>
     ),
   },
-  // {
-  //   href: "/wishlist",
-  //   label: "Wishlist",
-  //   icon: (
-  //     <path
-  //       d="M12 20s-7-4.5-9.5-9C1 8 2 4.5 5.5 4 8 3.6 10 5 12 7c2-2 4-3.4 6.5-3 3.5.5 4.5 4 3 7-2.5 4.5-9.5 9-9.5 9z"
-  //       strokeLinejoin="round"
-  //     />
-  //   ),
-  // },
-  // {
-  //   href: "/profile",
-  //   label: "Profile",
-  //   icon: (
-  //     <>
-  //       <circle cx="12" cy="8" r="3.5" />
-  //       <path d="M4.5 20c1.6-3.3 4.4-5 7.5-5s5.9 1.7 7.5 5" strokeLinecap="round" />
-  //     </>
-  //   ),
-  // },
+  {
+    href: "/wishlist",
+    label: "Wishlist",
+    icon: (
+      <path
+        d="M12 20s-7-4.5-9.5-9C1 8 2 4.5 5.5 4 8 3.6 10 5 12 7c2-2 4-3.4 6.5-3 3.5.5 4.5 4 3 7-2.5 4.5-9.5 9-9.5 9z"
+        strokeLinejoin="round"
+      />
+    ),
+  },
+  {
+    href: "/profile",
+    label: "Profile",
+    icon: (
+      <>
+        <circle cx="12" cy="8" r="3.5" />
+        <path d="M4.5 20c1.6-3.3 4.4-5 7.5-5s5.9 1.7 7.5 5" strokeLinecap="round" />
+      </>
+    ),
+  },
 ];
+
+function NavLink({ item, active }: { item: (typeof ITEMS)[number]; active: boolean }) {
+  const { wishlistCount } = useShop();
+
+  return (
+    <Link
+      href={item.href}
+      className={cn(
+        "relative flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] tracking-wide",
+        active ? "text-accent" : "text-black/50",
+      )}
+    >
+      <svg
+        className="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={active ? 2 : 1.6}
+      >
+        {item.icon}
+      </svg>
+      {item.label}
+      {item.label === "Wishlist" && wishlistCount > 0 && (
+        <span className="absolute top-1 right-1/2 h-4 min-w-4 translate-x-3 rounded-full bg-accent px-1 text-center text-[9px] leading-4 text-white">
+          {wishlistCount}
+        </span>
+      )}
+    </Link>
+  );
+}
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
-  const { wishlistCount } = useShop();
+  const { cartCount } = useShop();
 
   if (isNoChromeRoute(pathname)) return null;
 
+  const [home, collections, wishlist, profile] = ITEMS;
+  const bagActive = pathname === "/cart";
+
   return (
     <nav
-      className="fixed right-0 bottom-0 left-0 z-40 flex border-t border-black/5 bg-white/95 backdrop-blur-sm"
+      className="fixed right-0 bottom-0 left-0 z-40 flex items-stretch border-t border-black/5 bg-white/95 backdrop-blur-sm"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      {ITEMS.map((item) => {
-        const active = pathname === item.href;
-        return (
-          <Link
-            key={item.label}
-            href={item.href}
-            className={cn(
-              "relative flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] tracking-wide",
-              active ? "text-accent" : "text-black/50",
-            )}
-          >
-            <svg
-              className="h-5 w-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={active ? 2 : 1.6}
-            >
-              {item.icon}
-            </svg>
-            {item.label}
-            {item.label === "Wishlist" && wishlistCount > 0 && (
-              <span className="absolute top-1 right-1/2 h-4 min-w-4 translate-x-3 rounded-full bg-accent px-1 text-center text-[9px] leading-4 text-white">
-                {wishlistCount}
-              </span>
-            )}
-          </Link>
-        );
-      })}
+      <NavLink item={home} active={pathname === home.href} />
+      <NavLink item={collections} active={pathname === collections.href} />
+
+      <div className="relative flex flex-1 items-center justify-center">
+        <Link
+          href="/cart"
+          aria-label="Bag"
+          className={cn(
+            "absolute -top-6 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-[0_10px_20px_rgba(185,62,91,0.35)]",
+            bagActive ? "bg-accent-dark" : "bg-accent",
+          )}
+        >
+          <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+            <path d="M6 8h12l-1 12a1.5 1.5 0 01-1.5 1.4h-7A1.5 1.5 0 017 20L6 8z" strokeLinejoin="round" />
+            <path d="M9 8V6a3 3 0 016 0v2" strokeLinecap="round" />
+          </svg>
+          {cartCount > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-white px-1 text-[9px] leading-none text-accent">
+              {cartCount}
+            </span>
+          )}
+        </Link>
+      </div>
+
+      <NavLink item={wishlist} active={pathname === wishlist.href} />
+      <NavLink item={profile} active={pathname === profile.href} />
     </nav>
   );
 }

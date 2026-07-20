@@ -16,7 +16,7 @@ export const SORT_OPTIONS = [
 export type SortKey = (typeof SORT_OPTIONS)[number]["key"];
 
 // Pages with their own full-bleed layout — no Footer, no bottom nav.
-const NO_CHROME_ROUTES = ["/", "/select-size"];
+const NO_CHROME_ROUTES = ["/select-size"];
 
 // next.config.ts sets trailingSlash: true (required for GitHub Pages), so
 // usePathname() can return "/select-size/" instead of "/select-size" —

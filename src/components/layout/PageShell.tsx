@@ -1,8 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import BackButton from "@/components/ui/BackButton";
 import { BowIcon } from "@/components/ui/decor";
+import { withBasePath } from "@/lib/asset-path";
+
+const LOGO_IMAGE = withBasePath("/arborn.webp");
 
 export default function PageShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -17,19 +21,19 @@ export default function PageShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function PageHeader() {
+export function PageHeader({ showBackButton = true }: { showBackButton?: boolean }) {
   return (
     <header className="fixed top-0 right-0 left-0 z-50 flex h-24 items-center justify-center border-b border-black/5 bg-background px-4">
-      <div className="absolute top-1/2 left-3 -translate-y-1/2">
-        <BackButton variant="bare" />
-      </div>
+      {showBackButton && (
+        <div className="absolute top-1/2 left-3 -translate-y-1/2">
+          <BackButton variant="bare" />
+        </div>
+      )}
 
       <div className="flex flex-col items-center leading-none">
-        <BowIcon className="mb-1 h-5 w-5 text-accent" />
-        <p className="text-[20px] font-medium tracking-[0.35em] text-neutral-500 uppercase">
-          ARBORN
-        </p>
-        <p className="mt-0 font-serif text-sm tracking-[0.25em] text-[#D88FA0]">NIGHTWEAR</p>
+        <BowIcon className="mb-0.5 h-4 w-4 text-accent" />
+        <Image src={LOGO_IMAGE} alt="Arborn" width={56} height={56} className="h-14 w-14 object-contain" />
+        <p className="mt-0.5 font-serif text-[9px] tracking-[0.2em] text-[#D88FA0]">NIGHTWEAR</p>
       </div>
     </header>
   );

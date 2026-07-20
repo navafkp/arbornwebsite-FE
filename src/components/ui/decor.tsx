@@ -50,6 +50,27 @@ export function CloudShape({ className }: { className?: string }) {
   );
 }
 
+export function FlowerIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
+      <circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="6.5" r="3" />
+      <circle cx="12" cy="17.5" r="3" />
+      <circle cx="6.5" cy="12" r="3" />
+      <circle cx="17.5" cy="12" r="3" />
+    </svg>
+  );
+}
+
+export function LeafIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
+      <path d="M20 4C10 4 4 10 4 18v2h2c8 0 14-6 14-14V4z" strokeLinejoin="round" />
+      <path d="M6 20C10 14 14 10 19 5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function BunnyIllustration({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 100 100" fill="none">

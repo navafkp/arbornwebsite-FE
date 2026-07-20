@@ -164,6 +164,12 @@ export default function ApiProductCard({
             </span>
           )}
           <VariantPatternPreviews cues={variantCues} />
+
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-2 pt-6 pb-1.5">
+            <span className="block truncate text-[11px] font-medium leading-tight text-white sm:text-[13px]">
+              {product.name}
+            </span>
+          </div>
         </div>
 
         <div className="grid min-h-12 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 border-t border-[#f8ebed] bg-[#fffafa] px-2 py-1.5 sm:min-h-[54px] sm:gap-1.5 sm:px-2.5 sm:py-2">

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
-import { getPreferredSizes, setPreferredSizes, clearPreferredSize } from "@/lib/preferred-size";
+import { getPreferredSizes, setPreferredSizes, clearPreferredSize, markSizeDecisionMade } from "@/lib/preferred-size";
 import { getSizes, type BackendSize } from "@/lib/api-client";
 import { BowIcon, SparkleIcon, HeartIcon, CloudShape, BunnyIllustration } from "@/components/ui/decor";
 import ScrollHint from "@/components/ui/ScrollHint";
@@ -36,7 +36,8 @@ export default function SelectSizePage() {
   function handleContinue() {
     if (selected.length === 0) return;
     setPreferredSizes(selected);
-    router.push(`/products?size=${selected.join("&size=")}`);
+    markSizeDecisionMade();
+    router.push("/");
   }
 
   function handleSelectSize(sizeCode: number) {
@@ -72,7 +73,8 @@ export default function SelectSizePage() {
 
   function handleSkip() {
     clearPreferredSize();
-    router.push("/products");
+    markSizeDecisionMade();
+    router.push("/");
   }
 
   return (
