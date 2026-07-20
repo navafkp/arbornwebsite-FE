@@ -63,15 +63,22 @@ function VariantPatternPreviews({ cues }: { cues: VariantCue[] }) {
 
       <div
         aria-hidden="true"
-        className="absolute right-1.5 bottom-1.5 z-[1] flex w-7 flex-col gap-[1px] rounded-lg border-2 border-white p-0 shadow-[0_2px_5px_rgba(85,43,55,0.2)] sm:right-2 sm:bottom-2 sm:w-8"
+        className="absolute right-1.5 bottom-1.5 z-[1] flex w-7 flex-col sm:right-2 sm:bottom-2 sm:w-8"
       >
-        {visibleCues.map((cue) => (
-          <span key={cue.id} className="relative block aspect-square w-full overflow-hidden rounded-[5px]" style={{ backgroundColor: cue.colour }}>
+        {visibleCues.map((cue, index) => (
+          <span
+            key={cue.id}
+            className={`relative block aspect-square w-full overflow-hidden rounded-lg shadow-[0_1px_3px_rgba(85,43,55,0.3)] ${index > 0 ? "-mt-[25%]" : ""}`}
+            style={{ backgroundColor: cue.colour, zIndex: index }}
+          >
             {cue.imageUrl && <Image src={cue.imageUrl} alt="" fill sizes="28px" className="object-cover" />}
           </span>
         ))}
         {remainingCount > 0 && (
-          <span className="flex aspect-square items-center justify-center rounded-[5px] bg-white text-[7px] font-semibold text-[#2a2022] sm:text-[8px]">
+          <span
+            className="relative -mt-[50%] flex aspect-square items-center justify-center rounded-lg bg-white text-[7px] font-semibold text-[#2a2022] shadow-[0_1px_3px_rgba(85,43,55,0.3)] sm:text-[8px]"
+            style={{ zIndex: visibleCues.length }}
+          >
             +{remainingCount}
           </span>
         )}
