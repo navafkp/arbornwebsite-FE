@@ -16,14 +16,14 @@ export default function PageShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       {hasPageHeader && <PageHeader />}
-      <main className={hasPageHeader ? "flex-1 pt-[96px]" : "flex-1"}>{children}</main>
+      <main className={hasPageHeader ? "flex-1 pt-[67px]" : "flex-1"}>{children}</main>
     </>
   );
 }
 
 export function PageHeader({ showBackButton = true }: { showBackButton?: boolean }) {
   return (
-    <header className="fixed top-0 right-0 left-0 z-50 flex h-24 items-center justify-center border-b border-black/5 bg-background px-4">
+    <header className="fixed top-0 right-0 left-0 z-50 flex h-[67px] items-center justify-center border-b border-black/5 bg-background px-4">
       {showBackButton && (
         <div className="absolute top-1/2 left-3 -translate-y-1/2">
           <BackButton variant="bare" />
@@ -31,9 +31,9 @@ export function PageHeader({ showBackButton = true }: { showBackButton?: boolean
       )}
 
       <div className="flex flex-col items-center leading-none">
-        <BowIcon className="mb-0.5 h-4 w-4 text-accent" />
-        <Image src={LOGO_IMAGE} alt="Arborn" width={56} height={56} className="h-14 w-14 object-contain" />
-        <p className="mt-0.5 font-serif text-[9px] tracking-[0.2em] text-[#D88FA0]">NIGHTWEAR</p>
+        <BowIcon className="mb-0.5 h-3 w-3 text-accent" />
+        <Image src={LOGO_IMAGE} alt="Arborn" width={40} height={40} className="h-10 w-10 object-contain" />
+        <p className="mt-0.5 font-serif text-[7px] tracking-[0.15em] text-[#D88FA0]">NIGHTWEAR</p>
       </div>
     </header>
   );

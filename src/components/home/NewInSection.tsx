@@ -180,7 +180,7 @@ export default function NewInSection() {
 
       <Link
         href="/products"
-        className="mt-4 flex items-center justify-center gap-1 rounded-full border border-accent/40 py-1.5 text-[9px] font-medium text-accent"
+        className="mt-3.5 flex items-center justify-center gap-1 rounded-full border border-accent/40 py-1.5 text-[9px] font-medium text-accent"
       >
         View All Products
         <svg className="h-2 w-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

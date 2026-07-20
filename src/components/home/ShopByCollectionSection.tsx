@@ -44,7 +44,7 @@ export default function ShopByCollectionSection() {
   if (cards.length === 0) return null;
 
   return (
-    <div className="mt-4">
+    <div className="mt-3.5">
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-1.5 font-serif text-2xl">
           Shop by Collection
@@ -58,7 +58,7 @@ export default function ShopByCollectionSection() {
         </Link>
       </div>
 
-      <div className="no-scrollbar mt-4 flex gap-4 overflow-x-auto pb-1">
+      <div className="no-scrollbar mt-3.5 flex gap-4 overflow-x-auto pb-1">
         {cards.slice(0, 6).map((card) => (
           <Link
             key={`${card.kind}-${card.id}`}
