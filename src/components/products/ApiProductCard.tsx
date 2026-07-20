@@ -63,15 +63,15 @@ function VariantPatternPreviews({ cues }: { cues: VariantCue[] }) {
 
       <div
         aria-hidden="true"
-        className="absolute right-1.5 bottom-1.5 z-[1] flex w-9 flex-col overflow-hidden rounded-[10px] border-2 border-white bg-white shadow-[0_2px_5px_rgba(85,43,55,0.2)] sm:right-2 sm:bottom-2 sm:w-10"
+        className="absolute right-1.5 bottom-1.5 z-[1] flex w-7 flex-col gap-[1px] rounded-lg border-2 border-white p-0 shadow-[0_2px_5px_rgba(85,43,55,0.2)] sm:right-2 sm:bottom-2 sm:w-8"
       >
         {visibleCues.map((cue) => (
-          <span key={cue.id} className="relative block h-7 w-full overflow-hidden border-b border-white/85 last:border-b-0 sm:h-8" style={{ backgroundColor: cue.colour }}>
-            {cue.imageUrl && <Image src={cue.imageUrl} alt="" fill sizes="40px" className="object-cover" />}
+          <span key={cue.id} className="relative block aspect-square w-full overflow-hidden rounded-[5px]" style={{ backgroundColor: cue.colour }}>
+            {cue.imageUrl && <Image src={cue.imageUrl} alt="" fill sizes="28px" className="object-cover" />}
           </span>
         ))}
         {remainingCount > 0 && (
-          <span className="flex h-7 items-center justify-center bg-white text-[9px] font-semibold text-[#2a2022] sm:h-8 sm:text-[10px]">
+          <span className="flex aspect-square items-center justify-center rounded-[5px] bg-white text-[7px] font-semibold text-[#2a2022] sm:text-[8px]">
             +{remainingCount}
           </span>
         )}
