@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { BowIcon } from "@/components/ui/decor";
 import SearchBar from "@/components/layout/SearchBar";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { withBasePath } from "@/lib/asset-path";
@@ -48,8 +47,7 @@ export default function HomeHeader() {
           </button>
 
           <div className="flex flex-col items-center leading-none">
-            <BowIcon className="mb-0.5 h-3 w-3 text-accent" />
-            <Image src={LOGO_IMAGE} alt="Arborn" width={40} height={40} className="h-10 w-10 object-contain" />
+            <Image src={LOGO_IMAGE} alt="Arborn" width={64} height={64} className="h-16 w-16 object-contain" />
             <p className="mt-0.5 font-serif text-[10px] font-bold tracking-[0.15em] text-[#D88FA0]">NIGHTWEAR</p>
           </div>
 
