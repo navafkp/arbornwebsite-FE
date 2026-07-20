@@ -18,6 +18,7 @@ import RatingStars from "@/components/ui/RatingStars";
 import ApiProductCard from "@/components/products/ApiProductCard";
 import { useAuth } from "@/lib/auth-context";
 import BustSizeBanner from "@/components/home/BustSizeBanner";
+import InstagramReelCard from "@/components/products/InstagramReelCard";
 
 function humanize(slug: string) {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -211,7 +212,7 @@ export default function ApiProductDetail() {
 
   return (
     <div>
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 pt-4 pb-10 sm:px-6 lg:px-8">
         <BustSizeBanner />
 
         <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2">
@@ -234,6 +235,15 @@ export default function ApiProductDetail() {
                     />
                   </div>
                 ))}
+                {/* TEMP: preview fallback until the backend sends instagram_reel_url — remove this fallback once it does. */}
+                {(product.instagram_reel_url ?? "https://www.instagram.com/reel/Da-dYBpIcb2/?igsh=bWdvZzIzdmppNTF1") && (
+                  <div className="relative h-full w-full flex-shrink-0 snap-start">
+                    <InstagramReelCard
+                      url={product.instagram_reel_url ?? "https://www.instagram.com/reel/Da-dYBpIcb2/?igsh=bWdvZzIzdmppNTF1"}
+                      thumbnailUrl={product.instagram_thumbnail_url}
+                    />
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex aspect-[3/4] w-full items-center justify-center rounded-xl bg-[#f4f2ee] text-sm text-[var(--muted)]">

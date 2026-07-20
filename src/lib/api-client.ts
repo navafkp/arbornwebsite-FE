@@ -228,6 +228,10 @@ export interface ApiProductDetail {
   related_products: ApiProduct[];
   review_summary: { average_rating: number; review_count: number };
   reviews: ApiReview[];
+  // Not sent by the backend yet — once it is, an Instagram reel card renders
+  // as the last slide of the image gallery. Absent/null hides that slide.
+  instagram_reel_url?: string | null;
+  instagram_thumbnail_url?: string | null;
 }
 
 export async function getProductDetail(slug: string, sizes?: number[]) {
