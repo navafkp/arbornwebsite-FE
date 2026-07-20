@@ -148,7 +148,7 @@ export default function NewInSection() {
       </div>
 
       {loadState === "loading" && (
-        <div className="mt-3 grid grid-cols-3 gap-2">
+        <div className="mt-3 grid grid-cols-3 gap-1">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="w-full overflow-hidden rounded-[15px] border border-[#f2dfe2] bg-[#fffefd] shadow-[0_2px_9px_rgba(85,43,55,0.07)]">
               <div className="aspect-[3/4] animate-pulse bg-[#f9f3f2]" />
@@ -171,9 +171,9 @@ export default function NewInSection() {
       )}
 
       {loadState === "ready" && visibleProducts.length > 0 && (
-        <div className="mt-3 grid grid-cols-3 gap-2">
+        <div className="mt-3 grid grid-cols-3 gap-1">
           {visibleProducts.map((product) => (
-            <div key={product.id} className="mx-auto w-[85.2%]">
+            <div key={product.id} className="mx-auto w-full">
               <ApiProductCard product={product} />
             </div>
           ))}
@@ -182,7 +182,7 @@ export default function NewInSection() {
 
       <Link
         href="/products"
-        className="mt-3.5 flex items-center justify-center gap-1 rounded-full border border-accent/40 py-1.5 text-[9px] font-medium text-accent"
+        className="mt-[13.3px] flex items-center justify-center gap-1 rounded-full border border-accent/40 py-1.5 text-[9px] font-medium text-accent"
       >
         View All Products
         <svg className="h-2 w-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

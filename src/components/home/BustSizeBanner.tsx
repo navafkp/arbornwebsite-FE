@@ -20,7 +20,7 @@ export default function BustSizeBanner() {
     .filter((s): s is BackendSize => Boolean(s));
 
   return (
-    <div className="mt-3 flex items-center justify-between gap-2 rounded-2xl bg-accent-soft px-3 py-2.5 sm:gap-3 sm:px-5 sm:py-3.5">
+    <div className="mt-[11.4px] flex items-center justify-between gap-2 rounded-2xl bg-accent-soft px-3 py-2.5 sm:gap-3 sm:px-5 sm:py-3.5">
       <div className="flex min-w-0 items-center gap-2 sm:gap-3">
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-accent sm:h-10 sm:w-10">
           <svg className="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9">

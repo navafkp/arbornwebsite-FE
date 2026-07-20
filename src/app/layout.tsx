@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Cormorant_Garamond } from "next/font/google";
-import Footer from "@/components/layout/Footer";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import BottomNavSpacer from "@/components/layout/BottomNavSpacer";
 import PageShell from "@/components/layout/PageShell";
@@ -76,7 +75,6 @@ export default function RootLayout({
         <AuthProvider>
           <ShopProvider>
             <PageShell>{children}</PageShell>
-            <Footer />
             <BottomNavSpacer />
             <MobileBottomNav />
           </ShopProvider>
