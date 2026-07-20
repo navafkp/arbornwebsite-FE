@@ -8,7 +8,7 @@ export default function HomeScreen() {
   return (
     <>
       <HomeHeader />
-      <div className="mx-auto max-w-7xl px-4 pt-[104px] pb-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 pt-[104px] pb-6 sm:px-6 lg:px-8">
         <BustSizeBanner />
         <NewInSection />
         <ShopByCollectionSection />

@@ -58,7 +58,7 @@ export default function NewInSection() {
   const viewAllHref = tagSlug ? `/products?tag=${tagSlug}` : "/products";
 
   return (
-    <div className="mt-8">
+    <div className="mt-3">
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-1.5 font-serif text-2xl">
           New In
@@ -72,19 +72,19 @@ export default function NewInSection() {
         </Link>
       </div>
 
-      <div className="relative mt-3 flex gap-2.5">
+      <div className="relative mt-1 flex gap-2.5">
         <div className="relative flex-1">
           <button
             type="button"
             onClick={() => setOpenPanel((p) => (p === "filter" ? null : "filter"))}
-            className="flex w-full items-center justify-center gap-2 rounded-full border border-black/15 py-2.5 text-sm"
+            className="flex w-full items-center justify-center gap-1 rounded-full border border-black/15 py-1.5 text-[9px]"
           >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+            <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
               <path d="M4 6h16M7 12h10M10 18h4" strokeLinecap="round" />
             </svg>
             Filter
-            {pricePreset && <span className="h-1.5 w-1.5 rounded-full bg-accent" />}
-            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            {pricePreset && <span className="h-1 w-1 rounded-full bg-accent" />}
+            <svg className="h-2 w-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
@@ -114,13 +114,13 @@ export default function NewInSection() {
           <button
             type="button"
             onClick={() => setOpenPanel((p) => (p === "sort" ? null : "sort"))}
-            className="flex w-full items-center justify-center gap-2 rounded-full border border-black/15 py-2.5 text-sm"
+            className="flex w-full items-center justify-center gap-1 rounded-full border border-black/15 py-1.5 text-[9px]"
           >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+            <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
               <path d="M7 4v16M4 7l3-3 3 3M17 20V4m3 13l-3 3-3-3" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             Sort
-            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg className="h-2 w-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
@@ -148,7 +148,7 @@ export default function NewInSection() {
       </div>
 
       {loadState === "loading" && (
-        <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="mt-3 grid grid-cols-3 gap-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="w-full overflow-hidden rounded-[15px] border border-[#f2dfe2] bg-[#fffefd] shadow-[0_2px_9px_rgba(85,43,55,0.07)]">
               <div className="aspect-[3/4] animate-pulse bg-[#f9f3f2]" />
@@ -171,7 +171,7 @@ export default function NewInSection() {
       )}
 
       {loadState === "ready" && visibleProducts.length > 0 && (
-        <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="mt-3 grid grid-cols-3 gap-2">
           {visibleProducts.map((product) => (
             <ApiProductCard key={product.id} product={product} />
           ))}
@@ -180,10 +180,10 @@ export default function NewInSection() {
 
       <Link
         href="/products"
-        className="mt-5 flex items-center justify-center gap-2 rounded-full border border-accent/40 py-3.5 text-sm font-medium text-accent"
+        className="mt-4 flex items-center justify-center gap-1 rounded-full border border-accent/40 py-1.5 text-[9px] font-medium text-accent"
       >
         View All Products
-        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg className="h-2 w-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </Link>

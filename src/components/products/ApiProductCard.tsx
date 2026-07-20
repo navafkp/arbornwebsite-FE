@@ -138,7 +138,7 @@ export default function ApiProductCard({
   const remainingDesktopFooterColours = footerColours.length - 3;
 
   return (
-    <article ref={cardRef} className="group relative overflow-hidden rounded-[15px] border border-[#f2dfe2] bg-[#fffefd] shadow-[0_2px_9px_rgba(85,43,55,0.07)] transition-shadow duration-300 hover:shadow-[0_6px_16px_rgba(85,43,55,0.11)]">
+    <article ref={cardRef} className="group relative min-w-0 overflow-hidden rounded-[15px] border border-[#f2dfe2] bg-[#fffefd] shadow-[0_2px_9px_rgba(85,43,55,0.07)] transition-shadow duration-300 hover:shadow-[0_6px_16px_rgba(85,43,55,0.11)]">
       <Link
         href={`/products/detail?slug=${product.slug}`}
         aria-label={`View ${product.name}`}
@@ -172,31 +172,31 @@ export default function ApiProductCard({
           </div>
         </div>
 
-        <div className="grid min-h-12 grid-cols-[minmax(0,1fr)_auto] items-center gap-1 border-t border-[#f8ebed] bg-[#fffafa] px-2 py-1.5 sm:min-h-[54px] sm:gap-1.5 sm:px-2.5 sm:py-2">
+        <div className="grid min-h-6 grid-cols-[minmax(0,1fr)_auto] items-center gap-0.5 border-t border-[#f8ebed] bg-[#fffafa] px-1.5 py-0.5 sm:min-h-[27px] sm:gap-1 sm:px-2 sm:py-1">
           <div className="min-w-0">
-            <span className="block whitespace-nowrap text-[12px] leading-4 font-semibold tracking-[-0.045em] text-[#1e1719] sm:text-[15px] sm:leading-5 sm:tracking-[-0.035em]">
+            <span className="block whitespace-nowrap text-[10px] leading-3 font-semibold tracking-[-0.045em] text-[#1e1719] sm:text-[12px] sm:leading-4 sm:tracking-[-0.035em]">
               {formatPrice(discountPrice ?? price)}
             </span>
             {discountPrice && (
-              <span className="block truncate text-[8px] leading-3 text-black/40 line-through sm:text-[10px]">
+              <span className="block truncate text-[7px] leading-[10px] text-black/40 line-through sm:text-[9px]">
                 {formatPrice(price)}
               </span>
             )}
           </div>
           {visibleFooterColours.length > 0 && (
-            <div aria-hidden="true" className="flex shrink-0 items-center justify-end gap-[2px] whitespace-nowrap sm:gap-1">
+            <div aria-hidden="true" className="flex shrink-0 items-center justify-end gap-[1px] whitespace-nowrap sm:gap-0.5">
               {visibleFooterColours.map((colour, index) => (
                 <span
                   key={`${colour}-${index}`}
-                  className={`h-[9px] w-[9px] shrink-0 rounded-full border border-white shadow-[0_1px_2px_rgba(85,43,55,0.16)] sm:h-[17px] sm:w-[17px] ${index === 2 ? "hidden sm:block" : ""}`}
+                  className={`h-[5px] w-[5px] shrink-0 rounded-full border border-white shadow-[0_1px_2px_rgba(85,43,55,0.16)] sm:h-[9px] sm:w-[9px] ${index === 2 ? "hidden sm:block" : ""}`}
                   style={{ backgroundColor: colour }}
                 />
               ))}
               {remainingMobileFooterColours > 0 && (
-                <span className="ml-px shrink-0 text-[9px] font-semibold leading-none text-[#2a2022] sm:hidden">+{remainingMobileFooterColours}</span>
+                <span className="ml-px shrink-0 text-[6px] font-semibold leading-none text-[#2a2022] sm:hidden">+{remainingMobileFooterColours}</span>
               )}
               {remainingDesktopFooterColours > 0 && (
-                <span className="ml-0.5 hidden shrink-0 text-[10px] leading-none font-semibold text-[#2a2022] sm:inline">+{remainingDesktopFooterColours}</span>
+                <span className="ml-0.5 hidden shrink-0 text-[7px] leading-none font-semibold text-[#2a2022] sm:inline">+{remainingDesktopFooterColours}</span>
               )}
             </div>
           )}

@@ -2,7 +2,7 @@ import { HeartIcon } from "@/components/ui/decor";
 
 export default function FeatureStrip() {
   return (
-    <div className="relative mt-10 overflow-hidden rounded-3xl bg-accent-soft px-5 py-6">
+    <div className="relative mt-6 overflow-hidden rounded-3xl bg-accent-soft px-5 py-5">
       <HeartIcon filled className="absolute top-4 left-8 h-3 w-3 text-accent/40" />
       <HeartIcon filled className="absolute top-9 left-16 h-2.5 w-2.5 text-accent/30" />
       <HeartIcon filled className="absolute bottom-5 left-5 h-2 w-2 text-accent/30" />
