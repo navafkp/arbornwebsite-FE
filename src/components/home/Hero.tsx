@@ -5,6 +5,7 @@ import Link from "next/link";
 import { SparkleIcon, HeartIcon, CloudShape } from "@/components/ui/decor";
 import ScrollHint from "@/components/ui/ScrollHint";
 import { PageHeader } from "@/components/layout/PageShell";
+import AboutUsSection from "@/components/home/AboutUsSection";
 import { withBasePath } from "@/lib/asset-path";
 
 const HERO_IMAGE = withBasePath("/images/arborn-nightwear.png");
@@ -147,6 +148,8 @@ export default function Hero() {
 
       <ScrollHint className="bottom-4 md:hidden" />
       </section>
+
+      <AboutUsSection />
     </>
   );
 }
