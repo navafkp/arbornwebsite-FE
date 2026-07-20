@@ -1,15 +1,11 @@
 export function BowIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
-      <path
-        d="M12 12c-1.5-2.5-4.5-4.5-7-3.5-2 .8-2 4.2 0 5 2.5 1 5.5-1 7-3.5z"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M12 12c1.5-2.5 4.5-4.5 7-3.5 2 .8 2 4.2 0 5-2.5 1-5.5-1-7-3.5z"
-        strokeLinejoin="round"
-      />
-      <circle cx="12" cy="12" r="1.3" fill="currentColor" />
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3">
+      <path d="M12 12C8 8 4 8 3 12C4 16 8 16 12 12Z" strokeLinejoin="round" />
+      <path d="M12 12C16 8 20 8 21 12C20 16 16 16 12 12Z" strokeLinejoin="round" />
+      <circle cx="3" cy="12" r="0.9" fill="currentColor" stroke="none" />
+      <circle cx="21" cy="12" r="0.9" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
     </svg>
   );
 }
