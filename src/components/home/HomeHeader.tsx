@@ -46,10 +46,9 @@ export default function HomeHeader() {
             </svg>
           </button>
 
-          <div className="pointer-events-none absolute top-[-0.5px] left-1/2 -translate-x-1/2">
+          <div className="pointer-events-none absolute top-[6px] left-1/2 -translate-x-1/2">
             <Image src={LOGO_IMAGE} alt="Arborn" width={64} height={64} className="h-16 w-16 object-contain" />
           </div>
-          <p className="pointer-events-none absolute top-[67px] left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-serif text-[10px] leading-none font-bold tracking-[0.15em] text-[#D88FA0]">NIGHTWEAR</p>
 
           <div className="relative z-30 flex items-center gap-1">
             <a

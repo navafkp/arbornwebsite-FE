@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { HeartIcon } from "@/components/ui/decor";
 
@@ -9,10 +10,11 @@ type Story = {
   caption: string;
   accent: string;
   icon: "spark" | "camera" | "heart" | "style" | "gift";
+  cta?: { label: string; href: string };
 };
 
 const STORIES: Story[] = [
-  { label: "New Arrivals", eyebrow: "Freshly landed", caption: "Soft new silhouettes for slow mornings and sweeter nights.", accent: "from-[#cf7186] via-[#f29a85] to-[#e9b968]", icon: "spark" },
+  { label: "New Arrivals", eyebrow: "Freshly landed", caption: "Soft new silhouettes for slow mornings and sweeter nights.", accent: "from-[#cf7186] via-[#f29a85] to-[#e9b968]", icon: "spark", cta: { label: "Shop this look", href: "/products/detail?slug=korean-pajama-set" } },
   { label: "Behind the Scenes", eyebrow: "Inside Arborn", caption: "A quiet look at the details, fittings and hands behind every set.", accent: "from-[#d78699] via-[#df9f83] to-[#f0c77d]", icon: "camera" },
   { label: "Customer Love", eyebrow: "Worn & loved", caption: "Comfort notes and favourite fits, shared by the Arborn community.", accent: "from-[#bd6e80] via-[#e79499] to-[#e9bd7a]", icon: "heart" },
   { label: "Style Tips", eyebrow: "The nightwear edit", caption: "Small styling ideas to take your favourite co-ord beyond bedtime.", accent: "from-[#d2798e] via-[#e7a67f] to-[#f2cb82]", icon: "style" },
@@ -157,11 +159,19 @@ export default function ArbornStories({ compactBubbles = false }: { compactBubbl
               <div className="min-w-0"><p className="truncate text-xs font-semibold">Arborn Stories</p><p className="text-[10px] text-white/75">{activeStory.eyebrow}</p></div>
               <button ref={closeRef} type="button" onClick={closeStory} aria-label="Close stories" className="ml-auto flex h-10 w-10 items-center justify-center rounded-full text-white outline-none hover:bg-white/15 focus-visible:ring-2 focus-visible:ring-white"><span aria-hidden="true" className="text-3xl font-light leading-none">×</span></button>
             </header>
-            <div className="relative z-10 mt-auto px-8 pb-[max(72px,calc(env(safe-area-inset-bottom)+48px))] text-center sm:pb-16">
+            <div className="relative z-20 mt-auto px-8 pb-[max(72px,calc(env(safe-area-inset-bottom)+48px))] text-center sm:pb-16">
               <span className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border border-white/45 bg-white/15 shadow-[0_20px_60px_rgba(47,16,24,.18)] backdrop-blur-sm"><StoryIcon type={activeStory.icon} className="h-12 w-12" /></span>
               <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/75">{activeStory.eyebrow}</p>
               <h3 id="active-story-title" className="mt-2 font-serif text-4xl leading-none">{activeStory.label}</h3>
               <p id="active-story-caption" className="mx-auto mt-3 max-w-xs text-sm leading-6 text-white/90">{activeStory.caption}</p>
+              {activeStory.cta && (
+                <Link
+                  href={activeStory.cta.href}
+                  className="relative z-30 mt-5 inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-xs font-semibold tracking-wide text-[var(--accent-dark)] shadow-[0_8px_24px_rgba(56,20,29,0.18)] outline-none transition hover:bg-[#fff8f5] focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--accent-dark)]"
+                >
+                  {activeStory.cta.label}
+                </Link>
+              )}
             </div>
             <button type="button" onClick={previous} aria-label="Previous story" className="absolute top-24 bottom-20 left-0 z-10 w-1/3 cursor-w-resize rounded-l-[28px] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"><span className="sr-only">Previous story</span></button>
             <button type="button" onClick={next} aria-label={currentIndex === STORIES.length - 1 ? "Close after final story" : "Next story"} className="absolute top-24 right-0 bottom-20 z-10 w-1/3 cursor-e-resize rounded-r-[28px] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"><span className="sr-only">Next story</span></button>

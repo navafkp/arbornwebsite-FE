@@ -37,7 +37,7 @@ export default function SelectSizePage() {
     if (selected.length === 0) return;
     setPreferredSizes(selected);
     markSizeDecisionMade();
-    router.push("/");
+    router.push(`/products?size=${selected.join(",")}`);
   }
 
   function handleSelectSize(sizeCode: number) {
@@ -71,15 +71,28 @@ export default function SelectSizePage() {
     }
   }
 
-  function handleSkip() {
+  function handleClose() {
     clearPreferredSize();
     markSizeDecisionMade();
-    router.push("/");
+    router.push("/products");
   }
 
   return (
-    <div className="relative mx-auto flex min-h-screen max-w-xl flex-col overflow-hidden px-4 py-5 sm:px-6">
+    <>
+      <header className="fixed top-0 right-0 left-0 z-50 flex h-[67px] items-center justify-end bg-background px-4">
+        <button
+          type="button"
+          onClick={handleClose}
+          aria-label="Close"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-white transition hover:bg-accent-dark"
+        >
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+          </svg>
+        </button>
+      </header>
 
+      <div className="relative mx-auto flex min-h-screen max-w-xl flex-col overflow-hidden px-4 pt-[87px] pb-5 sm:px-6">
       <div className="flex items-start justify-between gap-4">
         <h1 className="font-serif text-2xl leading-tight font-bold sm:text-3xl">
           What&rsquo;s your
@@ -241,18 +254,11 @@ export default function SelectSizePage() {
         </svg>
       </button>
 
-      <button
-        type="button"
-        onClick={handleSkip}
-        className="mt-3 text-center text-sm font-bold text-[var(--muted)] hover:text-black transition-colors"
-      >
-        Skip
-      </button>
-
       <CloudShape className="pointer-events-none absolute -bottom-2 -left-4 h-10 w-24 text-accent-soft" />
       <SparkleIcon className="pointer-events-none absolute right-6 bottom-16 h-4 w-4 text-accent/60" />
 
       <ScrollHint className="bottom-4" />
-    </div>
+      </div>
+    </>
   );
 }
