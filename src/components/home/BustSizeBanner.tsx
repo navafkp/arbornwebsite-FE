@@ -68,9 +68,8 @@ export default function BustSizeBanner({ large = false }: { large?: boolean }) {
 
   return (
     <div
-      className={`relative mt-[3.1px] overflow-hidden rounded-[16px] bg-gradient-to-br from-accent-soft to-[#fdf6f0] ${
-        large ? "px-3 py-2.5 sm:px-3.5 sm:py-3" : "px-2.5 py-2 sm:px-3 sm:py-2.5"
-      }`}
+      className={`relative mt-[3.1px] overflow-hidden rounded-[16px] bg-gradient-to-br from-accent-soft to-[#fdf6f0] ${large ? "px-3 py-2.5 sm:px-3.5 sm:py-3" : "px-2.5 py-2 sm:px-3 sm:py-2.5"
+        }`}
     >
       <HeartIcon className={`pointer-events-none absolute text-accent/30 ${large ? "top-1.5 right-16 h-2.5 w-2.5" : "top-1 right-14 h-2 w-2"}`} />
       <SparkleIcon className={`pointer-events-none absolute text-accent/40 ${large ? "bottom-1.5 left-10 h-2.5 w-2.5" : "bottom-1 left-9 h-2 w-2"}`} />
@@ -96,17 +95,13 @@ export default function BustSizeBanner({ large = false }: { large?: boolean }) {
               <span className="truncate font-bold text-accent">{preferred.map((s) => s.display_text).join(", ")}</span>
             )}
           </p>
-          <p className={`mt-1 flex items-center gap-1 truncate text-[var(--muted)] ${large ? "text-[11px] sm:text-xs" : "text-[9.5px] sm:text-[10.5px]"}`}>
-            <HeartIcon filled className={large ? "h-2.5 w-2.5 text-accent" : "h-2 w-2 text-accent"} />
-            Thanks! We&rsquo;ll show you the best fits.
-          </p>
+
         </div>
 
         <Link
           href="/select-size"
-          className={`relative flex shrink-0 items-center gap-1 rounded-full bg-white font-semibold text-accent shadow-sm outline-none transition hover:bg-accent-soft focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ${
-            large ? "px-3 py-1.5 text-[11.5px]" : "px-2.5 py-1.5 text-[10px]"
-          }`}
+          className={`relative flex shrink-0 items-center gap-1 rounded-full bg-white font-semibold text-accent shadow-sm outline-none transition hover:bg-accent-soft focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ${large ? "px-3 py-1.5 text-[11.5px]" : "px-2.5 py-1.5 text-[10px]"
+            }`}
         >
           Change size
           <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
