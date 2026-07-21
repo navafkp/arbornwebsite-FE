@@ -40,7 +40,7 @@ export default function ArbornStoriesSection() {
   const activeStory = activeIndex !== null ? STORIES[activeIndex] : null;
 
   return (
-    <div className="mt-6">
+    <div className="mt-[13px]">
       <h2 className="flex items-center gap-1.5 font-serif text-2xl">
         Arborn Stories
         <HeartIcon filled className="h-4 w-4 text-accent" />
@@ -52,11 +52,11 @@ export default function ArbornStoriesSection() {
             key={story.id}
             type="button"
             onClick={() => setActiveIndex(index)}
-            className="flex w-16 shrink-0 flex-col items-center gap-1.5 text-center"
+            className="flex w-[58.8px] shrink-0 flex-col items-center gap-1.5 text-center"
           >
             <span className={`block rounded-full bg-gradient-to-br p-[2px] ${story.gradient}`}>
-              <span className={`flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br ring-2 ring-white ${story.gradient}`}>
-                <HeartIcon filled className="h-5 w-5 text-white/90" />
+              <span className={`flex h-[58.8px] w-[58.8px] items-center justify-center rounded-full bg-gradient-to-br ring-2 ring-white ${story.gradient}`}>
+                <HeartIcon filled className="h-[18.4px] w-[18.4px] text-white/90" />
               </span>
             </span>
             <span className="line-clamp-2 text-[11px] leading-tight text-[#241a1d]">{story.label}</span>

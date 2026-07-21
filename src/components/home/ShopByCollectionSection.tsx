@@ -21,7 +21,7 @@ function CollectionBadge({ name }: { name: string }) {
   if (!match) return null;
 
   return (
-    <span className="absolute bottom-0 left-1/2 flex h-[21px] w-[21px] -translate-x-1/2 items-center justify-center rounded-full bg-white text-accent shadow-sm">
+    <span className="absolute bottom-0 left-1/2 flex h-[19.2px] w-[19.2px] -translate-x-1/2 items-center justify-center rounded-full bg-white text-accent shadow-sm">
       {match.icon("h-2.5 w-2.5")}
     </span>
   );
@@ -44,7 +44,7 @@ export default function ShopByCollectionSection() {
   if (cards.length === 0) return null;
 
   return (
-    <div className="mt-[13.3px]">
+    <div className="mt-[7.2px]">
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-1.5 font-serif text-2xl">
           Shop by Collection
@@ -63,10 +63,10 @@ export default function ShopByCollectionSection() {
           <Link
             key={`${card.kind}-${card.id}`}
             href={`/products?${card.kind}=${card.slug}`}
-            className="flex w-[64.7px] shrink-0 flex-col items-center gap-1.5 text-center"
+            className="flex w-[59.3px] shrink-0 flex-col items-center gap-1.5 text-center"
           >
-            <span className="relative block h-[64.7px] w-[64.7px] overflow-hidden rounded-full border border-[#f2dfe2] bg-[#f8f1ef]">
-              <Image src={card.image_url} alt={card.name} fill sizes="65px" className="object-cover" />
+            <span className="relative block h-[59.3px] w-[59.3px] overflow-hidden rounded-full border border-[#f2dfe2] bg-[#f8f1ef]">
+              <Image src={card.image_url} alt={card.name} fill sizes="57px" className="object-cover" />
               <CollectionBadge name={card.name} />
             </span>
             <span className="line-clamp-2 text-[11px] leading-tight text-[#241a1d]">{card.name}</span>

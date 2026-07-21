@@ -5,7 +5,7 @@ const FREE_SHIPPING_IMAGE = withBasePath("/images/free-shipping.png");
 
 export default function FeatureStrip() {
   return (
-    <div className="relative mt-[22px] aspect-[1352/196] w-full overflow-hidden rounded-3xl">
+    <div className="relative mt-3 aspect-[1352/261] w-full overflow-hidden rounded-3xl">
       <Image
         src={FREE_SHIPPING_IMAGE}
         alt="Free shipping all over India, no minimum order"

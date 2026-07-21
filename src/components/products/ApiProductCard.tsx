@@ -90,9 +90,11 @@ function VariantPatternPreviews({ cues }: { cues: VariantCue[] }) {
 export default function ApiProductCard({
   product,
   badgeLabel,
+  showWishlist = true,
 }: {
   product: ApiProduct;
   badgeLabel?: string;
+  showWishlist?: boolean;
 }) {
   const price = Number(product.base_price);
   const discountPrice = product.base_discount_price ? Number(product.base_discount_price) : null;
@@ -210,10 +212,12 @@ export default function ApiProductCard({
         </div>
       </Link>
 
-      <WishlistButton
-        productId={String(product.id)}
-        className="absolute top-1.5 right-1.5 z-10 h-8 w-8 bg-white/95 shadow-[0_1px_5px_rgba(85,43,55,0.13)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-1 sm:top-2 sm:right-2 sm:h-8 sm:w-8"
-      />
+      {showWishlist && (
+        <WishlistButton
+          productId={String(product.id)}
+          className="absolute top-1.5 right-1.5 z-10 h-8 w-8 bg-white/95 shadow-[0_1px_5px_rgba(85,43,55,0.13)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-1 sm:top-2 sm:right-2 sm:h-8 sm:w-8"
+        />
+      )}
     </article>
   );
 }

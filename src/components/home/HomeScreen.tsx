@@ -11,10 +11,10 @@ export default function HomeScreen() {
       <HomeHeader />
       <div className="mx-auto max-w-7xl px-4 pt-[75px] pb-6 sm:px-6 lg:px-8">
         <BustSizeBanner />
-        <ShopByCollectionSection />
-        <ArbornStoriesSection />
         <NewInSection />
         <FeatureStrip />
+        <ArbornStoriesSection />
+        <ShopByCollectionSection />
       </div>
     </>
   );
