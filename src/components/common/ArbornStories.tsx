@@ -34,7 +34,7 @@ function StoryIcon({ type, className = "h-7 w-7" }: { type: Story["icon"]; class
   );
 }
 
-export default function ArbornStories() {
+export default function ArbornStories({ compactBubbles = false }: { compactBubbles?: boolean }) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [pageVisible, setPageVisible] = useState(true);
   const [reduceMotion, setReduceMotion] = useState(false);
@@ -119,8 +119,8 @@ export default function ArbornStories() {
         {STORIES.map((story, index) => (
           <button key={story.label} type="button" onClick={(event) => openStory(index, event.currentTarget)} aria-label={`Open story: ${story.label}`} className="group flex w-[66px] shrink-0 snap-start flex-col items-center gap-1.5 rounded-lg outline-none sm:w-[78px]">
             <span className={`rounded-full bg-gradient-to-br ${story.accent} p-[2px] transition-transform duration-200 group-hover:scale-[1.04] group-focus-visible:scale-[1.04]`}>
-              <span className="flex h-[58px] w-[58px] items-center justify-center rounded-full border-[3px] border-white bg-[#fffaf5] text-[var(--foreground)] shadow-[0_2px_8px_rgba(121,68,80,0.12)] sm:h-16 sm:w-16">
-                <StoryIcon type={story.icon} className="h-[25.2px] w-[25.2px] sm:h-[28.8px] sm:w-[28.8px]" />
+              <span className={`flex items-center justify-center rounded-full border-[3px] border-white bg-[#fffaf5] text-[var(--foreground)] shadow-[0_2px_8px_rgba(121,68,80,0.12)] ${compactBubbles ? "h-[49.3px] w-[49.3px] sm:h-[54.4px] sm:w-[54.4px]" : "h-[58px] w-[58px] sm:h-16 sm:w-16"}`}>
+                <StoryIcon type={story.icon} className={compactBubbles ? "h-[21.4px] w-[21.4px] sm:h-[24.5px] sm:w-[24.5px]" : "h-[25.2px] w-[25.2px] sm:h-[28.8px] sm:w-[28.8px]"} />
               </span>
             </span>
             <span className="min-h-[27px] text-center text-[10.5px] font-medium leading-[1.25] text-[var(--foreground)] sm:text-[11px]">{story.label}</span>

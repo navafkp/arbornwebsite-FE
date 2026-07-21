@@ -101,7 +101,7 @@ export default function ApiProductGrid({
     <div className="mx-auto max-w-7xl px-3 pt-4 pb-10 sm:px-6 lg:px-8">
       <h1 className="sr-only">{seoHeading}</h1>
       <BustSizeBanner />
-      <ArbornStories />
+      <ArbornStories compactBubbles />
 
       <div className="relative mt-3 flex gap-2.5">
         <div className="relative flex-1">
