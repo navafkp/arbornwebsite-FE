@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { withBasePath } from "@/lib/asset-path";
 
 const LOGO_IMAGE = withBasePath("/arborn.webp");
-const SPLASH_DURATION_MS = 500;
+const SPLASH_DURATION_MS = 1000;
 const FADE_MS = 300;
 
 export default function SplashScreen() {
