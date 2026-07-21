@@ -126,7 +126,10 @@ export default function ArbornStories({ compactBubbles = false }: { compactBubbl
           <HeartIcon filled className={compactBubbles ? "h-2.5 w-2.5 text-accent" : "h-4 w-4 text-accent"} />
         </h2>
       </div>
-      <div className={`no-scrollbar mt-[10.8px] flex snap-x gap-3.5 overflow-x-auto pb-0.5 sm:gap-5 ${compactBubbles ? "justify-between" : "sm:justify-between"}`}>
+      <div
+        className={`no-scrollbar mt-[10.8px] flex snap-x gap-3.5 overflow-x-auto pb-0.5 sm:gap-5 ${compactBubbles ? "justify-between" : "sm:justify-between"}`}
+        style={compactBubbles ? undefined : { marginLeft: "-2.5%", marginRight: "-2.5%" }}
+      >
         {STORIES.map((story, index) => (
           <button key={story.label} type="button" onClick={(event) => openStory(index, event.currentTarget)} aria-label={`Open story: ${story.label}`} className={`group flex shrink-0 snap-start flex-col items-center gap-1.5 rounded-lg outline-none ${compactBubbles ? "w-[41.6px] sm:w-[49.1px]" : "w-[69.3px] sm:w-[81.9px]"}`}>
             <span className={`rounded-full bg-gradient-to-br ${story.accent} p-[2px] transition-transform duration-200 group-hover:scale-[1.04] group-focus-visible:scale-[1.04]`}>

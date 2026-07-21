@@ -32,7 +32,10 @@ export default function FeatureStrip() {
   }, []);
 
   return (
-    <div className="relative mt-[2.2px] aspect-[1450/244] w-full overflow-hidden rounded-3xl">
+    <div
+      className="relative mt-[2.2px] aspect-[1450/244] w-full overflow-hidden rounded-3xl"
+      style={{ marginLeft: "-2.5%", marginRight: "-2.5%", width: "auto" }}
+    >
       <div
         className="flex h-full transition-transform duration-700 ease-in-out"
         style={{

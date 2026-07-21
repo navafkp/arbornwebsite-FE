@@ -24,9 +24,8 @@ export default function BustSizeBanner({ large = false }: { large?: boolean }) {
   if (!hasSize) {
     return (
       <div
-        className={`relative mt-[3.1px] overflow-hidden rounded-[22px] bg-gradient-to-br from-accent-soft to-[#fdf6f0] shadow-[0_8px_20px_rgba(91,53,61,0.08)] ${
-          large ? "p-4 sm:p-5" : "p-3.5 sm:p-4"
-        }`}
+        className={`relative mt-[3.1px] overflow-hidden rounded-[22px] bg-gradient-to-br from-accent-soft to-[#fdf6f0] shadow-[0_8px_20px_rgba(91,53,61,0.08)] ${large ? "p-4 sm:p-5" : "p-3.5 sm:p-4"
+          }`}
       >
         <HeartIcon className={`pointer-events-none absolute text-accent/40 ${large ? "top-3 left-14 h-3.5 w-3.5" : "top-2.5 left-12 h-3 w-3"}`} />
         <HeartIcon className={`pointer-events-none absolute text-accent/30 ${large ? "bottom-3 left-16 h-3 w-3" : "bottom-2 left-14 h-2.5 w-2.5"}`} />
@@ -48,15 +47,14 @@ export default function BustSizeBanner({ large = false }: { large?: boolean }) {
               Choose <span className="italic text-accent">your size</span>
             </h3>
             <p className={`mt-0.5 truncate text-[var(--muted)] ${large ? "text-xs sm:text-sm" : "text-[11px] sm:text-xs"}`}>
-              For the perfect fit &amp; maximum comfort
+              For the maximum comfort
             </p>
           </div>
 
           <Link
             href="/select-size"
-            className={`relative flex shrink-0 items-center gap-1 rounded-full bg-accent font-semibold text-white outline-none transition hover:bg-accent-dark focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
-              large ? "px-4 py-2.5 text-sm" : "px-3.5 py-2 text-xs"
-            }`}
+            className={`relative flex shrink-0 items-center gap-1 rounded-full bg-accent font-semibold text-white outline-none transition hover:bg-accent-dark focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${large ? "px-4 py-2.5 text-sm" : "px-3.5 py-2 text-xs"
+              }`}
           >
             Choose
             <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

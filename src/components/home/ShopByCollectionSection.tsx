@@ -37,7 +37,7 @@ export default function ShopByCollectionSection() {
         </Link>
       </div>
 
-      <div className="mt-3.5"><CollectionCircleRail items={cards} /></div>
+      <div className="mt-3.5" style={{ marginLeft: "-2.5%", marginRight: "-2.5%" }}><CollectionCircleRail items={cards} /></div>
     </div>
   );
 }
