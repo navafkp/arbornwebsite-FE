@@ -17,9 +17,10 @@ import ColorSwatch from "@/components/ui/ColorSwatch";
 import RatingStars from "@/components/ui/RatingStars";
 import ProductOverlayCard from "@/components/products/ProductOverlayCard";
 import { useAuth } from "@/lib/auth-context";
-import ShippingBanner from "@/components/products/ShippingBanner";
 import InstagramReelCard from "@/components/products/InstagramReelCard";
 import { HeartIcon } from "@/components/ui/decor";
+import BustSizeBanner from "@/components/home/BustSizeBanner";
+import FeatureStrip from "@/components/home/FeatureStrip";
 
 // Approximates the "torn paper" edge at the bottom of the main product
 // image: a zigzag clip-path so it isn't a plain straight-edged rectangle.
@@ -266,7 +267,7 @@ export default function ApiProductDetail() {
   return (
     <div>
       <div className="mx-auto max-w-7xl px-4 pt-4 pb-10 sm:px-6 lg:px-8">
-        <ShippingBanner />
+        <BustSizeBanner />
 
         <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2">
           <div>
@@ -427,7 +428,9 @@ export default function ApiProductDetail() {
               </div>
             )}
 
-            {variant && variant.sizes.length > 0 && (
+            <FeatureStrip />
+
+            {variant && variant.sizes.length > 0 && !sizeMatchExists && (
               <div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs tracking-wide text-[var(--muted)] uppercase">Size</span>
@@ -440,33 +443,20 @@ export default function ApiProductDetail() {
                   </Link>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {(sizeMatchExists
-                    ? variant.sizes.filter((s) => preferredSizeCodes.includes(s.size_code))
-                    : variant.sizes
-                  ).map((s) =>
-                    sizeMatchExists ? (
-                      <span
-                        key={s.size_code}
-                        title={s.measurement}
-                        className="rounded-full border border-accent bg-accent-soft px-4 py-2 text-xs font-medium"
-                      >
-                        {s.display_text}
-                      </span>
-                    ) : (
-                      <button
-                        key={s.size_code}
-                        type="button"
-                        onClick={() => setSelectedSizeCode(s.size_code)}
-                        title={s.measurement}
-                        className={`rounded-full border px-4 py-2 text-xs font-medium transition ${selectedSizeCode === s.size_code
-                          ? "border-accent bg-accent-soft"
-                          : "border-black/15 hover:border-black/30"
-                          }`}
-                      >
-                        {s.display_text}
-                      </button>
-                    ),
-                  )}
+                  {variant.sizes.map((s) => (
+                    <button
+                      key={s.size_code}
+                      type="button"
+                      onClick={() => setSelectedSizeCode(s.size_code)}
+                      title={s.measurement}
+                      className={`rounded-full border px-4 py-2 text-xs font-medium transition ${selectedSizeCode === s.size_code
+                        ? "border-accent bg-accent-soft"
+                        : "border-black/15 hover:border-black/30"
+                        }`}
+                    >
+                      {s.display_text}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
