@@ -152,7 +152,7 @@ export default function ApiProductCard({
   const remainingDesktopFooterColours = footerColours.length - 3;
 
   return (
-    <article ref={cardRef} className="group relative min-w-0 overflow-hidden rounded-[15px] border border-[#f2dfe2] bg-[#fffefd] shadow-[0_2px_9px_rgba(85,43,55,0.07)] transition-shadow duration-300 hover:shadow-[0_6px_16px_rgba(85,43,55,0.11)]">
+    <article ref={cardRef} className="group relative min-w-0 overflow-hidden rounded-[8px] border border-[#f2dfe2] bg-[#fffefd] shadow-[0_2px_9px_rgba(85,43,55,0.07)] transition-shadow duration-300 hover:shadow-[0_6px_16px_rgba(85,43,55,0.11)]">
       <Link
         href={`/products/detail?slug=${product.slug}`}
         aria-label={`View ${product.name}`}
