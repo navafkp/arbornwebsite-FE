@@ -11,6 +11,7 @@ import {
   type ApiProductVariant,
 } from "@/lib/api-client";
 import { cn, formatPrice } from "@/lib/utils";
+import { withBasePath } from "@/lib/asset-path";
 import { getPreferredSizes } from "@/lib/preferred-size";
 import { buildOrderInquiryMessage, buildWhatsAppLink } from "@/lib/whatsapp";
 import ColorSwatch from "@/components/ui/ColorSwatch";
@@ -259,7 +260,8 @@ export default function ApiProductDetail() {
   const displayedReviews = product.reviews.length > 0 ? product.reviews : SAMPLE_REVIEWS;
   // TEMP: preview fallback until the backend sends instagram_reel_url — remove this fallback once it does.
   const instagramReelUrl = product.instagram_reel_url ?? "https://www.instagram.com/reel/Da-dYBpIcb2/?igsh=bWdvZzIzdmppNTF1";
-  const instagramThumbnailUrl = product.instagram_thumbnail_url;
+  // TEMP: placeholder thumbnail until a real one is uploaded — remove this fallback once the user adds it.
+  const instagramThumbnailUrl = product.instagram_thumbnail_url ?? withBasePath("/images/arborn-nightwear.png");
 
   return (
     <div>
@@ -454,8 +456,6 @@ export default function ApiProductDetail() {
               </p>
             )}
 
-            <FeatureStrip />
-
             <div className="mt-2 flex flex-col gap-3 sm:flex-row">
               <a
                 href={inStock ? whatsappLink : undefined}
@@ -476,6 +476,8 @@ export default function ApiProductDetail() {
             <p className="text-center text-[11px] text-[var(--muted)] sm:text-left">
               Chat with us to confirm size, color and delivery.
             </p>
+
+            <FeatureStrip />
 
             <div className="grid grid-cols-3 gap-2 border-t border-black/5 pt-4">
               {TRUST_ITEMS.map((item) => (
