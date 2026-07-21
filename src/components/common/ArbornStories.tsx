@@ -21,15 +21,27 @@ const STORIES: Story[] = [
 
 const STORY_DURATION = 6000;
 
-function StoryIcon({ type, className = "h-7 w-7" }: { type: Story["icon"]; className?: string }) {
+function StoryIcon({ type, className = "h-7 w-7", solid = false }: { type: Story["icon"]; className?: string; solid?: boolean }) {
   const common = { fill: "none", stroke: "currentColor", strokeWidth: 1.65, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
   return (
     <svg className={className} viewBox="0 0 32 32" aria-hidden="true" {...common}>
-      {type === "spark" && <><path d="M16 4l1.8 6.2L24 12l-6.2 1.8L16 20l-1.8-6.2L8 12l6.2-1.8L16 4Z" /><path d="m24.5 19 .9 3.1 3.1.9-3.1.9-.9 3.1-.9-3.1-3.1-.9 3.1-.9.9-3.1Z" /></>}
-      {type === "camera" && <><rect x="4" y="9" width="24" height="17" rx="4" /><path d="m10 9 2-3h8l2 3" /><circle cx="16" cy="17.5" r="5" /></>}
-      {type === "heart" && <path d="M27 10.8c0 7-11 13.2-11 13.2S5 17.8 5 10.8C5 7 9.7 4.8 12.8 8L16 11.1 19.2 8C22.3 4.8 27 7 27 10.8Z" />}
-      {type === "style" && <><path d="M16 3.5c.8 6.8 3.7 10.1 10.5 11-6.8.8-9.7 4.2-10.5 11-.8-6.8-3.7-10.2-10.5-11 6.8-.9 9.7-4.2 10.5-11Z" /><path d="M25 4.5c.3 2.3 1.2 3.4 3.5 3.7-2.3.3-3.2 1.4-3.5 3.7-.3-2.3-1.2-3.4-3.5-3.7 2.3-.3 3.2-1.4 3.5-3.7Z" /></>}
-      {type === "gift" && <><rect x="4" y="12" width="24" height="15" rx="2" /><path d="M3 12h26v-5H3v5ZM16 7v20" /><path d="M16 7c-1.3-4.2-7.2-5-7.2-1.6C8.8 7.3 11 7 16 7Zm0 0c1.3-4.2 7.2-5 7.2-1.6C23.2 7.3 21 7 16 7Z" /></>}
+      {solid ? (
+        <>
+          {type === "spark" && <><path fill="currentColor" stroke="none" d="M16 3.5c.9 6.6 3.8 9.5 10.5 10.5-6.7 1-9.6 3.9-10.5 10.5C15.1 17.9 12.2 15 5.5 14 12.2 13 15.1 10.1 16 3.5Z" /><path fill="currentColor" stroke="none" d="M25.5 20c.3 2.3 1.3 3.3 3.5 3.7-2.2.3-3.2 1.4-3.5 3.7-.3-2.3-1.3-3.4-3.5-3.7 2.2-.4 3.2-1.4 3.5-3.7Z" /></>}
+          {type === "camera" && <><path fill="currentColor" stroke="none" d="M8 8h2l2-3h8l2 3h2a4 4 0 0 1 4 4v11a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4Z" /><circle cx="16" cy="17.5" r="5.2" fill="#fffaf5" stroke="none" /><circle cx="16" cy="17.5" r="2.8" fill="currentColor" stroke="none" /></>}
+          {type === "heart" && <path fill="currentColor" stroke="none" d="M27 10.8c0 7-11 13.2-11 13.2S5 17.8 5 10.8C5 7 9.7 4.8 12.8 8L16 11.1 19.2 8C22.3 4.8 27 7 27 10.8Z" />}
+          {type === "style" && <><path fill="currentColor" stroke="none" d="M16 3.5c.8 6.8 3.7 10.1 10.5 11-6.8.8-9.7 4.2-10.5 11-.8-6.8-3.7-10.2-10.5-11 6.8-.9 9.7-4.2 10.5-11Z" /><path fill="currentColor" stroke="none" d="M25 4.5c.3 2.3 1.2 3.4 3.5 3.7-2.3.3-3.2 1.4-3.5 3.7-.3-2.3-1.2-3.4-3.5-3.7 2.3-.3 3.2-1.4 3.5-3.7Z" /></>}
+          {type === "gift" && <><path fill="currentColor" stroke="none" d="M4 11h24v14a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V11Z" /><rect x="2.5" y="7" width="27" height="6" rx="2" fill="currentColor" stroke="none" /><path d="M16 7c-1.2-4.2-7.2-5-7.2-1.7C8.8 7.2 11 7 16 7Zm0 0c1.2-4.2 7.2-5 7.2-1.7C23.2 7.2 21 7 16 7Z" fill="currentColor" /><path d="M16 11v17M4 13h24" stroke="#fffaf5" strokeWidth="2" /></>}
+        </>
+      ) : (
+        <>
+          {type === "spark" && <><path d="M16 4l1.8 6.2L24 12l-6.2 1.8L16 20l-1.8-6.2L8 12l6.2-1.8L16 4Z" /><path d="m24.5 19 .9 3.1 3.1.9-3.1.9-.9 3.1-.9-3.1-3.1-.9 3.1-.9.9-3.1Z" /></>}
+          {type === "camera" && <><rect x="4" y="9" width="24" height="17" rx="4" /><path d="m10 9 2-3h8l2 3" /><circle cx="16" cy="17.5" r="5" /></>}
+          {type === "heart" && <path d="M27 10.8c0 7-11 13.2-11 13.2S5 17.8 5 10.8C5 7 9.7 4.8 12.8 8L16 11.1 19.2 8C22.3 4.8 27 7 27 10.8Z" />}
+          {type === "style" && <><path d="M16 3.5c.8 6.8 3.7 10.1 10.5 11-6.8.8-9.7 4.2-10.5 11-.8-6.8-3.7-10.2-10.5-11 6.8-.9 9.7-4.2 10.5-11Z" /><path d="M25 4.5c.3 2.3 1.2 3.4 3.5 3.7-2.3.3-3.2 1.4-3.5 3.7-.3-2.3-1.2-3.4-3.5-3.7 2.3-.3 3.2-1.4 3.5-3.7Z" /></>}
+          {type === "gift" && <><rect x="4" y="12" width="24" height="15" rx="2" /><path d="M3 12h26v-5H3v5ZM16 7v20" /><path d="M16 7c-1.3-4.2-7.2-5-7.2-1.6C8.8 7.3 11 7 16 7Zm0 0c1.3-4.2 7.2-5 7.2-1.6C23.2 7.3 21 7 16 7Z" /></>}
+        </>
+      )}
     </svg>
   );
 }
@@ -105,7 +117,7 @@ export default function ArbornStories({ compactBubbles = false }: { compactBubbl
   const currentIndex = activeIndex ?? -1;
 
   return (
-    <section aria-labelledby="product-stories-title" className="mt-3 px-0.5 pt-2 pb-3 sm:mt-5 sm:px-1 sm:pt-3">
+    <section aria-labelledby="product-stories-title" className={`px-0.5 sm:px-1 ${compactBubbles ? "mt-1 pt-0 pb-0" : "mt-3 pt-2 pb-3 sm:mt-5 sm:pt-3"}`}>
       <div className="flex items-center justify-between gap-4">
         <h2 id="product-stories-title" className="flex items-center gap-1.5 font-serif text-2xl">
           Arborn Stories
@@ -119,8 +131,8 @@ export default function ArbornStories({ compactBubbles = false }: { compactBubbl
         {STORIES.map((story, index) => (
           <button key={story.label} type="button" onClick={(event) => openStory(index, event.currentTarget)} aria-label={`Open story: ${story.label}`} className="group flex w-[66px] shrink-0 snap-start flex-col items-center gap-1.5 rounded-lg outline-none sm:w-[78px]">
             <span className={`rounded-full bg-gradient-to-br ${story.accent} p-[2px] transition-transform duration-200 group-hover:scale-[1.04] group-focus-visible:scale-[1.04]`}>
-              <span className={`flex items-center justify-center rounded-full border-[3px] border-white bg-[#fffaf5] text-[var(--foreground)] shadow-[0_2px_8px_rgba(121,68,80,0.12)] ${compactBubbles ? "h-[49.3px] w-[49.3px] sm:h-[54.4px] sm:w-[54.4px]" : "h-[58px] w-[58px] sm:h-16 sm:w-16"}`}>
-                <StoryIcon type={story.icon} className={compactBubbles ? "h-[21.4px] w-[21.4px] sm:h-[24.5px] sm:w-[24.5px]" : "h-[25.2px] w-[25.2px] sm:h-[28.8px] sm:w-[28.8px]"} />
+              <span className={`flex items-center justify-center rounded-full border-[3px] border-white bg-[#fffaf5] text-accent shadow-[0_2px_8px_rgba(121,68,80,0.12)] ${compactBubbles ? "h-[49.3px] w-[49.3px] sm:h-[54.4px] sm:w-[54.4px]" : "h-[58px] w-[58px] sm:h-16 sm:w-16"}`}>
+                <StoryIcon solid type={story.icon} className={compactBubbles ? "h-[21.4px] w-[21.4px] sm:h-[24.5px] sm:w-[24.5px]" : "h-[25.2px] w-[25.2px] sm:h-[28.8px] sm:w-[28.8px]"} />
               </span>
             </span>
             <span className="min-h-[27px] text-center text-[10.5px] font-medium leading-[1.25] text-[var(--foreground)] sm:text-[11px]">{story.label}</span>
