@@ -33,7 +33,7 @@ function StoryIcon({ type, className = "h-7 w-7" }: { type: Story["icon"]; class
   );
 }
 
-export default function ProductStories() {
+export default function ArbornStories() {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [pageVisible, setPageVisible] = useState(true);
   const [reduceMotion, setReduceMotion] = useState(false);

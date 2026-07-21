@@ -2,7 +2,7 @@ import HomeHeader from "@/components/home/HomeHeader";
 import BustSizeBanner from "@/components/home/BustSizeBanner";
 import NewInSection from "@/components/home/NewInSection";
 import ShopByCollectionSection from "@/components/home/ShopByCollectionSection";
-import ArbornStoriesSection from "@/components/home/ArbornStoriesSection";
+import ArbornStories from "@/components/common/ArbornStories";
 import FeatureStrip from "@/components/home/FeatureStrip";
 
 export default function HomeScreen() {
@@ -13,7 +13,7 @@ export default function HomeScreen() {
         <BustSizeBanner />
         <NewInSection />
         <FeatureStrip />
-        <ArbornStoriesSection />
+        <ArbornStories />
         <ShopByCollectionSection />
       </div>
     </>

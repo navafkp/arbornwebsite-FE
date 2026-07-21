@@ -6,7 +6,7 @@ import { getPreferredSizes } from "@/lib/preferred-size";
 import { PRICE_PRESETS } from "@/lib/constants";
 import ApiProductCard from "@/components/products/ApiProductCard";
 import BustSizeBanner from "@/components/home/BustSizeBanner";
-import ProductStories from "@/components/products/ProductStories";
+import ArbornStories from "@/components/common/ArbornStories";
 
 type SortKey = "newest" | "price-asc" | "price-desc";
 
@@ -101,7 +101,7 @@ export default function ApiProductGrid({
     <div className="mx-auto max-w-7xl px-3 pt-4 pb-10 sm:px-6 lg:px-8">
       <h1 className="sr-only">{seoHeading}</h1>
       <BustSizeBanner />
-      <ProductStories />
+      <ArbornStories />
 
       <div className="relative mt-3 flex gap-2.5">
         <div className="relative flex-1">
