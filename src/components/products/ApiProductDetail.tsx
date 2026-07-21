@@ -18,7 +18,6 @@ import ColorSwatch from "@/components/ui/ColorSwatch";
 import RatingStars from "@/components/ui/RatingStars";
 import ProductOverlayCard from "@/components/products/ProductOverlayCard";
 import { useAuth } from "@/lib/auth-context";
-import InstagramReelCard from "@/components/products/InstagramReelCard";
 import { HeartIcon } from "@/components/ui/decor";
 import BustSizeBanner from "@/components/home/BustSizeBanner";
 import FeatureStrip from "@/components/home/FeatureStrip";
@@ -296,11 +295,6 @@ export default function ApiProductDetail() {
                     />
                   </div>
                 ))}
-                {instagramReelUrl && (
-                  <div className="relative h-full w-full flex-shrink-0 snap-start">
-                    <InstagramReelCard url={instagramReelUrl} thumbnailUrl={instagramThumbnailUrl} />
-                  </div>
-                )}
               </div>
             ) : (
               <div className="flex aspect-[3/4] w-full items-center justify-center rounded-xl bg-[#f4f2ee] text-sm text-[var(--muted)]">
