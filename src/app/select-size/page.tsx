@@ -155,6 +155,13 @@ export default function SelectSizePage() {
         </div>
       )}
 
+      {selected.length > 0 && (
+        <p className="mt-2 flex items-center gap-1 text-xs text-[var(--muted)]">
+          Changed your mind? Tap a selected size again to remove it.
+          <HeartIcon className="h-3 w-3 text-accent" />
+        </p>
+      )}
+
       {/* Tip + accordion */}
       <div className="mt-3 rounded-xl border border-dashed border-accent/40 overflow-hidden">
         <button
