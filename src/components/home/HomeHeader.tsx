@@ -13,7 +13,7 @@ export default function HomeHeader() {
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-50 flex h-[67px] items-center justify-between border-b border-black/5 bg-background px-4">
+    <header className={`fixed top-0 right-0 left-0 z-50 flex h-[67px] items-center justify-between bg-background px-4 ${searchOpen ? "border-b border-black/5" : ""}`}>
       {searchOpen ? (
         <>
           <SearchBar
@@ -38,7 +38,7 @@ export default function HomeHeader() {
             type="button"
             onClick={() => setSearchOpen(true)}
             aria-label="Search"
-            className="flex h-[37px] w-[37px] shrink-0 items-center justify-center rounded-full text-accent"
+            className="relative z-30 flex h-[37px] w-[37px] shrink-0 items-center justify-center rounded-full text-accent"
           >
             <svg className="h-[23.1px] w-[23.1px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
               <circle cx="11" cy="11" r="7" />
@@ -46,12 +46,12 @@ export default function HomeHeader() {
             </svg>
           </button>
 
-          <div className="flex flex-col items-center leading-none">
+          <div className="pointer-events-none absolute top-[-0.5px] left-1/2 -translate-x-1/2">
             <Image src={LOGO_IMAGE} alt="Arborn" width={64} height={64} className="h-16 w-16 object-contain" />
-            <p className="mt-0.5 font-serif text-[10px] font-bold tracking-[0.15em] text-[#D88FA0]">NIGHTWEAR</p>
           </div>
+          <p className="pointer-events-none absolute top-[67px] left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-serif text-[10px] leading-none font-bold tracking-[0.15em] text-[#D88FA0]">NIGHTWEAR</p>
 
-          <div className="flex items-center gap-1">
+          <div className="relative z-30 flex items-center gap-1">
             <a
               href={INSTAGRAM_URL}
               target="_blank"
@@ -78,6 +78,7 @@ export default function HomeHeader() {
               </svg>
             </a>
           </div>
+          <span aria-hidden="true" className="pointer-events-none absolute top-[67px] right-0 left-0 z-20 h-px -translate-y-1/2 bg-black/5" />
         </>
       )}
     </header>

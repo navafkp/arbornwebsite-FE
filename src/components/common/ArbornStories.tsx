@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { HeartIcon } from "@/components/ui/decor";
 
 type Story = {
   label: string;
@@ -106,7 +107,10 @@ export default function ArbornStories() {
   return (
     <section aria-labelledby="product-stories-title" className="mt-3 px-0.5 pt-2 pb-3 sm:mt-5 sm:px-1 sm:pt-3">
       <div className="flex items-center justify-between gap-4">
-        <h2 id="product-stories-title" className="text-[15px] font-semibold tracking-[-0.015em] sm:text-base">Arborn Stories</h2>
+        <h2 id="product-stories-title" className="flex items-center gap-1.5 font-serif text-2xl">
+          Arborn Stories
+          <HeartIcon filled className="h-4 w-4 text-accent" />
+        </h2>
         <button type="button" onClick={(event) => openStory(0, event.currentTarget)} className="group flex items-center gap-1 rounded-md px-1 py-1 text-xs font-medium text-[var(--accent-dark)] outline-none transition hover:text-[var(--foreground)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2">
           View all <span aria-hidden="true" className="text-base transition-transform group-hover:translate-x-0.5">›</span>
         </button>

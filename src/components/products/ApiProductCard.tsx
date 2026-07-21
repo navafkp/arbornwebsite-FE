@@ -51,7 +51,7 @@ function loadVariantCues(slug: string) {
   return request;
 }
 
-function VariantPatternPreviews({ cues }: { cues: VariantCue[] }) {
+function VariantPatternPreviews({ cues, compact = false }: { cues: VariantCue[]; compact?: boolean }) {
   if (cues.length === 0) return null;
 
   const visibleCues = cues.slice(0, 3);
@@ -63,20 +63,23 @@ function VariantPatternPreviews({ cues }: { cues: VariantCue[] }) {
 
       <div
         aria-hidden="true"
-        className="absolute right-1.5 bottom-1.5 z-[1] flex w-7 flex-col sm:right-2 sm:bottom-2 sm:w-8"
+        className={`absolute z-[1] flex flex-col ${compact
+          ? "right-[5.1px] bottom-[5.1px] w-[23.8px] sm:right-[6.8px] sm:bottom-[6.8px] sm:w-[27.2px]"
+          : "right-1.5 bottom-1.5 w-7 sm:right-2 sm:bottom-2 sm:w-8"
+        }`}
       >
         {visibleCues.map((cue, index) => (
           <span
             key={cue.id}
-            className={`relative block aspect-square w-full overflow-hidden rounded-lg shadow-[0_1px_3px_rgba(85,43,55,0.3)] ${index > 0 ? "-mt-[25%]" : ""}`}
+            className={`relative block aspect-square w-full overflow-hidden shadow-[0_1px_3px_rgba(85,43,55,0.3)] ${compact ? "rounded-[6.8px]" : "rounded-lg"} ${index > 0 ? "-mt-[25%]" : ""}`}
             style={{ backgroundColor: cue.colour, zIndex: index }}
           >
-            {cue.imageUrl && <Image src={cue.imageUrl} alt="" fill sizes="28px" className="object-cover" />}
+            {cue.imageUrl && <Image src={cue.imageUrl} alt="" fill sizes={compact ? "24px" : "28px"} className="object-cover" />}
           </span>
         ))}
         {remainingCount > 0 && (
           <span
-            className="relative -mt-[50%] flex aspect-square items-center justify-center rounded-lg bg-white text-[7px] font-semibold text-[#2a2022] shadow-[0_1px_3px_rgba(85,43,55,0.3)] sm:text-[8px]"
+            className={`relative -mt-[50%] flex aspect-square items-center justify-center bg-white font-semibold text-[#2a2022] shadow-[0_1px_3px_rgba(85,43,55,0.3)] ${compact ? "rounded-[6.8px] text-[6px] sm:text-[6.8px]" : "rounded-lg text-[7px] sm:text-[8px]"}`}
             style={{ zIndex: visibleCues.length }}
           >
             +{remainingCount}
@@ -91,10 +94,12 @@ export default function ApiProductCard({
   product,
   badgeLabel,
   showWishlist = true,
+  compactPatternPreviews = false,
 }: {
   product: ApiProduct;
   badgeLabel?: string;
   showWishlist?: boolean;
+  compactPatternPreviews?: boolean;
 }) {
   const price = Number(product.base_price);
   const discountPrice = product.base_discount_price ? Number(product.base_discount_price) : null;
@@ -172,7 +177,7 @@ export default function ApiProductCard({
               {label}
             </span>
           )}
-          <VariantPatternPreviews cues={variantCues} />
+          <VariantPatternPreviews cues={variantCues} compact={compactPatternPreviews} />
 
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-2 pt-6 pb-1.5">
             <span className="block truncate text-[11px] font-medium leading-tight text-white sm:text-[13px]">

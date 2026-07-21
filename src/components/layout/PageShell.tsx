@@ -52,8 +52,8 @@ export function PageHeader({
   }
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-50 flex h-[67px] items-center justify-between border-b border-black/5 bg-background px-4">
-      <div className="flex items-center gap-1">
+    <header className="fixed top-0 right-0 left-0 z-50 flex h-[67px] items-center justify-between bg-background px-4">
+      <div className="relative z-30 flex items-center gap-1">
         {showBackButton && <BackButton variant="bare" />}
         {showSearch && (
           <button
@@ -70,12 +70,12 @@ export function PageHeader({
         )}
       </div>
 
-      <div className="flex flex-col items-center leading-none">
+      <div className="pointer-events-none absolute top-[-0.5px] left-1/2 -translate-x-1/2">
         <Image src={LOGO_IMAGE} alt="Arborn" width={64} height={64} className="h-16 w-16 object-contain" />
-        <p className="mt-0.5 font-serif text-[10px] font-bold tracking-[0.15em] text-[#D88FA0]">NIGHTWEAR</p>
       </div>
+      <p className="pointer-events-none absolute top-[67px] left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-serif text-[10px] leading-none font-bold tracking-[0.15em] text-[#D88FA0]">NIGHTWEAR</p>
 
-      <div className="flex items-center gap-1">
+      <div className="relative z-30 flex items-center gap-1">
         <a
           href={INSTAGRAM_URL}
           target="_blank"
@@ -102,6 +102,7 @@ export function PageHeader({
           </svg>
         </a>
       </div>
+      <span aria-hidden="true" className="pointer-events-none absolute top-[67px] right-0 left-0 z-20 h-px -translate-y-1/2 bg-black/5" />
     </header>
   );
 }

@@ -153,7 +153,7 @@ export default function NewInSection() {
         <div className="mt-[10.8px] grid grid-cols-3 gap-1">
           {visibleProducts.map((product) => (
             <div key={product.id} className="mx-auto w-[90.3%]">
-              <ApiProductCard product={product} showWishlist={false} />
+              <ApiProductCard product={product} showWishlist={false} compactPatternPreviews />
             </div>
           ))}
         </div>
@@ -161,7 +161,7 @@ export default function NewInSection() {
 
       <Link
         href="/products"
-        className="mt-3 flex items-center justify-center gap-1 rounded-full border border-accent/40 py-1.5 text-[9px] font-medium text-accent"
+        className="mt-3 flex items-center justify-center gap-1 rounded-full border border-accent bg-accent py-1.5 text-[9px] font-medium text-white outline-none transition hover:border-accent-dark hover:bg-accent-dark focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
       >
         View All Products
         <svg className="h-2 w-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
