@@ -67,6 +67,78 @@ export function LeafIcon({ className }: { className?: string }) {
   );
 }
 
+function BranchBlossom({ cx, cy, r }: { cx: number; cy: number; r: number }) {
+  const petalOffset = r * 0.85;
+  return (
+    <g>
+      {[0, 72, 144, 216, 288].map((angle) => (
+        <ellipse
+          key={angle}
+          cx={cx}
+          cy={cy - petalOffset}
+          rx={r * 0.5}
+          ry={r * 0.75}
+          fill="#f2a9bd"
+          opacity={0.75}
+          transform={`rotate(${angle} ${cx} ${cy})`}
+        />
+      ))}
+      <circle cx={cx} cy={cy} r={r * 0.32} fill="#bd6e80" />
+    </g>
+  );
+}
+
+export function ShoppingBagIllustration({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 200 200" fill="none">
+      <path
+        d="M60,70 L140,70 L131,172 Q131,177 126,177 L74,177 Q69,177 69,172 Z"
+        fill="#fbe4e6"
+        stroke="#e8c9c0"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path d="M100,71 L100,177" stroke="#e8c9c0" strokeWidth="1.2" opacity="0.5" />
+      <path d="M74,155 L126,155" stroke="#e8c9c0" strokeWidth="1.2" opacity="0.4" />
+      <path
+        d="M83,70 C83,35 92,25 100,25 C108,25 117,35 117,70"
+        stroke="#bd6e80"
+        strokeWidth="3"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <path
+        d="M100,120s-8,6-8,12a8,8 0 0016,0c0-6-8-12-8-12z"
+        fill="#bd6e80"
+      />
+
+      <path d="M35,188 Q45,150 55,112 Q58,96 50,80" stroke="#c4c9a8" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+      <ellipse cx="43" cy="140" rx="7" ry="3.5" fill="#c4c9a8" opacity="0.8" transform="rotate(-40 43 140)" />
+      <ellipse cx="51" cy="120" rx="6" ry="3" fill="#c4c9a8" opacity="0.8" transform="rotate(-20 51 120)" />
+      <BranchBlossom cx={48} cy={92} r={11} />
+      <BranchBlossom cx={37} cy={72} r={7.5} />
+
+      <path d="M165,188 Q155,150 145,112 Q142,96 150,80" stroke="#c4c9a8" strokeWidth="2.4" strokeLinecap="round" fill="none" />
+      <ellipse cx="157" cy="140" rx="7" ry="3.5" fill="#c4c9a8" opacity="0.8" transform="rotate(40 157 140)" />
+      <ellipse cx="149" cy="120" rx="6" ry="3" fill="#c4c9a8" opacity="0.8" transform="rotate(20 149 120)" />
+      <BranchBlossom cx={152} cy={92} r={11} />
+      <BranchBlossom cx={163} cy={72} r={7.5} />
+
+      <path
+        d="M172 55s-6.5-4-9-9c-2-4 0.5-8.5 4.5-8.5s5 4 5 4 1-4 5-4 6.5 4.5 4.5 8.5c-2.5 5-10 9-10 9z"
+        fill="none"
+        stroke="#bd6e80"
+        strokeWidth="1.4"
+      />
+      <path
+        d="M28 155s-5-3-7-7c-1.5-3 0.5-6.5 3.5-6.5s3.5 3 3.5 3 1-3 3.5-3 5 3.5 3.5 6.5c-2 4-7.5 7-7.5 7z"
+        fill="#bd6e80"
+      />
+      <path d="M22 45l1.6 6.4L30 53l-6.4 1.6L22 61l-1.6-6.4L14 53l6.4-1.6z" fill="#bd6e80" opacity="0.7" />
+    </svg>
+  );
+}
+
 export function BunnyIllustration({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 100 100" fill="none">

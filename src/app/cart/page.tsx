@@ -2,11 +2,18 @@
 
 import Link from "next/link";
 import { useShop } from "@/lib/shop-context";
+import { useAuth } from "@/lib/auth-context";
 import { formatPrice } from "@/lib/utils";
 import CartLineItem from "@/components/cart/CartLineItem";
+import GuestEmptyCartView from "@/components/cart/GuestEmptyCartView";
 
 export default function CartPage() {
   const { cart, cartSubtotal } = useShop();
+  const { isLoggedIn } = useAuth();
+
+  if (cart.length === 0 && !isLoggedIn) {
+    return <GuestEmptyCartView />;
+  }
 
   if (cart.length === 0) {
     return (
