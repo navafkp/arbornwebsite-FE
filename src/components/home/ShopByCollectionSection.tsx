@@ -1,34 +1,13 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getExplore, type ExploreItem } from "@/lib/api-client";
-import { BowIcon, CloudShape, FlowerIcon, HeartIcon, LeafIcon } from "@/components/ui/decor";
-
-type CollectionCard = ExploreItem & { kind: "category" | "tag" };
-
-const BADGE_ICONS: { match: RegExp; icon: (className: string) => React.ReactNode }[] = [
-  { match: /korean/i, icon: (c) => <BowIcon className={c} /> },
-  { match: /short|nighty/i, icon: (c) => <CloudShape className={c} /> },
-  { match: /feed/i, icon: (c) => <HeartIcon className={c} /> },
-  { match: /floral|flower/i, icon: (c) => <FlowerIcon className={c} /> },
-  { match: /cotton|leaf/i, icon: (c) => <LeafIcon className={c} /> },
-];
-
-function CollectionBadge({ name }: { name: string }) {
-  const match = BADGE_ICONS.find((b) => b.match.test(name));
-  if (!match) return null;
-
-  return (
-    <span className="absolute bottom-0 left-1/2 flex h-[19.2px] w-[19.2px] -translate-x-1/2 items-center justify-center rounded-full bg-white text-accent shadow-sm">
-      {match.icon("h-2.5 w-2.5")}
-    </span>
-  );
-}
+import { getExplore } from "@/lib/api-client";
+import { HeartIcon } from "@/components/ui/decor";
+import CollectionCircleRail, { type CollectionCircle } from "@/components/common/CollectionCircleRail";
 
 export default function ShopByCollectionSection() {
-  const [cards, setCards] = useState<CollectionCard[]>([]);
+  const [cards, setCards] = useState<CollectionCircle[]>([]);
 
   useEffect(() => {
     getExplore()
@@ -58,21 +37,7 @@ export default function ShopByCollectionSection() {
         </Link>
       </div>
 
-      <div className="no-scrollbar mt-3.5 flex gap-4 overflow-x-auto pb-1">
-        {cards.slice(0, 6).map((card) => (
-          <Link
-            key={`${card.kind}-${card.id}`}
-            href={`/products?${card.kind}=${card.slug}`}
-            className="flex w-[59.3px] shrink-0 flex-col items-center gap-1.5 text-center"
-          >
-            <span className="relative block h-[59.3px] w-[59.3px] overflow-hidden rounded-full border border-[#f2dfe2] bg-[#f8f1ef]">
-              <Image src={card.image_url} alt={card.name} fill sizes="57px" className="object-cover" />
-              <CollectionBadge name={card.name} />
-            </span>
-            <span className="line-clamp-2 text-[11px] leading-tight text-[#241a1d]">{card.name}</span>
-          </Link>
-        ))}
-      </div>
+      <div className="mt-3.5"><CollectionCircleRail items={cards} /></div>
     </div>
   );
 }

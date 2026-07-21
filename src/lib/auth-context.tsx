@@ -26,6 +26,7 @@ export interface AuthUser {
 }
 
 interface AuthContextValue {
+  hydrated: boolean;
   user: AuthUser | null;
   isLoggedIn: boolean;
   accessToken: string | null;
@@ -60,6 +61,10 @@ function userFromBackend(backendUser: BackendUser): AuthUser {
   };
 }
 
+function isBackendUser(user: AuthUser | null): user is AuthUser {
+  return !!user && Number.isFinite(user.id) && user.id! > 0 && user.email.trim().length > 0;
+}
+
 // NOTE: signUp/logIn (phone + password) remain a mock, frontend-only flow
 // with no real backend check. loginWithGoogle is the real path via
 // POST /accounts/v1/auth/google/.
@@ -72,14 +77,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(SESSION_KEY);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (raw) setUser(JSON.parse(raw));
       const access = localStorage.getItem(ACCESS_TOKEN_KEY);
       const refresh = localStorage.getItem(REFRESH_TOKEN_KEY);
-      if (access) setAccessToken(access);
-      if (refresh) setRefreshToken(refresh);
+      const storedUser: AuthUser | null = raw ? JSON.parse(raw) : null;
+
+      // Restore a backend session only when all persisted pieces describe the
+      // same coherent authenticated state. Partial tokens are unsafe to treat
+      // as a login and are discarded. A legacy mock account may remain a local
+      // `user`, but it never qualifies as a backend session.
+      if (access && refresh && isBackendUser(storedUser)) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setUser(storedUser);
+        setAccessToken(access);
+        setRefreshToken(refresh);
+      } else {
+        if (storedUser) setUser(storedUser);
+        localStorage.removeItem(ACCESS_TOKEN_KEY);
+        localStorage.removeItem(REFRESH_TOKEN_KEY);
+      }
     } catch {
-      // ignore malformed localStorage data
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(ACCESS_TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
     }
     setHydrated(true);
   }, []);
@@ -151,13 +170,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearPreferredSize();
   }
 
+  const hasBackendSession =
+    isBackendUser(user) && !!accessToken && !!refreshToken;
+
   return (
     <AuthContext.Provider
       value={{
+        hydrated,
         user,
         isLoggedIn: !!user,
         accessToken,
-        hasBackendSession: !!accessToken,
+        hasBackendSession,
         signUp,
         logIn,
         loginWithGoogle,

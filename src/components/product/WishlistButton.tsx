@@ -2,6 +2,8 @@
 
 import { useShop } from "@/lib/shop-context";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
+import { useRouter } from "next/navigation";
 
 interface WishlistButtonProps {
   productId: string;
@@ -10,8 +12,11 @@ interface WishlistButtonProps {
 }
 
 export default function WishlistButton({ productId, className, size = "sm" }: WishlistButtonProps) {
-  const { isWishlisted, toggleWishlist } = useShop();
+  const { hydrated: wishlistHydrated, isWishlisted, toggleWishlist } = useShop();
+  const { hasBackendSession, hydrated } = useAuth();
+  const router = useRouter();
   const active = isWishlisted(productId);
+  const ready = hydrated && (!hasBackendSession || wishlistHydrated);
   const dimension = size === "sm" ? "h-4 w-4" : "h-5 w-5";
 
   return (
@@ -20,12 +25,19 @@ export default function WishlistButton({ productId, className, size = "sm" }: Wi
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
+        if (!ready) return;
+        if (!hasBackendSession) {
+          const next = `${window.location.pathname}${window.location.search}`;
+          router.push(`/login?next=${encodeURIComponent(next)}`);
+          return;
+        }
         toggleWishlist(productId);
       }}
-      aria-label={active ? "Remove from wishlist" : "Add to wishlist"}
+      aria-label={active ? "Remove from wishlist" : hasBackendSession ? "Add to wishlist" : "Log in to add to wishlist"}
       aria-pressed={active}
+      disabled={!ready}
       className={cn(
-        "flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm transition hover:scale-105",
+        "flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm transition hover:scale-105 disabled:cursor-wait disabled:opacity-70 motion-reduce:transform-none motion-reduce:transition-none",
         className,
       )}
     >

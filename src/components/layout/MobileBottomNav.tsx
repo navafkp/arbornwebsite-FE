@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { isNoChromeRoute } from "@/lib/constants";
 import { hasMadeSizeDecision } from "@/lib/preferred-size";
 import { appHydration } from "@/lib/app-hydration";
+import { useAuth } from "@/lib/auth-context";
 
 const ITEMS = [
   {
@@ -53,6 +54,7 @@ const ITEMS = [
 
 function NavLink({ item, active }: { item: (typeof ITEMS)[number]; active: boolean }) {
   const { wishlistCount } = useShop();
+  const { hasBackendSession } = useAuth();
 
   return (
     <Link
@@ -72,7 +74,7 @@ function NavLink({ item, active }: { item: (typeof ITEMS)[number]; active: boole
         {item.icon}
       </svg>
       {item.label}
-      {item.label === "Wishlist" && wishlistCount > 0 && (
+      {item.label === "Wishlist" && hasBackendSession && wishlistCount > 0 && (
         <span className="absolute top-1 right-1/2 h-4 min-w-4 translate-x-3 rounded-full bg-accent px-1 text-center text-[9px] leading-4 text-white">
           {wishlistCount}
         </span>

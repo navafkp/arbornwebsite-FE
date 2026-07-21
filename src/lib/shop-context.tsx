@@ -10,6 +10,7 @@ import {
 } from "react";
 import { products } from "@/lib/data/products";
 import type { Size } from "@/lib/types";
+import { useAuth } from "@/lib/auth-context";
 
 export interface CartLine {
   productId: string;
@@ -19,6 +20,7 @@ export interface CartLine {
 }
 
 interface ShopContextValue {
+  hydrated: boolean;
   cart: CartLine[];
   wishlist: string[];
   addToCart: (productId: string, size: Size, color: string, quantity?: number) => void;
@@ -35,16 +37,23 @@ interface ShopContextValue {
 const ShopContext = createContext<ShopContextValue | null>(null);
 
 const CART_KEY = "arborn_cart";
-const WISHLIST_KEY = "arborn_wishlist";
+const WISHLIST_KEY_PREFIX = "arborn_wishlist:";
 
 function lineKey(productId: string, size: string, color: string) {
   return `${productId}__${size}__${color}`;
 }
 
 export function ShopProvider({ children }: { children: ReactNode }) {
+  const { user, hasBackendSession, hydrated: authHydrated } = useAuth();
   const [cart, setCart] = useState<CartLine[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
+  const [wishlistLoadedKey, setWishlistLoadedKey] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
+
+  const wishlistOwner = hasBackendSession && user
+    ? String(user.id ?? user.email.trim().toLowerCase())
+    : null;
+  const wishlistKey = wishlistOwner ? `${WISHLIST_KEY_PREFIX}${wishlistOwner}` : null;
 
   useEffect(() => {
     // One-time sync from localStorage (an external system) on mount. Starting
@@ -52,23 +61,42 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     // mismatch that a lazy useState initializer reading localStorage would cause.
     try {
       const rawCart = localStorage.getItem(CART_KEY);
-      const rawWishlist = localStorage.getItem(WISHLIST_KEY);
       // eslint-disable-next-line react-hooks/set-state-in-effect
       if (rawCart) setCart(JSON.parse(rawCart));
-      if (rawWishlist) setWishlist(JSON.parse(rawWishlist));
     } catch {
       // ignore malformed localStorage data
     }
-    setHydrated(true);
-  }, []);
+    if (authHydrated) setHydrated(true);
+  }, [authHydrated]);
+
+  useEffect(() => {
+    if (!authHydrated) return;
+    if (!wishlistKey) {
+      // Synchronize account-owned state when the external auth identity changes.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setWishlist([]);
+      setWishlistLoadedKey(null);
+      return;
+    }
+    try {
+      const raw = localStorage.getItem(wishlistKey);
+      setWishlist(raw ? JSON.parse(raw) : []);
+      setWishlistLoadedKey(wishlistKey);
+    } catch {
+      setWishlist([]);
+      setWishlistLoadedKey(wishlistKey);
+    }
+  }, [authHydrated, wishlistKey]);
 
   useEffect(() => {
     if (hydrated) localStorage.setItem(CART_KEY, JSON.stringify(cart));
   }, [cart, hydrated]);
 
   useEffect(() => {
-    if (hydrated) localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
-  }, [wishlist, hydrated]);
+    if (hydrated && wishlistKey && wishlistLoadedKey === wishlistKey) {
+      localStorage.setItem(wishlistKey, JSON.stringify(wishlist));
+    }
+  }, [wishlist, hydrated, wishlistKey, wishlistLoadedKey]);
 
   function addToCart(productId: string, size: Size, color: string, quantity = 1) {
     setCart((prev) => {
@@ -130,6 +158,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   }, [cart]);
 
   const value: ShopContextValue = {
+    hydrated: hydrated && (!wishlistKey || wishlistLoadedKey === wishlistKey),
     cart,
     wishlist,
     addToCart,
