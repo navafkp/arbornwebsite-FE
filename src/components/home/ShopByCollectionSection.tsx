@@ -23,7 +23,7 @@ export default function ShopByCollectionSection() {
   if (cards.length === 0) return null;
 
   return (
-    <div className="mt-[7.6px]">
+    <div className="mt-[7.6px]" style={{ marginLeft: "-2.5%", marginRight: "-2.5%" }}>
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-1.5 font-serif text-2xl">
           Shop by Collection
@@ -37,7 +37,7 @@ export default function ShopByCollectionSection() {
         </Link>
       </div>
 
-      <div className="mt-3.5" style={{ marginLeft: "-2.5%", marginRight: "-2.5%" }}><CollectionCircleRail items={cards} /></div>
+      <div className="mt-3.5"><CollectionCircleRail items={cards} /></div>
     </div>
   );
 }

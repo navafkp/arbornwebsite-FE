@@ -119,7 +119,11 @@ export default function ArbornStories({ compactBubbles = false }: { compactBubbl
   const currentIndex = activeIndex ?? -1;
 
   return (
-    <section aria-labelledby="product-stories-title" className={`px-0.5 sm:px-1 ${compactBubbles ? "mt-[3.6px] pt-0 pb-0" : "mt-3 pt-2 pb-3 sm:mt-5 sm:pt-3"}`}>
+    <section
+      aria-labelledby="product-stories-title"
+      className={`px-0.5 sm:px-1 ${compactBubbles ? "mt-[3.6px] pt-0 pb-0" : "mt-3 pt-2 pb-3 sm:mt-5 sm:pt-3"}`}
+      style={compactBubbles ? undefined : { marginLeft: "-2.5%", marginRight: "-2.5%" }}
+    >
       <div className="flex items-center gap-4">
         <h2 id="product-stories-title" className={`flex items-center gap-1.5 font-serif ${compactBubbles ? "text-base" : "text-2xl"}`}>
           Arborn Stories
@@ -128,7 +132,6 @@ export default function ArbornStories({ compactBubbles = false }: { compactBubbl
       </div>
       <div
         className={`no-scrollbar mt-[10.8px] flex snap-x gap-3.5 overflow-x-auto pb-0.5 sm:gap-5 ${compactBubbles ? "justify-between" : "sm:justify-between"}`}
-        style={compactBubbles ? undefined : { marginLeft: "-2.5%", marginRight: "-2.5%" }}
       >
         {STORIES.map((story, index) => (
           <button key={story.label} type="button" onClick={(event) => openStory(index, event.currentTarget)} aria-label={`Open story: ${story.label}`} className={`group flex shrink-0 snap-start flex-col items-center gap-1.5 rounded-lg outline-none ${compactBubbles ? "w-[41.6px] sm:w-[49.1px]" : "w-[69.3px] sm:w-[81.9px]"}`}>
