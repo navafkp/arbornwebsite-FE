@@ -3,11 +3,16 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { getProducts, type ApiProduct } from "@/lib/api-client";
+import { getPreferredSizes } from "@/lib/preferred-size";
 import ApiProductCard from "@/components/products/ApiProductCard";
 
 export default function NewInSection() {
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
+  // Static export prerenders with no localStorage, so this starts pointing
+  // at the size picker and only switches to a direct product-list link
+  // (skipping the picker) once we know a size is already stored.
+  const [viewMoreHref, setViewMoreHref] = useState("/select-size");
 
   useEffect(() => {
     // Showing all products for now instead of filtering to a "New" tag.
@@ -17,6 +22,14 @@ export default function NewInSection() {
         setLoadState("ready");
       })
       .catch(() => setLoadState("error"));
+  }, []);
+
+  useEffect(() => {
+    const preferredSizes = getPreferredSizes();
+    if (preferredSizes.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setViewMoreHref(`/products?size=${preferredSizes.join(",")}`);
+    }
   }, []);
 
   const visibleProducts = useMemo(() => products.slice(0, 6), [products]);
@@ -57,7 +70,7 @@ export default function NewInSection() {
       )}
 
       <Link
-        href="/select-size"
+        href={viewMoreHref}
         className="mt-3 flex items-center justify-center gap-1 rounded-full border border-accent bg-accent py-1.5 text-[9px] font-medium text-white outline-none transition hover:border-accent-dark hover:bg-accent-dark focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
       >
         View More

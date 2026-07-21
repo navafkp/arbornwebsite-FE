@@ -72,8 +72,15 @@ export default function SelectSizePage() {
   }
 
   function handleClose() {
-    clearPreferredSize();
     markSizeDecisionMade();
+    // Closing with a size already picked (just not confirmed via Continue)
+    // should still honor that choice, not silently discard it.
+    if (selected.length > 0) {
+      setPreferredSizes(selected);
+      router.push(`/products?size=${selected.join(",")}`);
+      return;
+    }
+    clearPreferredSize();
     router.push("/products");
   }
 
