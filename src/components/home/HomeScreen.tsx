@@ -2,6 +2,7 @@ import HomeHeader from "@/components/home/HomeHeader";
 import BustSizeBanner from "@/components/home/BustSizeBanner";
 import NewInSection from "@/components/home/NewInSection";
 import ShopByCollectionSection from "@/components/home/ShopByCollectionSection";
+import ArbornStoriesSection from "@/components/home/ArbornStoriesSection";
 import FeatureStrip from "@/components/home/FeatureStrip";
 
 export default function HomeScreen() {
@@ -11,6 +12,7 @@ export default function HomeScreen() {
       <div className="mx-auto max-w-7xl px-4 pt-[75px] pb-6 sm:px-6 lg:px-8">
         <BustSizeBanner />
         <ShopByCollectionSection />
+        <ArbornStoriesSection />
         <NewInSection />
         <FeatureStrip />
       </div>

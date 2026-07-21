@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useShop } from "@/lib/shop-context";
 import { cn } from "@/lib/utils";
 import { isNoChromeRoute } from "@/lib/constants";
+import { hasMadeSizeDecision } from "@/lib/preferred-size";
+import { appHydration } from "@/lib/app-hydration";
 
 const ITEMS = [
   {
@@ -81,8 +84,20 @@ function NavLink({ item, active }: { item: (typeof ITEMS)[number]; active: boole
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const { cartCount } = useShop();
+  // On "/", the intro (Hero/"Continue Shopping") page has no bottom nav —
+  // it only appears once the designed home screen shows. Mirrors the same
+  // hero-vs-home decision src/app/page.tsx makes, staying in sync with it
+  // via the shared appHydration flag to avoid a mismatch on first load.
+  const [showingHero, setShowingHero] = useState(
+    () => pathname === "/" && !(appHydration.done && hasMadeSizeDecision()),
+  );
 
-  if (isNoChromeRoute(pathname)) return null;
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setShowingHero(pathname === "/" && !hasMadeSizeDecision());
+  }, [pathname]);
+
+  if (isNoChromeRoute(pathname) || showingHero) return null;
 
   const [home, collections, wishlist, profile] = ITEMS;
   const bagActive = pathname === "/cart";

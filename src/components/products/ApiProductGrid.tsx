@@ -94,8 +94,11 @@ export default function ApiProductGrid({
     return list;
   }, [products, sort, pricePreset]);
 
+  const seoHeading = category ? humanize(category) : tag ? (activeTagName ?? humanize(tag)) : "Shop All Products";
+
   return (
     <div className="mx-auto max-w-7xl px-3 pt-4 pb-10 sm:px-6 lg:px-8">
+      <h1 className="sr-only">{seoHeading}</h1>
       <BustSizeBanner />
 
       <div className="relative mt-3 flex gap-2.5">
