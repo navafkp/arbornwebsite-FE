@@ -71,10 +71,10 @@ export default function NewInSection() {
 
       <Link
         href={viewMoreHref}
-        className="mt-3 flex items-center justify-center gap-1 rounded-full border border-accent bg-accent py-1.5 text-[9px] font-medium text-white outline-none transition hover:border-accent-dark hover:bg-accent-dark focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+        className="mt-3 flex items-center justify-center gap-[4.2px] rounded-full border border-accent bg-accent py-[6.3px] text-[9.5px] font-bold text-white outline-none transition hover:border-accent-dark hover:bg-accent-dark focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
       >
         View More
-        <svg className="h-2 w-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg className="h-[8.4px] w-[8.4px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </Link>
