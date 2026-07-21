@@ -37,7 +37,7 @@ export default function SelectSizePage() {
     if (selected.length === 0) return;
     setPreferredSizes(selected);
     markSizeDecisionMade();
-    router.push(`/products?size=${selected.join(",")}`);
+    router.replace(`/products?size=${selected.join(",")}`);
   }
 
   function handleSelectSize(sizeCode: number) {
@@ -77,11 +77,11 @@ export default function SelectSizePage() {
     // should still honor that choice, not silently discard it.
     if (selected.length > 0) {
       setPreferredSizes(selected);
-      router.push(`/products?size=${selected.join(",")}`);
+      router.replace(`/products?size=${selected.join(",")}`);
       return;
     }
     clearPreferredSize();
-    router.push("/products");
+    router.replace("/products");
   }
 
   return (
@@ -158,7 +158,7 @@ export default function SelectSizePage() {
       {selected.length > 0 && (
         <p className="mt-2 flex items-center gap-1 text-xs text-[var(--muted)]">
           Changed your mind? Tap a selected size again to remove it.
-          <HeartIcon className="h-3 w-3 text-accent" />
+          <HeartIcon filled className="h-3 w-3 text-accent" />
         </p>
       )}
 
