@@ -103,7 +103,7 @@ export default function ApiProductGrid({
       <BustSizeBanner />
       <ArbornStories compactBubbles />
 
-      <div className="relative mt-2 flex gap-2.5">
+      <div className="relative mt-[7.2px] flex gap-2.5">
         <div className="relative flex-1">
           <button
             type="button"

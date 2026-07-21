@@ -21,7 +21,7 @@ export default function ProductOverlayCard({ product }: { product: ApiProduct })
           />
         )}
         <WishlistButton productId={String(product.id)} className="absolute top-2 right-2" />
-        <span className="absolute bottom-2 left-2 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold text-white">
+        <span className="absolute bottom-2 left-2 rounded-full bg-black/60 px-2.5 py-1 text-[13.2px] font-semibold text-white">
           {formatPrice(discountPrice ?? price)}
         </span>
       </div>

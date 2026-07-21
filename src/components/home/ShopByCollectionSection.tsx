@@ -23,7 +23,7 @@ export default function ShopByCollectionSection() {
   if (cards.length === 0) return null;
 
   return (
-    <div className="mt-[7.2px]">
+    <div className="mt-[7.6px]">
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-1.5 font-serif text-2xl">
           Shop by Collection

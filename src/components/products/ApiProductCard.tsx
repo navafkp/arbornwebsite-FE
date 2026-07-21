@@ -188,7 +188,7 @@ export default function ApiProductCard({
 
         <div className="grid min-h-6 grid-cols-[minmax(0,1fr)_auto] items-center gap-0.5 border-t border-[#f8ebed] bg-[#fffafa] px-1.5 py-0.5 sm:min-h-[27px] sm:gap-1 sm:px-2 sm:py-1">
           <div className="min-w-0">
-            <span className="block whitespace-nowrap text-[10px] leading-3 font-semibold tracking-[-0.045em] text-[#1e1719] sm:text-[12px] sm:leading-4 sm:tracking-[-0.035em]">
+            <span className="block whitespace-nowrap text-[11px] leading-3 font-semibold tracking-[-0.045em] text-[#1e1719] sm:text-[13.2px] sm:leading-4 sm:tracking-[-0.035em]">
               {formatPrice(discountPrice ?? price)}
             </span>
             {discountPrice && (

@@ -15,7 +15,7 @@ type Story = {
 
 const STORIES: Story[] = [
   { label: "New Arrivals", eyebrow: "Freshly landed", caption: "Soft new silhouettes for slow mornings and sweeter nights.", accent: "from-[#cf7186] via-[#f29a85] to-[#e9b968]", icon: "spark", cta: { label: "Shop this look", href: "/products/detail?slug=korean-pajama-set" } },
-  { label: "Behind the Scenes", eyebrow: "Inside Arborn", caption: "A quiet look at the details, fittings and hands behind every set.", accent: "from-[#d78699] via-[#df9f83] to-[#f0c77d]", icon: "camera" },
+  { label: "Founder Fav", eyebrow: "Inside Arborn", caption: "A quiet look at the details, fittings and hands behind every set.", accent: "from-[#d78699] via-[#df9f83] to-[#f0c77d]", icon: "camera" },
   { label: "Customer Love", eyebrow: "Worn & loved", caption: "Comfort notes and favourite fits, shared by the Arborn community.", accent: "from-[#bd6e80] via-[#e79499] to-[#e9bd7a]", icon: "heart" },
   { label: "Style Tips", eyebrow: "The nightwear edit", caption: "Small styling ideas to take your favourite co-ord beyond bedtime.", accent: "from-[#d2798e] via-[#e7a67f] to-[#f2cb82]", icon: "style" },
   { label: "Giveaway", eyebrow: "A little delight", caption: "Your next dreamy set could be on us. Tap through for this week’s treat.", accent: "from-[#bb657c] via-[#de8c91] to-[#eab875]", icon: "gift" },
@@ -119,19 +119,19 @@ export default function ArbornStories({ compactBubbles = false }: { compactBubbl
   const currentIndex = activeIndex ?? -1;
 
   return (
-    <section aria-labelledby="product-stories-title" className={`px-0.5 sm:px-1 ${compactBubbles ? "mt-1 pt-0 pb-0" : "mt-3 pt-2 pb-3 sm:mt-5 sm:pt-3"}`}>
+    <section aria-labelledby="product-stories-title" className={`px-0.5 sm:px-1 ${compactBubbles ? "mt-[3.6px] pt-0 pb-0" : "mt-3 pt-2 pb-3 sm:mt-5 sm:pt-3"}`}>
       <div className="flex items-center gap-4">
-        <h2 id="product-stories-title" className="flex items-center gap-1.5 font-serif text-2xl">
+        <h2 id="product-stories-title" className={`flex items-center gap-1.5 font-serif ${compactBubbles ? "text-base" : "text-2xl"}`}>
           Arborn Stories
-          <HeartIcon filled className="h-4 w-4 text-accent" />
+          <HeartIcon filled className={compactBubbles ? "h-2.5 w-2.5 text-accent" : "h-4 w-4 text-accent"} />
         </h2>
       </div>
-      <div className="no-scrollbar mt-3 flex snap-x gap-3.5 overflow-x-auto pb-0.5 sm:justify-between sm:gap-5">
+      <div className={`no-scrollbar mt-[10.8px] flex snap-x gap-3.5 overflow-x-auto pb-0.5 sm:gap-5 ${compactBubbles ? "justify-between" : "sm:justify-between"}`}>
         {STORIES.map((story, index) => (
-          <button key={story.label} type="button" onClick={(event) => openStory(index, event.currentTarget)} aria-label={`Open story: ${story.label}`} className="group flex w-[69.3px] shrink-0 snap-start flex-col items-center gap-1.5 rounded-lg outline-none sm:w-[81.9px]">
+          <button key={story.label} type="button" onClick={(event) => openStory(index, event.currentTarget)} aria-label={`Open story: ${story.label}`} className={`group flex shrink-0 snap-start flex-col items-center gap-1.5 rounded-lg outline-none ${compactBubbles ? "w-[41.6px] sm:w-[49.1px]" : "w-[69.3px] sm:w-[81.9px]"}`}>
             <span className={`rounded-full bg-gradient-to-br ${story.accent} p-[2px] transition-transform duration-200 group-hover:scale-[1.04] group-focus-visible:scale-[1.04]`}>
-              <span className={`flex items-center justify-center rounded-full border-[3px] border-white bg-[#fffaf5] text-accent shadow-[0_2px_8px_rgba(121,68,80,0.12)] ${compactBubbles ? "h-[49.3px] w-[49.3px] sm:h-[54.4px] sm:w-[54.4px]" : "h-[60.9px] w-[60.9px] sm:h-[67.2px] sm:w-[67.2px]"}`}>
-                <StoryIcon solid type={story.icon} className={compactBubbles ? "h-[21.4px] w-[21.4px] sm:h-[24.5px] sm:w-[24.5px]" : "h-[26.5px] w-[26.5px] sm:h-[30.2px] sm:w-[30.2px]"} />
+              <span className={`flex items-center justify-center rounded-full border-[3px] border-white bg-[#fffaf5] text-accent shadow-[0_2px_8px_rgba(121,68,80,0.12)] ${compactBubbles ? "h-[29.6px] w-[29.6px] sm:h-[32.6px] sm:w-[32.6px]" : "h-[60.9px] w-[60.9px] sm:h-[67.2px] sm:w-[67.2px]"}`}>
+                <StoryIcon solid type={story.icon} className={compactBubbles ? "h-[12.8px] w-[12.8px] sm:h-[14.7px] sm:w-[14.7px]" : "h-[26.5px] w-[26.5px] sm:h-[30.2px] sm:w-[30.2px]"} />
               </span>
             </span>
             <span className="min-h-[27px] text-center text-[10.5px] font-medium leading-[1.25] text-[var(--foreground)] sm:text-[11px]">{story.label}</span>

@@ -389,7 +389,7 @@ export default function ApiProductDetail() {
             </div>
 
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-semibold">{formatPrice(discountPrice ?? price)}</span>
+              <span className="text-[26.4px] font-semibold">{formatPrice(discountPrice ?? price)}</span>
               {discountPrice && (
                 <span className="text-sm text-black/40 line-through">{formatPrice(price)}</span>
               )}
