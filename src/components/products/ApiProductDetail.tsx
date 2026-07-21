@@ -256,9 +256,6 @@ export default function ApiProductDetail() {
     }),
   );
 
-  const sizeMatchExists =
-    preferredSizeCodes.length > 0 &&
-    product.variants.some((v) => v.sizes.some((s) => preferredSizeCodes.includes(s.size_code)));
   const displayedReviews = product.reviews.length > 0 ? product.reviews : SAMPLE_REVIEWS;
   // TEMP: preview fallback until the backend sends instagram_reel_url — remove this fallback once it does.
   const instagramReelUrl = product.instagram_reel_url ?? "https://www.instagram.com/reel/Da-dYBpIcb2/?igsh=bWdvZzIzdmppNTF1";
@@ -428,20 +425,9 @@ export default function ApiProductDetail() {
               </div>
             )}
 
-            <FeatureStrip />
-
-            {variant && variant.sizes.length > 0 && !sizeMatchExists && (
+            {variant && variant.sizes.length > 0 && (
               <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs tracking-wide text-[var(--muted)] uppercase">Size</span>
-                  <Link href="/select-size" className="flex items-center gap-1 text-xs text-[var(--muted)]">
-                    Size Guide
-                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
-                      <path d="m5 19 14-14 2 2L7 21H5v-2Z" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="m12 12 2 2m-5 1 2 2m4-8 2 2" strokeLinecap="round" />
-                    </svg>
-                  </Link>
-                </div>
+                <span className="text-xs tracking-wide text-[var(--muted)] uppercase">Size</span>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {variant.sizes.map((s) => (
                     <button
@@ -467,6 +453,8 @@ export default function ApiProductDetail() {
                 {inStock ? "In stock" : "Out of stock"}
               </p>
             )}
+
+            <FeatureStrip />
 
             <div className="mt-2 flex flex-col gap-3 sm:flex-row">
               <a
