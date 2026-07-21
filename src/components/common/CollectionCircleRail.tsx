@@ -17,16 +17,21 @@ const BADGES: { match: RegExp; icon: (className: string) => React.ReactNode }[] 
 
 export default function CollectionCircleRail({ items, label = "Shop by collection" }: { items: CollectionCircle[]; label?: string }) {
   return (
-    <div className="no-scrollbar flex gap-4 overflow-x-auto pb-1" role="list" aria-label={label}>
+    <div className="no-scrollbar flex gap-3.5 overflow-x-auto pb-0.5 sm:gap-5" role="list" aria-label={label}>
       {items.slice(0, 6).map((item) => {
         const badge = BADGES.find((candidate) => candidate.match.test(item.name));
         return (
-          <Link key={`${item.kind}-${item.id}`} href={`/products?${item.kind}=${encodeURIComponent(item.slug)}`} role="listitem" className="group flex w-[59.3px] shrink-0 flex-col items-center gap-1.5 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
-            <span className="relative block h-[59.3px] w-[59.3px] overflow-hidden rounded-full border border-[#f2dfe2] bg-[#f8f1ef]">
-              <Image src={item.image_url} alt="" fill sizes="59px" className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none" />
-              {badge && <span className="absolute bottom-0 left-1/2 flex h-[19.2px] w-[19.2px] -translate-x-1/2 items-center justify-center rounded-full bg-white text-accent shadow-sm">{badge.icon("h-2.5 w-2.5")}</span>}
+          <Link
+            key={`${item.kind}-${item.id}`}
+            href={`/products?${item.kind}=${encodeURIComponent(item.slug)}`}
+            role="listitem"
+            className="group flex w-[69.3px] shrink-0 flex-col items-center gap-1.5 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:w-[81.9px]"
+          >
+            <span className="relative block h-[60.9px] w-[60.9px] overflow-hidden rounded-full border border-[#f2dfe2] bg-[#f8f1ef] sm:h-[67.2px] sm:w-[67.2px]">
+              <Image src={item.image_url} alt="" fill sizes="(min-width: 640px) 67px, 61px" className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none" />
+              {badge && <span className="absolute bottom-0 left-1/2 flex h-[20px] w-[20px] -translate-x-1/2 items-center justify-center rounded-full bg-white text-accent shadow-sm sm:h-[22.1px] sm:w-[22.1px]">{badge.icon("h-2.5 w-2.5")}</span>}
             </span>
-            <span className="line-clamp-2 text-[11px] leading-tight text-[#241a1d]">{item.name}</span>
+            <span className="line-clamp-2 min-h-[27px] text-[10.5px] leading-[1.25] text-[#241a1d] sm:text-[11px]">{item.name}</span>
           </Link>
         );
       })}

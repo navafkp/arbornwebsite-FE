@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { getProducts, type ApiProduct } from "@/lib/api-client";
-import { getPreferredSizes } from "@/lib/preferred-size";
+import { getPreferredSizes, hasMadeSizeDecision } from "@/lib/preferred-size";
 import ApiProductCard from "@/components/products/ApiProductCard";
 
 export default function NewInSection() {
@@ -25,11 +25,14 @@ export default function NewInSection() {
   }, []);
 
   useEffect(() => {
+    // A decision (size picked OR explicitly skipped) means never ask again —
+    // not just "is a size stored", since skipping clears the stored size but
+    // still counts as a decision already made.
+    if (!hasMadeSizeDecision()) return;
     const preferredSizes = getPreferredSizes();
-    if (preferredSizes.length > 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setViewMoreHref(`/products?size=${preferredSizes.join(",")}`);
-    }
+    const href = preferredSizes.length > 0 ? `/products?size=${preferredSizes.join(",")}` : "/products";
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setViewMoreHref(href);
   }, []);
 
   const visibleProducts = useMemo(() => products.slice(0, 6), [products]);

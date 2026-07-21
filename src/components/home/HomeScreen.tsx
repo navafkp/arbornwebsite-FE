@@ -11,8 +11,8 @@ export default function HomeScreen() {
       <div className="mx-auto max-w-7xl px-4 pt-[73.1px] pb-6 sm:px-6 lg:px-8">
         <FeatureStrip />
         <NewInSection />
-        <ArbornStories />
         <ShopByCollectionSection />
+        <ArbornStories />
       </div>
     </>
   );
