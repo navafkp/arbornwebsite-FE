@@ -6,7 +6,7 @@ import SearchBar from "@/components/layout/SearchBar";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { withBasePath } from "@/lib/asset-path";
 
-const INSTAGRAM_URL = "#";
+const INSTAGRAM_URL = "https://www.instagram.com/arborn__/?hl=en";
 const LOGO_IMAGE = withBasePath("/arborn.webp");
 
 export default function HomeHeader() {

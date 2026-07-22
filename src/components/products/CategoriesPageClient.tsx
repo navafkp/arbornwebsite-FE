@@ -32,6 +32,22 @@ function tornEdgeClipPath(teeth = 14, dip = 5) {
 
 const TORN_EDGE = tornEdgeClipPath();
 
+function SquiggleWord({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="relative inline-block">
+      {children}
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 100 10"
+        preserveAspectRatio="none"
+        className="absolute -bottom-1 left-0 h-2 w-full text-[#df7296]"
+      >
+        <path d="M0 5 Q 12 0, 25 5 T 50 5 T 75 5 T 100 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    </span>
+  );
+}
+
 export default function CategoriesPageClient() {
   const [cards, setCards] = useState<ExploreCard[]>([]);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
@@ -58,18 +74,8 @@ export default function CategoriesPageClient() {
           <SparkleIcon className="h-4 w-4 text-[#df7296]/70" />
         </h1>
         <p className="mt-2 text-base leading-6 text-[var(--muted)] italic">
-          <span className="relative inline-block">
-            Find your
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 100 10"
-              preserveAspectRatio="none"
-              className="absolute -bottom-1 left-0 h-2 w-full text-[#df7296]"
-            >
-              <path d="M0 5 Q 12 0, 25 5 T 50 5 T 75 5 T 100 5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </span>{" "}
-          perfect fit by category, mood, and moment.
+          Find your perfect fit by <SquiggleWord>category</SquiggleWord>, <SquiggleWord>mood</SquiggleWord>, and{" "}
+          <SquiggleWord>moment</SquiggleWord>.
         </p>
       </header>
 
@@ -111,12 +117,6 @@ export default function CategoriesPageClient() {
                     sizes="(min-width: 640px) 30vw, 45vw"
                     className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.045] group-focus-visible:scale-[1.045]"
                   />
-                  <span
-                    className="absolute top-3 left-3 rounded-full px-2.5 py-1 text-[11px] font-medium leading-tight"
-                    style={{ backgroundColor: theme.pillBg, color: theme.pillText }}
-                  >
-                    {theme.label}
-                  </span>
                 </div>
 
                 <div className="relative -mt-3 px-4 pt-2 pb-4">

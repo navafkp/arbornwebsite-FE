@@ -81,7 +81,8 @@ function NavLink({ item, active }: { item: (typeof ITEMS)[number]; active: boole
 }
 
 export default function MobileBottomNav() {
-  const pathname = usePathname();
+  const rawPathname = usePathname();
+  const pathname = rawPathname.length > 1 ? rawPathname.replace(/\/$/, "") : rawPathname;
   const { cartCount } = useShop();
   // TEMP: the Hero/"Continue Shopping" intro page is disabled in
   // src/app/page.tsx for now (always lands on the designed home screen), so
@@ -116,8 +117,8 @@ export default function MobileBottomNav() {
           href="/cart"
           aria-label="Bag"
           className={cn(
-            "absolute -top-6 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-[0_10px_20px_rgba(185,62,91,0.35)]",
-            bagActive ? "bg-accent-dark" : "bg-accent",
+            "absolute -top-6 flex h-14 w-14 items-center justify-center rounded-full shadow-[0_10px_20px_rgba(185,62,91,0.35)]",
+            bagActive ? "bg-background text-black" : "bg-accent text-white",
           )}
         >
           <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
@@ -125,7 +126,12 @@ export default function MobileBottomNav() {
             <path d="M9 8V6a3 3 0 016 0v2" strokeLinecap="round" />
           </svg>
           {cartCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-white px-1 text-[9px] leading-none text-accent">
+            <span
+              className={cn(
+                "absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full px-1 text-[9px] leading-none",
+                bagActive ? "bg-accent text-white" : "bg-white text-accent",
+              )}
+            >
               {cartCount}
             </span>
           )}

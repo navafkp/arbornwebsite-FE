@@ -9,7 +9,7 @@ import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { withBasePath } from "@/lib/asset-path";
 
 const LOGO_IMAGE = withBasePath("/arborn.webp");
-const INSTAGRAM_URL = "#";
+const INSTAGRAM_URL = "https://www.instagram.com/arborn__/?hl=en";
 
 export default function PageShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import WishlistButton from "@/components/product/WishlistButton";
-import { getProductDetail, type ApiProduct } from "@/lib/api-client";
+import { getProductDetail, type ApiProduct, type BackendSize } from "@/lib/api-client";
 import { formatPrice } from "@/lib/utils";
 
 type VariantCue = {
@@ -95,11 +95,13 @@ export default function ApiProductCard({
   badgeLabel,
   showWishlist = true,
   compactPatternPreviews = false,
+  sizeHints = [],
 }: {
   product: ApiProduct;
   badgeLabel?: string;
   showWishlist?: boolean;
   compactPatternPreviews?: boolean;
+  sizeHints?: BackendSize[];
 }) {
   const price = Number(product.base_price);
   const discountPrice = product.base_discount_price ? Number(product.base_discount_price) : null;
@@ -215,12 +217,27 @@ export default function ApiProductCard({
             </div>
           )}
         </div>
+
+        {sizeHints.length > 0 && (
+          <div className="flex gap-1 bg-[#fffafa] px-1.5 pb-1.5 sm:px-2">
+            {sizeHints.slice(0, 3).map((s, i) => (
+              <span
+                key={s.size_code}
+                className={`flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-medium sm:h-5 sm:w-5 sm:text-[9px] ${
+                  i === 0 ? "bg-accent-soft text-accent" : "bg-black/5 text-black/60"
+                }`}
+              >
+                {s.display_text}
+              </span>
+            ))}
+          </div>
+        )}
       </Link>
 
       {showWishlist && (
         <WishlistButton
           productId={String(product.id)}
-          className="absolute top-1.5 right-1.5 z-10 h-8 w-8 bg-white/95 shadow-[0_1px_5px_rgba(85,43,55,0.13)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-1 sm:top-2 sm:right-2 sm:h-8 sm:w-8"
+          className="absolute top-1.5 right-1.5 z-10 h-[24.624px] w-[24.624px] bg-white/95 shadow-[0_1px_5px_rgba(85,43,55,0.13)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-1 sm:top-2 sm:right-2 sm:h-[24.624px] sm:w-[24.624px]"
         />
       )}
     </article>

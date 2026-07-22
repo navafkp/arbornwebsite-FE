@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { getProducts, getExplore, type ApiProduct } from "@/lib/api-client";
+import { getProducts, getExplore, getSizes, type ApiProduct, type BackendSize } from "@/lib/api-client";
 import { getPreferredSizes } from "@/lib/preferred-size";
 import { PRICE_PRESETS } from "@/lib/constants";
 import ApiProductCard from "@/components/products/ApiProductCard";
@@ -47,6 +47,7 @@ export default function ApiProductGrid({
   const [sort, setSort] = useState<SortKey>("newest");
   const [pricePreset, setPricePreset] = useState<string | null>(null);
   const [openPanel, setOpenPanel] = useState<"sort" | "filter" | null>(null);
+  const [allSizes, setAllSizes] = useState<BackendSize[]>([]);
 
   useEffect(() => {
     if (sizes && sizes.length > 0) {
@@ -56,6 +57,16 @@ export default function ApiProductGrid({
     const preferred = getPreferredSizes();
     setEffectiveSizes(preferred);
   }, [sizes]);
+
+  useEffect(() => {
+    getSizes()
+      .then(setAllSizes)
+      .catch(() => setAllSizes([]));
+  }, []);
+
+  // Only nudge with size pills when the shopper hasn't picked a size yet —
+  // once they have, effectiveSizes already scopes the grid to their size.
+  const sizeHints = effectiveSizes.length === 0 ? allSizes : [];
 
   useEffect(() => {
     setLoadState("loading");
@@ -179,7 +190,7 @@ export default function ApiProductGrid({
       </div>
 
       {loadState === "loading" && (
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:mt-6 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5 lg:gap-4">
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:mt-6 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5 lg:gap-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="w-full overflow-hidden rounded-[15px] border border-[#f2dfe2] bg-[#fffefd] shadow-[0_2px_9px_rgba(85,43,55,0.07)]">
               <div className="aspect-[3/4] animate-pulse bg-[#f9f3f2]" />
@@ -202,12 +213,13 @@ export default function ApiProductGrid({
       )}
 
       {loadState === "ready" && visibleProducts.length > 0 && (
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:mt-6 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5 lg:gap-4">
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:mt-6 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5 lg:gap-4">
           {visibleProducts.map((product) => (
             <ApiProductCard
               key={product.id}
               product={product}
               badgeLabel={tag ? (activeTagName ?? humanize(tag)) : undefined}
+              sizeHints={sizeHints}
             />
           ))}
         </div>

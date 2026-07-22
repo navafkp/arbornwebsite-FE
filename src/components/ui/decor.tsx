@@ -129,6 +129,7 @@ export function ShoppingBagIllustration({ className }: { className?: string }) {
         fill="none"
         stroke="#bd6e80"
         strokeWidth="1.4"
+        transform="translate(172,47) scale(0.7) translate(-172,-47)"
       />
       <path
         d="M28 155s-5-3-7-7c-1.5-3 0.5-6.5 3.5-6.5s3.5 3 3.5 3 1-3 3.5-3 5 3.5 3.5 6.5c-2 4-7.5 7-7.5 7z"

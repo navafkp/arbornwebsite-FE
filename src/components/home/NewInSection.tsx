@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { getProducts, type ApiProduct } from "@/lib/api-client";
+import { getProducts, getSizes, type ApiProduct, type BackendSize } from "@/lib/api-client";
 import { getPreferredSizes, hasMadeSizeDecision } from "@/lib/preferred-size";
 import ApiProductCard from "@/components/products/ApiProductCard";
 
 export default function NewInSection() {
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
+  const [sizes, setSizes] = useState<BackendSize[]>([]);
   // Static export prerenders with no localStorage, so this starts pointing
   // at the size picker and only switches to a direct product-list link
   // (skipping the picker) once we know a size is already stored.
@@ -22,6 +23,9 @@ export default function NewInSection() {
         setLoadState("ready");
       })
       .catch(() => setLoadState("error"));
+    getSizes()
+      .then(setSizes)
+      .catch(() => setSizes([]));
   }, []);
 
   useEffect(() => {
@@ -40,7 +44,7 @@ export default function NewInSection() {
   return (
     <div className="mt-[6.5px]">
       {loadState === "loading" && (
-        <div className="mt-[10.8px] grid grid-cols-3 gap-0.5" style={{ marginLeft: "-2.5%", marginRight: "-2.5%" }}>
+        <div className="mt-[10.8px] grid grid-cols-3 gap-1.5" style={{ marginLeft: "-2.5%", marginRight: "-2.5%" }}>
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="w-full overflow-hidden rounded-[15px] border border-[#f2dfe2] bg-[#fffefd] shadow-[0_2px_9px_rgba(85,43,55,0.07)]">
               <div className="aspect-[3/4] animate-pulse bg-[#f9f3f2]" />
@@ -63,10 +67,10 @@ export default function NewInSection() {
       )}
 
       {loadState === "ready" && visibleProducts.length > 0 && (
-        <div className="mt-[10.8px] grid grid-cols-3 gap-0.5" style={{ marginLeft: "-2.5%", marginRight: "-2.5%" }}>
+        <div className="mt-[10.8px] grid grid-cols-3 gap-1.5" style={{ marginLeft: "-2.5%", marginRight: "-2.5%" }}>
           {visibleProducts.map((product) => (
             <div key={product.id} className="mx-auto w-full">
-              <ApiProductCard product={product} showWishlist={false} compactPatternPreviews />
+              <ApiProductCard product={product} showWishlist={false} compactPatternPreviews sizeHints={sizes} />
             </div>
           ))}
         </div>
