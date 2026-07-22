@@ -29,9 +29,8 @@ export default function BustSizeBanner({ large = false }: { large?: boolean }) {
     return (
       <Link
         href="/select-size"
-        className={`group relative mt-[3.1px] flex items-center overflow-hidden rounded-[22px] bg-gradient-to-br from-accent-soft to-[#fdf6f0] shadow-[0_8px_20px_rgba(91,53,61,0.08)] outline-none transition hover:shadow-[0_10px_24px_rgba(91,53,61,0.12)] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${
-          large ? "gap-4 p-4 sm:p-5" : "gap-3 p-3.5 sm:p-4"
-        }`}
+        className={`group relative mt-[3.1px] flex items-center overflow-hidden rounded-[22px] bg-gradient-to-br from-accent-soft to-[#fdf6f0] shadow-[0_8px_20px_rgba(91,53,61,0.08)] outline-none transition hover:shadow-[0_10px_24px_rgba(91,53,61,0.12)] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${large ? "gap-4 p-4 sm:p-5" : "gap-3 p-3.5 sm:p-4"
+          }`}
       >
         <HeartIcon className={`pointer-events-none absolute text-accent/40 ${large ? "top-3 left-14 h-3.5 w-3.5" : "top-2.5 left-12 h-3 w-3"}`} />
         <SparkleIcon className={`pointer-events-none absolute text-accent/50 ${large ? "top-4 right-14 h-3.5 w-3.5" : "top-3 right-12 h-3 w-3"}`} />
@@ -87,13 +86,13 @@ export default function BustSizeBanner({ large = false }: { large?: boolean }) {
           <p className={`text-foreground/80 leading-none ${large ? "text-[12.5px] sm:text-sm" : "text-[11px] sm:text-xs"}`}>
             Your selected size:
           </p>
-          <div className="mt-1.5">
+          <div className="mt-[5.4px]">
             {preferred.length === 1 ? (
               <span className={`flex shrink-0 items-center justify-center rounded-full bg-white font-bold text-accent ${large ? "h-6 w-6 text-[12px]" : "h-5 w-5 text-[10px]"}`}>
                 {preferred[0].display_text}
               </span>
             ) : (
-              <span className="truncate font-bold text-accent">{preferred.map((s) => s.display_text).join(", ")}</span>
+              <span className="truncate text-[9px] font-bold text-accent">{preferred.map((s) => s.display_text).join(", ")}</span>
             )}
           </div>
         </div>
