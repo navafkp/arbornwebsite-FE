@@ -10,6 +10,8 @@ import ArbornStories from "@/components/common/ArbornStories";
 
 type SortKey = "newest" | "price-asc" | "price-desc";
 
+const PAGE_SIZE = Number(process.env.NEXT_PUBLIC_PRODUCTS_PAGE_SIZE) || 20;
+
 const SORT_LABELS: Record<SortKey, string> = {
   newest: "Newest",
   "price-asc": "Price: Low to High",
@@ -48,6 +50,9 @@ export default function ApiProductGrid({
   const [pricePreset, setPricePreset] = useState<string | null>(null);
   const [openPanel, setOpenPanel] = useState<"sort" | "filter" | null>(null);
   const [allSizes, setAllSizes] = useState<BackendSize[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasNext, setHasNext] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
     if (sizes && sizes.length > 0) {
@@ -70,13 +75,28 @@ export default function ApiProductGrid({
 
   useEffect(() => {
     setLoadState("loading");
-    getProducts({ category, tag, sizes: effectiveSizes })
+    setPage(1);
+    getProducts({ category, tag, sizes: effectiveSizes, page: 1, page_size: PAGE_SIZE })
       .then((data) => {
-        setProducts(data);
+        setProducts(data.items);
+        setHasNext(data.has_next);
         setLoadState("ready");
       })
       .catch(() => setLoadState("error"));
   }, [category, tag, effectiveSizes]);
+
+  function loadMore() {
+    const nextPage = page + 1;
+    setLoadingMore(true);
+    getProducts({ category, tag, sizes: effectiveSizes, page: nextPage, page_size: PAGE_SIZE })
+      .then((data) => {
+        setProducts((prev) => [...prev, ...data.items]);
+        setHasNext(data.has_next);
+        setPage(nextPage);
+      })
+      .catch(() => setHasNext(false))
+      .finally(() => setLoadingMore(false));
+  }
 
   useEffect(() => {
     if (!tag) {
@@ -213,16 +233,29 @@ export default function ApiProductGrid({
       )}
 
       {loadState === "ready" && visibleProducts.length > 0 && (
-        <div className="mt-5 grid grid-cols-2 gap-3 sm:mt-6 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5 lg:gap-4">
-          {visibleProducts.map((product) => (
-            <ApiProductCard
-              key={product.id}
-              product={product}
-              badgeLabel={tag ? (activeTagName ?? humanize(tag)) : undefined}
-              sizeHints={sizeHints}
-            />
-          ))}
-        </div>
+        <>
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:mt-6 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5 lg:gap-4">
+            {visibleProducts.map((product) => (
+              <ApiProductCard
+                key={product.id}
+                product={product}
+                badgeLabel={tag ? (activeTagName ?? humanize(tag)) : undefined}
+                sizeHints={sizeHints}
+              />
+            ))}
+          </div>
+
+          {hasNext && (
+            <button
+              type="button"
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="mx-auto mt-6 flex items-center justify-center rounded-full border border-accent px-6 py-2.5 text-xs font-semibold text-accent transition hover:bg-accent-soft disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {loadingMore ? "Loading..." : "Load More"}
+            </button>
+          )}
+        </>
       )}
     </div>
   );

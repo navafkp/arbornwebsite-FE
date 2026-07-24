@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { getProducts, getSizes, type ApiProduct, type BackendSize } from "@/lib/api-client";
 import { getPreferredSizes, hasMadeSizeDecision } from "@/lib/preferred-size";
 import ApiProductCard from "@/components/products/ApiProductCard";
@@ -16,10 +16,9 @@ export default function NewInSection() {
   const [viewMoreHref, setViewMoreHref] = useState("/select-size");
 
   useEffect(() => {
-    // Showing all products for now instead of filtering to a "New" tag.
-    getProducts({})
+    getProducts({ tag: "home-page", page_size: 6 })
       .then((data) => {
-        setProducts(data);
+        setProducts(data.items);
         setLoadState("ready");
       })
       .catch(() => setLoadState("error"));
@@ -38,8 +37,6 @@ export default function NewInSection() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setViewMoreHref(href);
   }, []);
-
-  const visibleProducts = useMemo(() => products.slice(0, 6), [products]);
 
   return (
     <div className="mt-[6.5px]">
@@ -60,15 +57,15 @@ export default function NewInSection() {
         </p>
       )}
 
-      {loadState === "ready" && visibleProducts.length === 0 && (
+      {loadState === "ready" && products.length === 0 && (
         <p className="mt-4 rounded-2xl border border-dashed border-black/15 px-4 py-3.5 text-sm text-[var(--muted)]">
           No products found here yet.
         </p>
       )}
 
-      {loadState === "ready" && visibleProducts.length > 0 && (
+      {loadState === "ready" && products.length > 0 && (
         <div className="mt-[10.8px] grid grid-cols-3 gap-1.5" style={{ marginLeft: "-2.5%", marginRight: "-2.5%" }}>
-          {visibleProducts.map((product) => (
+          {products.map((product) => (
             <div key={product.id} className="mx-auto w-full">
               <ApiProductCard product={product} showWishlist={false} compactPatternPreviews sizeHints={sizes} />
             </div>

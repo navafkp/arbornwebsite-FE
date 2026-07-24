@@ -2,34 +2,35 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { withBasePath } from "@/lib/asset-path";
+import { getBanners, type ApiBanner } from "@/lib/api-client";
 
-// Add more banner image paths here later — each one auto-advances every
-// SLIDE_INTERVAL_MS. They're all rendered into the same fixed-ratio box
-// with object-cover, so slight differences in a new image's own width/height
-// don't matter — every slide still fills the exact same size consistently.
-// TEMP: same image repeated 3x just to test the auto-scroll — replace with
-// real distinct banner paths once you have them.
-const FREE_SHIPPING_IMAGES = [
-  withBasePath("/images/free-shipping.png"),
-  withBasePath("/images/free-shipping.png"),
-  withBasePath("/images/free-shipping.png"),
-];
-
-const SLIDE_INTERVAL_MS = 5000;
+const DEFAULT_SLIDE_INTERVAL_MS = 5000;
 
 export default function FeatureStrip() {
-  // Always starts at the first image on mount — including on a hard
+  const [banners, setBanners] = useState<ApiBanner[]>([]);
+  // Always starts at the first banner on mount — including on a hard
   // refresh, since this is plain component state, not persisted anywhere.
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    if (FREE_SHIPPING_IMAGES.length <= 1) return;
-    const timer = setInterval(() => {
-      setIndex((i) => (i + 1) % FREE_SHIPPING_IMAGES.length);
-    }, SLIDE_INTERVAL_MS);
-    return () => clearInterval(timer);
+    getBanners()
+      .then((data) => {
+        setBanners([...data].sort((a, b) => a.display_order - b.display_order));
+      })
+      .catch(() => setBanners([]));
   }, []);
+
+  const activeDuration = banners[index]?.duration_ms ?? DEFAULT_SLIDE_INTERVAL_MS;
+
+  useEffect(() => {
+    if (banners.length <= 1) return;
+    const timer = setTimeout(() => {
+      setIndex((i) => (i + 1) % banners.length);
+    }, activeDuration);
+    return () => clearTimeout(timer);
+  }, [banners.length, activeDuration, index]);
+
+  if (banners.length === 0) return null;
 
   return (
     <div
@@ -39,33 +40,44 @@ export default function FeatureStrip() {
       <div
         className="flex h-full transition-transform duration-700 ease-in-out"
         style={{
-          width: `${FREE_SHIPPING_IMAGES.length * 100}%`,
-          transform: `translateX(-${index * (100 / FREE_SHIPPING_IMAGES.length)}%)`,
+          width: `${banners.length * 100}%`,
+          transform: `translateX(-${index * (100 / banners.length)}%)`,
         }}
       >
-        {FREE_SHIPPING_IMAGES.map((src, i) => (
-          <div
-            key={i}
-            className="relative h-full shrink-0"
-            style={{ width: `${100 / FREE_SHIPPING_IMAGES.length}%` }}
-          >
+        {banners.map((banner, i) => {
+          const image = (
             <Image
-              src={src}
-              alt="Free shipping all over India, no minimum order"
+              src={banner.image_url}
+              alt={banner.alt_text}
               fill
               sizes="100vw"
               className="object-cover"
               priority={i === 0}
             />
-          </div>
-        ))}
+          );
+          return (
+            <div
+              key={banner.id}
+              className="relative h-full shrink-0"
+              style={{ width: `${100 / banners.length}%` }}
+            >
+              {banner.link ? (
+                <a href={banner.link} className="relative block h-full w-full">
+                  {image}
+                </a>
+              ) : (
+                image
+              )}
+            </div>
+          );
+        })}
       </div>
 
-      {FREE_SHIPPING_IMAGES.length > 1 && (
+      {banners.length > 1 && (
         <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1">
-          {FREE_SHIPPING_IMAGES.map((_, i) => (
+          {banners.map((banner, i) => (
             <span
-              key={i}
+              key={banner.id}
               className={`h-1.5 w-1.5 rounded-full transition ${i === index ? "bg-white" : "bg-white/50"}`}
             />
           ))}

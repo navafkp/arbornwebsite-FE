@@ -1,69 +1,72 @@
 "use client";
 
-import Link from "next/link";
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getStories, type ApiStoryCircle } from "@/lib/api-client";
 import { HeartIcon } from "@/components/ui/decor";
 
-type Story = {
-  label: string;
-  eyebrow: string;
-  caption: string;
-  accent: string;
-  icon: "spark" | "camera" | "heart" | "style" | "gift";
-  cta?: { label: string; href: string };
-};
-
-const STORIES: Story[] = [
-  { label: "New Arrivals", eyebrow: "Freshly landed", caption: "Soft new silhouettes for slow mornings and sweeter nights.", accent: "from-[#cf7186] via-[#f29a85] to-[#e9b968]", icon: "spark", cta: { label: "Shop this look", href: "/products/detail?slug=korean-pajama-set" } },
-  { label: "Founder Fav", eyebrow: "Inside Arborn", caption: "A quiet look at the details, fittings and hands behind every set.", accent: "from-[#d78699] via-[#df9f83] to-[#f0c77d]", icon: "camera" },
-  { label: "Customer Love", eyebrow: "Worn & loved", caption: "Comfort notes and favourite fits, shared by the Arborn community.", accent: "from-[#bd6e80] via-[#e79499] to-[#e9bd7a]", icon: "heart" },
-  { label: "Style Tips", eyebrow: "The nightwear edit", caption: "Small styling ideas to take your favourite co-ord beyond bedtime.", accent: "from-[#d2798e] via-[#e7a67f] to-[#f2cb82]", icon: "style" },
-  { label: "Giveaway", eyebrow: "A little delight", caption: "Your next dreamy set could be on us. Tap through for this week’s treat.", accent: "from-[#bb657c] via-[#de8c91] to-[#eab875]", icon: "gift" },
-];
-
-const STORY_DURATION = 6000;
-
-function StoryIcon({ type, className = "h-7 w-7", solid = false }: { type: Story["icon"]; className?: string; solid?: boolean }) {
-  const common = { fill: "none", stroke: "currentColor", strokeWidth: 1.65, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
-  return (
-    <svg className={className} viewBox="0 0 32 32" aria-hidden="true" {...common}>
-      {solid ? (
-        <>
-          {type === "spark" && <><path fill="currentColor" stroke="none" d="M16 3.5c.9 6.6 3.8 9.5 10.5 10.5-6.7 1-9.6 3.9-10.5 10.5C15.1 17.9 12.2 15 5.5 14 12.2 13 15.1 10.1 16 3.5Z" /><path fill="currentColor" stroke="none" d="M25.5 20c.3 2.3 1.3 3.3 3.5 3.7-2.2.3-3.2 1.4-3.5 3.7-.3-2.3-1.3-3.4-3.5-3.7 2.2-.4 3.2-1.4 3.5-3.7Z" /></>}
-          {type === "camera" && <><path fill="currentColor" stroke="none" d="M8 8h2l2-3h8l2 3h2a4 4 0 0 1 4 4v11a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4Z" /><circle cx="16" cy="17.5" r="5.2" fill="#fffaf5" stroke="none" /><circle cx="16" cy="17.5" r="2.8" fill="currentColor" stroke="none" /></>}
-          {type === "heart" && <path fill="currentColor" stroke="none" d="M27 10.8c0 7-11 13.2-11 13.2S5 17.8 5 10.8C5 7 9.7 4.8 12.8 8L16 11.1 19.2 8C22.3 4.8 27 7 27 10.8Z" />}
-          {type === "style" && <><path fill="currentColor" stroke="none" d="M16 3.5c.8 6.8 3.7 10.1 10.5 11-6.8.8-9.7 4.2-10.5 11-.8-6.8-3.7-10.2-10.5-11 6.8-.9 9.7-4.2 10.5-11Z" /><path fill="currentColor" stroke="none" d="M25 4.5c.3 2.3 1.2 3.4 3.5 3.7-2.3.3-3.2 1.4-3.5 3.7-.3-2.3-1.2-3.4-3.5-3.7 2.3-.3 3.2-1.4 3.5-3.7Z" /></>}
-          {type === "gift" && <><path fill="currentColor" stroke="none" d="M4 11h24v14a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V11Z" /><rect x="2.5" y="7" width="27" height="6" rx="2" fill="currentColor" stroke="none" /><path d="M16 7c-1.2-4.2-7.2-5-7.2-1.7C8.8 7.2 11 7 16 7Zm0 0c1.2-4.2 7.2-5 7.2-1.7C23.2 7.2 21 7 16 7Z" fill="currentColor" /><path d="M16 11v17M4 13h24" stroke="#fffaf5" strokeWidth="2" /></>}
-        </>
-      ) : (
-        <>
-          {type === "spark" && <><path d="M16 4l1.8 6.2L24 12l-6.2 1.8L16 20l-1.8-6.2L8 12l6.2-1.8L16 4Z" /><path d="m24.5 19 .9 3.1 3.1.9-3.1.9-.9 3.1-.9-3.1-3.1-.9 3.1-.9.9-3.1Z" /></>}
-          {type === "camera" && <><rect x="4" y="9" width="24" height="17" rx="4" /><path d="m10 9 2-3h8l2 3" /><circle cx="16" cy="17.5" r="5" /></>}
-          {type === "heart" && <path d="M27 10.8c0 7-11 13.2-11 13.2S5 17.8 5 10.8C5 7 9.7 4.8 12.8 8L16 11.1 19.2 8C22.3 4.8 27 7 27 10.8Z" />}
-          {type === "style" && <><path d="M16 3.5c.8 6.8 3.7 10.1 10.5 11-6.8.8-9.7 4.2-10.5 11-.8-6.8-3.7-10.2-10.5-11 6.8-.9 9.7-4.2 10.5-11Z" /><path d="M25 4.5c.3 2.3 1.2 3.4 3.5 3.7-2.3.3-3.2 1.4-3.5 3.7-.3-2.3-1.2-3.4-3.5-3.7 2.3-.3 3.2-1.4 3.5-3.7Z" /></>}
-          {type === "gift" && <><rect x="4" y="12" width="24" height="15" rx="2" /><path d="M3 12h26v-5H3v5ZM16 7v20" /><path d="M16 7c-1.3-4.2-7.2-5-7.2-1.6C8.8 7.3 11 7 16 7Zm0 0c1.3-4.2 7.2-5 7.2-1.6C23.2 7.3 21 7 16 7Z" /></>}
-        </>
-      )}
-    </svg>
-  );
-}
+const DEFAULT_STORY_DURATION = 6000;
+const RING_GRADIENT = "from-[#cf7186] via-[#f29a85] to-[#e9b968]";
 
 export default function ArbornStories({ compactBubbles = false }: { compactBubbles?: boolean }) {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [circles, setCircles] = useState<ApiStoryCircle[]>([]);
+  const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
+  const [activeCircleIndex, setActiveCircleIndex] = useState<number | null>(null);
+  const [activeStoryIndex, setActiveStoryIndex] = useState(0);
   const [pageVisible, setPageVisible] = useState(true);
   const [reduceMotion, setReduceMotion] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const openerRef = useRef<HTMLElement | null>(null);
 
-  const openStory = (index: number, opener: HTMLElement) => {
+  useEffect(() => {
+    getStories()
+      .then((data) => {
+        setCircles(data);
+        setLoadState("ready");
+      })
+      .catch(() => setLoadState("error"));
+  }, []);
+
+  const openStory = (circleIndex: number, opener: HTMLElement) => {
     openerRef.current = opener;
-    setActiveIndex(index);
+    setActiveCircleIndex(circleIndex);
+    setActiveStoryIndex(0);
   };
-  const closeStory = useCallback(() => setActiveIndex(null), []);
-  const previous = useCallback(() => setActiveIndex((index) => index === null ? null : (index - 1 + STORIES.length) % STORIES.length), []);
-  const next = useCallback(() => setActiveIndex((index) => index === null ? null : index === STORIES.length - 1 ? null : index + 1), []);
-  const isOpen = activeIndex !== null;
+  const closeStory = useCallback(() => setActiveCircleIndex(null), []);
+
+  const previous = useCallback(() => {
+    setActiveCircleIndex((circleIndex) => {
+      if (circleIndex === null) return null;
+      if (activeStoryIndex > 0) {
+        setActiveStoryIndex((i) => i - 1);
+        return circleIndex;
+      }
+      if (circleIndex > 0) {
+        setActiveStoryIndex(circles[circleIndex - 1].stories.length - 1);
+        return circleIndex - 1;
+      }
+      return circleIndex;
+    });
+  }, [activeStoryIndex, circles]);
+
+  const next = useCallback(() => {
+    setActiveCircleIndex((circleIndex) => {
+      if (circleIndex === null) return null;
+      const circle = circles[circleIndex];
+      if (activeStoryIndex < circle.stories.length - 1) {
+        setActiveStoryIndex((i) => i + 1);
+        return circleIndex;
+      }
+      if (circleIndex < circles.length - 1) {
+        setActiveStoryIndex(0);
+        return circleIndex + 1;
+      }
+      return null;
+    });
+  }, [activeStoryIndex, circles]);
+
+  const isOpen = activeCircleIndex !== null;
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -90,14 +93,18 @@ export default function ArbornStories({ compactBubbles = false }: { compactBubbl
     };
   }, [isOpen]);
 
-  useEffect(() => {
-    if (activeIndex === null || reduceMotion || !pageVisible) return;
-    const timer = window.setTimeout(next, STORY_DURATION);
-    return () => window.clearTimeout(timer);
-  }, [activeIndex, next, pageVisible, reduceMotion]);
+  const activeCircle = activeCircleIndex === null ? null : circles[activeCircleIndex];
+  const activeStory = activeCircle ? activeCircle.stories[activeStoryIndex] : null;
+  const storyDuration = activeStory?.duration_ms ?? DEFAULT_STORY_DURATION;
 
   useEffect(() => {
-    if (activeIndex === null) return;
+    if (!activeStory || reduceMotion || !pageVisible) return;
+    const timer = window.setTimeout(next, storyDuration);
+    return () => window.clearTimeout(timer);
+  }, [activeStory, next, pageVisible, reduceMotion, storyDuration]);
+
+  useEffect(() => {
+    if (!isOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") closeStory();
       if (event.key === "ArrowLeft") previous();
@@ -113,10 +120,25 @@ export default function ArbornStories({ compactBubbles = false }: { compactBubbl
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [activeIndex, closeStory, next, previous]);
+  }, [isOpen, closeStory, next, previous]);
 
-  const activeStory = activeIndex === null ? null : STORIES[activeIndex];
-  const currentIndex = activeIndex ?? -1;
+  if (loadState !== "ready" && circles.length === 0) {
+    if (loadState === "error") return null;
+    return (
+      <section className={`px-0.5 sm:px-1 ${compactBubbles ? "mt-[3.6px] pt-0 pb-0" : "mt-3 pt-2 pb-3 sm:mt-5 sm:pt-3"}`}>
+        <div className={`flex gap-3.5 sm:gap-5 ${compactBubbles ? "justify-between" : ""}`}>
+          {Array.from({ length: 5 }, (_, i) => (
+            <div
+              key={i}
+              className={`shrink-0 animate-pulse rounded-full bg-black/5 ${compactBubbles ? "h-[35.6px] w-[35.6px] sm:h-[38.6px] sm:w-[38.6px]" : "h-[66.9px] w-[66.9px] sm:h-[73.2px] sm:w-[73.2px]"}`}
+            />
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (circles.length === 0) return null;
 
   return (
     <section
@@ -131,53 +153,54 @@ export default function ArbornStories({ compactBubbles = false }: { compactBubbl
         </h2>
       </div>
       <div
-        className={`no-scrollbar mt-[10.8px] flex snap-x gap-3.5 overflow-x-auto pb-0.5 sm:gap-5 ${compactBubbles ? "justify-between" : "sm:justify-between"}`}
+        className="no-scrollbar mt-[10.8px] flex snap-x gap-3.5 overflow-x-auto pb-0.5 sm:justify-between sm:gap-5"
       >
-        {STORIES.map((story, index) => (
-          <button key={story.label} type="button" onClick={(event) => openStory(index, event.currentTarget)} aria-label={`Open story: ${story.label}`} className={`group flex shrink-0 snap-start flex-col items-center gap-1.5 rounded-lg outline-none ${compactBubbles ? "w-[41.6px] sm:w-[49.1px]" : "w-[69.3px] sm:w-[81.9px]"}`}>
-            <span className={`rounded-full bg-gradient-to-br ${story.accent} p-[2px] transition-transform duration-200 group-hover:scale-[1.04] group-focus-visible:scale-[1.04]`}>
-              <span className={`flex items-center justify-center rounded-full border-[3px] border-white bg-[#fffaf5] text-accent shadow-[0_2px_8px_rgba(121,68,80,0.12)] ${compactBubbles ? "h-[29.6px] w-[29.6px] sm:h-[32.6px] sm:w-[32.6px]" : "h-[60.9px] w-[60.9px] sm:h-[67.2px] sm:w-[67.2px]"}`}>
-                <StoryIcon solid type={story.icon} className={compactBubbles ? "h-[12.8px] w-[12.8px] sm:h-[14.7px] sm:w-[14.7px]" : "h-[26.5px] w-[26.5px] sm:h-[30.2px] sm:w-[30.2px]"} />
+        {circles.map((circle, index) => (
+          <button key={circle.id} type="button" onClick={(event) => openStory(index, event.currentTarget)} aria-label={`Open story: ${circle.label}`} className={`group flex shrink-0 snap-start flex-col items-center gap-1.5 rounded-lg outline-none ${compactBubbles ? "w-[41.6px] sm:w-[49.1px]" : "w-[69.3px] sm:w-[81.9px]"}`}>
+            <span className={`rounded-full bg-gradient-to-br ${RING_GRADIENT} p-[2px] transition-transform duration-200 group-hover:scale-[1.04] group-focus-visible:scale-[1.04]`}>
+              <span className={`relative flex items-center justify-center overflow-hidden rounded-full border-[3px] border-white bg-[#fffaf5] shadow-[0_2px_8px_rgba(121,68,80,0.12)] ${compactBubbles ? "h-[29.6px] w-[29.6px] sm:h-[32.6px] sm:w-[32.6px]" : "h-[60.9px] w-[60.9px] sm:h-[67.2px] sm:w-[67.2px]"}`}>
+                <Image src={circle.cover_image_url} alt="" fill sizes="80px" className="object-cover" />
               </span>
             </span>
-            <span className="min-h-[27px] text-center text-[10.5px] font-medium leading-[1.25] text-[var(--foreground)] sm:text-[11px]">{story.label}</span>
+            <span className="min-h-[27px] text-center text-[10.5px] font-medium leading-[1.25] text-[var(--foreground)] sm:text-[11px]">{circle.label}</span>
           </button>
         ))}
       </div>
 
-      {activeStory && (
+      {activeCircle && activeStory && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#1b1115]/90 p-0 backdrop-blur-[2px] sm:p-6" onMouseDown={(event) => { if (event.target === event.currentTarget) closeStory(); }}>
-          <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="active-story-title" aria-describedby="active-story-caption" className={`relative flex h-[100dvh] w-full max-w-[430px] flex-col overflow-hidden bg-gradient-to-b ${activeStory.accent} text-white shadow-2xl sm:h-[min(820px,90dvh)] sm:rounded-[28px]`}>
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_22%,rgba(255,255,255,.32),transparent_28%),linear-gradient(180deg,rgba(62,26,34,.05),rgba(46,18,25,.5))]" />
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="active-story-title" aria-describedby="active-story-caption" className="relative flex h-[100dvh] w-full max-w-[430px] flex-col overflow-hidden bg-black text-white shadow-2xl sm:h-[min(820px,90dvh)] sm:rounded-[28px]">
+            <Image src={activeStory.image_url} alt="" fill sizes="430px" priority className="object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/10 to-black/75" />
             <div className="relative z-10 flex gap-1.5 px-3 pt-[max(12px,env(safe-area-inset-top))] sm:pt-4">
-              {STORIES.map((story, index) => (
-                <span key={story.label} className="h-[3px] flex-1 overflow-hidden rounded-full bg-white/35">
-                  {index < currentIndex && <span className="block h-full w-full bg-white" />}
-                  {index === currentIndex && <span key={`${currentIndex}-${pageVisible}`} className={`block h-full bg-white ${reduceMotion || !pageVisible ? "w-0" : "animate-story-progress"}`} style={{ animationDuration: `${STORY_DURATION}ms` }} />}
+              {activeCircle.stories.map((story, index) => (
+                <span key={story.id} className="h-[3px] flex-1 overflow-hidden rounded-full bg-white/35">
+                  {index < activeStoryIndex && <span className="block h-full w-full bg-white" />}
+                  {index === activeStoryIndex && <span key={`${activeStoryIndex}-${pageVisible}`} className={`block h-full bg-white ${reduceMotion || !pageVisible ? "w-0" : "animate-story-progress"}`} style={{ animationDuration: `${storyDuration}ms` }} />}
                 </span>
               ))}
             </div>
             <header className="relative z-20 flex items-center gap-3 px-4 pt-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/40 bg-white/15"><StoryIcon type={activeStory.icon} className="h-5 w-5" /></span>
+              <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/40 bg-white/15">
+                <Image src={activeCircle.cover_image_url} alt="" fill sizes="36px" className="object-cover" />
+              </span>
               <div className="min-w-0"><p className="truncate text-xs font-semibold">Arborn Stories</p><p className="text-[10px] text-white/75">{activeStory.eyebrow}</p></div>
               <button ref={closeRef} type="button" onClick={closeStory} aria-label="Close stories" className="ml-auto flex h-10 w-10 items-center justify-center rounded-full text-white outline-none hover:bg-white/15 focus-visible:ring-2 focus-visible:ring-white"><span aria-hidden="true" className="text-3xl font-light leading-none">×</span></button>
             </header>
             <div className="relative z-20 mt-auto px-8 pb-[max(72px,calc(env(safe-area-inset-bottom)+48px))] text-center sm:pb-16">
-              <span className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border border-white/45 bg-white/15 shadow-[0_20px_60px_rgba(47,16,24,.18)] backdrop-blur-sm"><StoryIcon type={activeStory.icon} className="h-12 w-12" /></span>
-              <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/75">{activeStory.eyebrow}</p>
-              <h3 id="active-story-title" className="mt-2 font-serif text-4xl leading-none">{activeStory.label}</h3>
+              <h3 id="active-story-title" className="font-serif text-3xl leading-tight">{activeCircle.label}</h3>
               <p id="active-story-caption" className="mx-auto mt-3 max-w-xs text-sm leading-6 text-white/90">{activeStory.caption}</p>
-              {activeStory.cta && (
-                <Link
-                  href={activeStory.cta.href}
+              {activeStory.cta_label && activeStory.cta_link && (
+                <a
+                  href={activeStory.cta_link}
                   className="relative z-30 mt-5 inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-xs font-semibold tracking-wide text-[var(--accent-dark)] shadow-[0_8px_24px_rgba(56,20,29,0.18)] outline-none transition hover:bg-[#fff8f5] focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--accent-dark)]"
                 >
-                  {activeStory.cta.label}
-                </Link>
+                  {activeStory.cta_label}
+                </a>
               )}
             </div>
             <button type="button" onClick={previous} aria-label="Previous story" className="absolute top-24 bottom-20 left-0 z-10 w-1/3 cursor-w-resize rounded-l-[28px] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"><span className="sr-only">Previous story</span></button>
-            <button type="button" onClick={next} aria-label={currentIndex === STORIES.length - 1 ? "Close after final story" : "Next story"} className="absolute top-24 right-0 bottom-20 z-10 w-1/3 cursor-e-resize rounded-r-[28px] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"><span className="sr-only">Next story</span></button>
+            <button type="button" onClick={next} aria-label={activeCircleIndex === circles.length - 1 && activeStoryIndex === activeCircle.stories.length - 1 ? "Close after final story" : "Next story"} className="absolute top-24 right-0 bottom-20 z-10 w-1/3 cursor-e-resize rounded-r-[28px] outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white"><span className="sr-only">Next story</span></button>
           </div>
         </div>
       )}

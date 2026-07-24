@@ -139,7 +139,7 @@ export default function WishlistPage() {
   const loadProducts = useCallback(() => {
     setProductsLoading(true);
     setProductsError(false);
-    getProducts({}).then(setProducts).catch(() => setProductsError(true)).finally(() => setProductsLoading(false));
+    getProducts({}).then((data) => setProducts(data.items)).catch(() => setProductsError(true)).finally(() => setProductsLoading(false));
   }, []);
 
   const loadInspiration = useCallback(() => {
@@ -155,7 +155,7 @@ export default function WishlistPage() {
     let active = true;
     Promise.allSettled([getProducts({}), getExplore()]).then(([productResult, exploreResult]) => {
       if (!active) return;
-      if (productResult.status === "fulfilled") setProducts(productResult.value);
+      if (productResult.status === "fulfilled") setProducts(productResult.value.items);
       else setProductsError(true);
       setProductsLoading(false);
 

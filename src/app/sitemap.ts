@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getExplore, getProducts } from "@/lib/api-client";
+import { getExplore, getProducts, type ApiProduct } from "@/lib/api-client";
 import { SITE_URL } from "@/lib/site-config";
 
 export const dynamic = "force-static";
@@ -11,11 +11,25 @@ const staticRoutes: MetadataRoute.Sitemap = [
   { url: `${SITE_URL}/contact/`, changeFrequency: "monthly", priority: 0.3 },
 ];
 
+// The catalog is paginated — walk every page so the sitemap still lists
+// every product, not just the first page's worth.
+async function getAllProducts(): Promise<ApiProduct[]> {
+  const all: ApiProduct[] = [];
+  let page = 1;
+  while (true) {
+    const data = await getProducts({ page, page_size: 100 });
+    all.push(...data.items);
+    if (!data.has_next) break;
+    page += 1;
+  }
+  return all;
+}
+
 // Pulled from the live catalog API at build time — the catalog changes
 // often, so this only stays accurate as of the last deploy/rebuild.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
-    const [{ categories, tags }, products] = await Promise.all([getExplore(), getProducts()]);
+    const [{ categories, tags }, products] = await Promise.all([getExplore(), getAllProducts()]);
 
     const categoryRoutes: MetadataRoute.Sitemap = categories.map((category) => ({
       url: `${SITE_URL}/products/?category=${category.slug}`,

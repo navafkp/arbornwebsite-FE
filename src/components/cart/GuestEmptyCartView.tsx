@@ -53,8 +53,8 @@ export default function GuestEmptyCartView() {
   const [sizes, setSizes] = useState<BackendSize[]>([]);
 
   useEffect(() => {
-    getProducts({})
-      .then((data) => setProducts(data.slice(0, 8)))
+    getProducts({ page_size: 8 })
+      .then((data) => setProducts(data.items))
       .catch(() => setProducts([]));
     getSizes()
       .then(setSizes)

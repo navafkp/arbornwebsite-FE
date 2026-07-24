@@ -6,6 +6,9 @@ const ACCOUNTS_BASE_URL =
 const CATALOG_BASE_URL =
   process.env.NEXT_PUBLIC_CATALOG_BASE_URL || "https://api.arborn.shop/catalog/v1";
 
+const CONTENT_BASE_URL =
+  process.env.NEXT_PUBLIC_CONTENT_BASE_URL || "https://api.arborn.shop/content/v1";
+
 export class ApiError extends Error {
   status: number;
   constructor(message: string, status: number) {
@@ -158,19 +161,36 @@ export interface ApiProduct {
   tag: ApiProductTag | null;
 }
 
+export interface ApiProductPage {
+  items: ApiProduct[];
+  total_count: number;
+  page: number;
+  page_size: number;
+  has_next: boolean;
+}
+
 export async function getProducts(
-  filters: { category?: string; tag?: string; sizes?: number[] } = {},
-) {
+  filters: { category?: string; tag?: string; sizes?: number[]; page?: number; page_size?: number } = {},
+): Promise<ApiProductPage> {
   const query = new URLSearchParams();
   if (filters.category) query.set("category", filters.category);
   if (filters.tag) query.set("tag", filters.tag);
   if (filters.sizes && filters.sizes.length > 0) {
     query.set("size", filters.sizes.join(","));
   }
+  if (filters.page) query.set("page", String(filters.page));
+  if (filters.page_size) query.set("page_size", String(filters.page_size));
   const qs = query.toString();
-  const res = await request<{ data: ApiProduct[] }>(`/products/${qs ? `?${qs}` : ""}`, {
-    baseUrl: CATALOG_BASE_URL,
-  });
+  const res = await request<{ data: ApiProduct[] | ApiProductPage }>(
+    `/products/${qs ? `?${qs}` : ""}`,
+    { baseUrl: CATALOG_BASE_URL },
+  );
+  // The tag-filtered variant of this endpoint currently returns a bare
+  // array and ignores page_size — normalize it into the same page shape
+  // the unfiltered endpoint returns, so callers only handle one shape.
+  if (Array.isArray(res.data)) {
+    return { items: res.data, total_count: res.data.length, page: 1, page_size: res.data.length, has_next: false };
+  }
   return res.data;
 }
 
@@ -244,5 +264,47 @@ export async function getProductDetail(slug: string, sizes?: number[]) {
     `/products/${slug}/${qs ? `?${qs}` : ""}`,
     { baseUrl: CATALOG_BASE_URL },
   );
+  return res.data;
+}
+
+export interface ApiStory {
+  id: number;
+  image_url: string;
+  eyebrow: string;
+  caption: string;
+  display_order: number;
+  duration_ms: number;
+  cta_label: string | null;
+  cta_link: string | null;
+}
+
+export interface ApiStoryCircle {
+  id: number;
+  label: string;
+  cover_image_url: string;
+  display_order: number;
+  stories: ApiStory[];
+}
+
+export async function getStories() {
+  const res = await request<{ data: ApiStoryCircle[] }>("/stories/", {
+    baseUrl: CONTENT_BASE_URL,
+  });
+  return res.data;
+}
+
+export interface ApiBanner {
+  id: number;
+  image_url: string;
+  alt_text: string;
+  display_order: number;
+  duration_ms: number;
+  link: string | null;
+}
+
+export async function getBanners() {
+  const res = await request<{ data: ApiBanner[] }>("/banners/", {
+    baseUrl: CONTENT_BASE_URL,
+  });
   return res.data;
 }
