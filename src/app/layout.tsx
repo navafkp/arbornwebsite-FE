@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Cormorant_Garamond } from "next/font/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import BottomNavSpacer from "@/components/layout/BottomNavSpacer";
 import PageShell from "@/components/layout/PageShell";
@@ -82,6 +83,9 @@ export default function RootLayout({
           </ShopProvider>
         </AuthProvider>
       </body>
+      {process.env.NEXT_PUBLIC_GA_ID ? (
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+      ) : null}
     </html>
   );
 }
