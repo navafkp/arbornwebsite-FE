@@ -7,9 +7,11 @@ import { getPreferredSizes, setPreferredSizes, clearPreferredSize, markSizeDecis
 import { getSizes, type BackendSize } from "@/lib/api-client";
 import { BowIcon, SparkleIcon, HeartIcon, CloudShape, BunnyIllustration } from "@/components/ui/decor";
 import ScrollHint from "@/components/ui/ScrollHint";
+import { useToast } from "@/lib/toast-context";
 
 export default function SelectSizePage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [sizes, setSizes] = useState<BackendSize[]>([]);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
   const [selected, setSelected] = useState<number[]>([]);
@@ -37,6 +39,7 @@ export default function SelectSizePage() {
     if (selected.length === 0) return;
     setPreferredSizes(selected);
     markSizeDecisionMade();
+    showToast("Size updated");
     router.replace(`/products?size=${selected.join(",")}`);
   }
 
@@ -73,6 +76,7 @@ export default function SelectSizePage() {
 
   function handleClose() {
     markSizeDecisionMade();
+    showToast("Size updated");
     // Closing with a size already picked (just not confirmed via Continue)
     // should still honor that choice, not silently discard it.
     if (selected.length > 0) {
@@ -157,7 +161,7 @@ export default function SelectSizePage() {
 
       {selected.length > 0 && (
         <p className="mt-2 flex items-center gap-1 text-xs text-[var(--muted)]">
-          Changed your mind? Tap a selected size again to remove it.
+          Changed your mind? Tap a selected size again to <span className="font-semibold text-accent">remove it</span>.
           <HeartIcon filled className="h-3 w-3 text-accent" />
         </p>
       )}

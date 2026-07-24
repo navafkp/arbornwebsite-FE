@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   getProductDetail,
+  ApiError,
   type ApiProductDetail as ApiProductDetailData,
   type ApiReview,
   type ApiProductVariant,
@@ -18,9 +19,12 @@ import ColorSwatch from "@/components/ui/ColorSwatch";
 import RatingStars from "@/components/ui/RatingStars";
 import ProductOverlayCard from "@/components/products/ProductOverlayCard";
 import { useAuth } from "@/lib/auth-context";
+import { useShop } from "@/lib/shop-context";
+import { useToast } from "@/lib/toast-context";
 import { HeartIcon } from "@/components/ui/decor";
 import BustSizeBanner from "@/components/home/BustSizeBanner";
 import FeatureStrip from "@/components/home/FeatureStrip";
+import LoginModal from "@/components/auth/LoginModal";
 
 // Approximates the "torn paper" edge at the bottom of the main product
 // image: a zigzag clip-path so it isn't a plain straight-edged rectangle.
@@ -110,7 +114,12 @@ export default function ApiProductDetail() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug");
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, hasBackendSession } = useAuth();
+  const { addToCart } = useShop();
+  const { showToast } = useToast();
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [addToCartError, setAddToCartError] = useState<string | null>(null);
 
   const [product, setProduct] = useState<ApiProductDetailData | null>(null);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error" | "not-found">(
@@ -261,7 +270,7 @@ export default function ApiProductDetail() {
       : null;
 
   const selectedSize = variant?.sizes.find((s) => s.size_code === selectedSizeCode);
-  const inStock = (variant?.stock_quantity ?? 0) > 0;
+  const inStock = (selectedSize?.stock_quantity ?? 0) > 0;
   const whatsappLink = buildWhatsAppLink(
     buildOrderInquiryMessage({
       productName: product.name,
@@ -270,6 +279,28 @@ export default function ApiProductDetail() {
       price: formatPrice(discountPrice ?? price),
     }),
   );
+
+  async function addCurrentToCart(tokenOverride?: string) {
+    if (!selectedSize) return;
+    setAddToCartError(null);
+    setAddingToCart(true);
+    try {
+      await addToCart(selectedSize.variant_size_stock_id, 1, tokenOverride);
+      showToast("Added to cart");
+    } catch (err) {
+      setAddToCartError(err instanceof ApiError ? err.message : "Couldn't add to cart. Please try again.");
+    } finally {
+      setAddingToCart(false);
+    }
+  }
+
+  function handleAddToCartClick() {
+    if (!hasBackendSession) {
+      setLoginModalOpen(true);
+      return;
+    }
+    addCurrentToCart();
+  }
 
   const displayedReviews = product.reviews.length > 0 ? product.reviews : SAMPLE_REVIEWS;
   // TEMP: preview fallback until the backend sends instagram_reel_url — remove this fallback once it does.
@@ -458,11 +489,18 @@ export default function ApiProductDetail() {
               </div>
             )}
 
-            {variant && (
-              <p className="flex items-center gap-1.5 text-xs text-[var(--muted)]">
-                <span className={cn("h-1.5 w-1.5 rounded-full", inStock ? "bg-green-500" : "bg-black/30")} />
-                {inStock ? "In stock" : "Out of stock"}
-              </p>
+            {variant && selectedSize && (
+              <>
+                {inStock && (
+                  <p className="text-xs text-[var(--muted)]">
+                    {selectedSize.stock_quantity} {selectedSize.stock_quantity === 1 ? "item" : "items"} available
+                  </p>
+                )}
+                <p className="flex items-center gap-1.5 text-xs text-[var(--muted)]">
+                  <span className={cn("h-1.5 w-1.5 rounded-full", inStock ? "bg-green-500" : "bg-black/30")} />
+                  {inStock ? "In stock" : "Out of stock"}
+                </p>
+              </>
             )}
 
             <div className="mt-2 flex flex-col gap-3 sm:flex-row">
@@ -482,9 +520,35 @@ export default function ApiProductDetail() {
                 Order from WhatsApp
               </a>
             </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={handleAddToCartClick}
+                disabled={!inStock || !selectedSize || addingToCart}
+                className={cn(
+                  "flex flex-1 items-center justify-center gap-2 rounded-full border border-accent py-4 text-center text-sm font-semibold tracking-widest text-accent uppercase transition hover:bg-accent-soft",
+                  (!inStock || addingToCart) && "cursor-not-allowed opacity-40",
+                )}
+              >
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+                  <path d="M4 5h2l1.5 11.5A2 2 0 009.5 18h8a2 2 0 002-1.7L21 8H6" strokeLinecap="round" strokeLinejoin="round" />
+                  <circle cx="9.5" cy="21" r="1.3" fill="currentColor" stroke="none" />
+                  <circle cx="17" cy="21" r="1.3" fill="currentColor" stroke="none" />
+                </svg>
+                {addingToCart ? "Adding..." : "Add to Cart"}
+              </button>
+            </div>
+            {addToCartError && (
+              <p className="text-center text-xs text-red-600">{addToCartError}</p>
+            )}
             <p className="text-center text-[11px] text-[var(--muted)] sm:text-left">
               Chat with us to confirm size, color and delivery.
             </p>
+            <LoginModal
+              open={loginModalOpen}
+              onClose={() => setLoginModalOpen(false)}
+              onSuccess={addCurrentToCart}
+            />
 
             <FeatureStrip />
 

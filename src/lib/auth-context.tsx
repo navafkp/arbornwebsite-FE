@@ -33,7 +33,7 @@ interface AuthContextValue {
   hasBackendSession: boolean;
   signUp: (data: AuthUser) => void;
   logIn: (phone: string) => void;
-  loginWithGoogle: (idToken: string) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<string>;
   refreshSession: () => Promise<string>;
   logOut: () => void;
   setUser: (user: AuthUser) => void;
@@ -143,6 +143,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessToken(data.access_token);
     setRefreshToken(data.refresh_token);
     setUser(userFromBackend(data.user));
+    // Returned directly because React hasn't re-rendered with the new
+    // accessToken yet by the time callers run their next step — callers
+    // that need to act immediately (e.g. add-to-cart right after login)
+    // must use this return value instead of reading context state.
+    return data.access_token;
   }
 
   async function refreshSession() {

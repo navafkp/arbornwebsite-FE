@@ -22,6 +22,28 @@ function generateOrderRef() {
   return `AB-${Date.now().toString(36).toUpperCase()}`;
 }
 
+export function buildCartOrderMessage({
+  items,
+  subtotal,
+}: {
+  items: { name: string; color: string; size: string; quantity: number; price: string }[];
+  subtotal: string;
+}) {
+  return [
+    "New order inquiry",
+    `Status: ${ORDER_STATUS.CONTACTED}`,
+    `Ref: ${generateOrderRef()}`,
+    "",
+    ...items.map(
+      (item, i) => `${i + 1}. ${item.name} (${item.color} / ${item.size}) x${item.quantity} - ${item.price}`,
+    ),
+    "",
+    `Subtotal: ${subtotal}`,
+    "",
+    "Please share availability and payment details.",
+  ].join("\n");
+}
+
 export function buildOrderInquiryMessage({
   productName,
   color,

@@ -7,6 +7,7 @@ import PageShell from "@/components/layout/PageShell";
 import SplashScreen from "@/components/layout/SplashScreen";
 import { ShopProvider } from "@/lib/shop-context";
 import { AuthProvider } from "@/lib/auth-context";
+import { ToastProvider } from "@/lib/toast-context";
 import { SITE_URL, SITE_NAME } from "@/lib/site-config";
 import "./globals.css";
 
@@ -77,9 +78,11 @@ export default function RootLayout({
         <SplashScreen />
         <AuthProvider>
           <ShopProvider>
-            <PageShell>{children}</PageShell>
-            <BottomNavSpacer />
-            <MobileBottomNav />
+            <ToastProvider>
+              <PageShell>{children}</PageShell>
+              <BottomNavSpacer />
+              <MobileBottomNav />
+            </ToastProvider>
           </ShopProvider>
         </AuthProvider>
       </body>

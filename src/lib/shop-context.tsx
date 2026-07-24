@@ -2,31 +2,38 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
-  useMemo,
   useState,
   type ReactNode,
 } from "react";
-import { products } from "@/lib/data/products";
-import type { Size } from "@/lib/types";
+import {
+  getCart,
+  addCartItem,
+  updateCartItem,
+  deleteCartItems,
+  type ApiCartItem,
+} from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 
-export interface CartLine {
-  productId: string;
-  size: Size;
-  color: string;
-  quantity: number;
-}
+// The cart lives entirely on the backend and only exists for logged-in
+// users — there is no guest/local cart anymore.
+export type CartLine = ApiCartItem;
 
 interface ShopContextValue {
   hydrated: boolean;
   cart: CartLine[];
+  cartLoading: boolean;
+  cartError: boolean;
   wishlist: string[];
-  addToCart: (productId: string, size: Size, color: string, quantity?: number) => void;
-  updateQuantity: (productId: string, size: Size, color: string, quantity: number) => void;
-  removeFromCart: (productId: string, size: Size, color: string) => void;
-  clearCart: () => void;
+  // tokenOverride lets a caller act immediately after login, before React
+  // has re-rendered this context with the new accessToken (see refreshCart).
+  addToCart: (variantSizeStockId: number, quantity?: number, tokenOverride?: string) => Promise<void>;
+  updateQuantity: (cartItemId: number, quantity: number) => Promise<void>;
+  removeFromCart: (cartItemId: number) => Promise<void>;
+  removeManyFromCart: (cartItemIds: number[]) => Promise<void>;
+  refreshCart: (tokenOverride?: string) => Promise<void>;
   cartCount: number;
   cartSubtotal: number;
   toggleWishlist: (productId: string) => void;
@@ -36,16 +43,14 @@ interface ShopContextValue {
 
 const ShopContext = createContext<ShopContextValue | null>(null);
 
-const CART_KEY = "arborn_cart";
 const WISHLIST_KEY_PREFIX = "arborn_wishlist:";
 
-function lineKey(productId: string, size: string, color: string) {
-  return `${productId}__${size}__${color}`;
-}
-
 export function ShopProvider({ children }: { children: ReactNode }) {
-  const { user, hasBackendSession, hydrated: authHydrated } = useAuth();
+  const { user, accessToken, hasBackendSession, hydrated: authHydrated } = useAuth();
   const [cart, setCart] = useState<CartLine[]>([]);
+  const [cartTotals, setCartTotals] = useState({ count: 0, subtotal: 0 });
+  const [cartLoading, setCartLoading] = useState(false);
+  const [cartError, setCartError] = useState(false);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [wishlistLoadedKey, setWishlistLoadedKey] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -56,16 +61,8 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   const wishlistKey = wishlistOwner ? `${WISHLIST_KEY_PREFIX}${wishlistOwner}` : null;
 
   useEffect(() => {
-    // One-time sync from localStorage (an external system) on mount. Starting
-    // state at [] keeps SSR/client markup identical, avoiding a hydration
-    // mismatch that a lazy useState initializer reading localStorage would cause.
-    try {
-      const rawCart = localStorage.getItem(CART_KEY);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (rawCart) setCart(JSON.parse(rawCart));
-    } catch {
-      // ignore malformed localStorage data
-    }
+    // Synchronizing from an external system (auth's own hydration state).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (authHydrated) setHydrated(true);
   }, [authHydrated]);
 
@@ -89,50 +86,65 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   }, [authHydrated, wishlistKey]);
 
   useEffect(() => {
-    if (hydrated) localStorage.setItem(CART_KEY, JSON.stringify(cart));
-  }, [cart, hydrated]);
-
-  useEffect(() => {
     if (hydrated && wishlistKey && wishlistLoadedKey === wishlistKey) {
       localStorage.setItem(wishlistKey, JSON.stringify(wishlist));
     }
   }, [wishlist, hydrated, wishlistKey, wishlistLoadedKey]);
 
-  function addToCart(productId: string, size: Size, color: string, quantity = 1) {
-    setCart((prev) => {
-      const key = lineKey(productId, size, color);
-      const existing = prev.find((l) => lineKey(l.productId, l.size, l.color) === key);
-      if (existing) {
-        return prev.map((l) =>
-          lineKey(l.productId, l.size, l.color) === key
-            ? { ...l, quantity: l.quantity + quantity }
-            : l,
-        );
-      }
-      return [...prev, { productId, size, color, quantity }];
-    });
+  const refreshCart = useCallback(async (tokenOverride?: string) => {
+    const token = tokenOverride ?? accessToken;
+    if (!token) {
+      setCart([]);
+      setCartTotals({ count: 0, subtotal: 0 });
+      return;
+    }
+    setCartLoading(true);
+    setCartError(false);
+    try {
+      const data = await getCart(token);
+      setCart(data.items);
+      setCartTotals({ count: data.total_quantity, subtotal: Number(data.total_amount) });
+    } catch {
+      setCartError(true);
+    } finally {
+      setCartLoading(false);
+    }
+  }, [accessToken]);
+
+  useEffect(() => {
+    // Fetching from an external system (the cart API) whenever the signed-in
+    // identity changes — refreshCart's own setState calls are the sync.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    refreshCart();
+  }, [refreshCart]);
+
+  async function addToCart(variantSizeStockId: number, quantity = 1, tokenOverride?: string) {
+    const token = tokenOverride ?? accessToken;
+    if (!token) return;
+    await addCartItem(token, variantSizeStockId, quantity);
+    await refreshCart(tokenOverride);
   }
 
-  function updateQuantity(productId: string, size: Size, color: string, quantity: number) {
-    setCart((prev) =>
-      prev
-        .map((l) =>
-          lineKey(l.productId, l.size, l.color) === lineKey(productId, size, color)
-            ? { ...l, quantity }
-            : l,
-        )
-        .filter((l) => l.quantity > 0),
-    );
+  async function updateQuantity(cartItemId: number, quantity: number) {
+    if (!accessToken) return;
+    if (quantity <= 0) {
+      await deleteCartItems(accessToken, [cartItemId]);
+    } else {
+      await updateCartItem(accessToken, cartItemId, quantity);
+    }
+    await refreshCart();
   }
 
-  function removeFromCart(productId: string, size: Size, color: string) {
-    setCart((prev) =>
-      prev.filter((l) => lineKey(l.productId, l.size, l.color) !== lineKey(productId, size, color)),
-    );
+  async function removeFromCart(cartItemId: number) {
+    if (!accessToken) return;
+    await deleteCartItems(accessToken, [cartItemId]);
+    await refreshCart();
   }
 
-  function clearCart() {
-    setCart([]);
+  async function removeManyFromCart(cartItemIds: number[]) {
+    if (!accessToken || cartItemIds.length === 0) return;
+    await deleteCartItems(accessToken, cartItemIds);
+    await refreshCart();
   }
 
   function toggleWishlist(productId: string) {
@@ -145,28 +157,19 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     return wishlist.includes(productId);
   }
 
-  const { cartCount, cartSubtotal } = useMemo(() => {
-    let count = 0;
-    let subtotal = 0;
-    for (const line of cart) {
-      const product = products.find((p) => p.id === line.productId);
-      if (!product) continue;
-      count += line.quantity;
-      subtotal += product.price * line.quantity;
-    }
-    return { cartCount: count, cartSubtotal: subtotal };
-  }, [cart]);
-
   const value: ShopContextValue = {
     hydrated: hydrated && (!wishlistKey || wishlistLoadedKey === wishlistKey),
     cart,
+    cartLoading,
+    cartError,
     wishlist,
     addToCart,
     updateQuantity,
     removeFromCart,
-    clearCart,
-    cartCount,
-    cartSubtotal,
+    removeManyFromCart,
+    refreshCart,
+    cartCount: cartTotals.count,
+    cartSubtotal: cartTotals.subtotal,
     toggleWishlist,
     isWishlisted,
     wishlistCount: wishlist.length,

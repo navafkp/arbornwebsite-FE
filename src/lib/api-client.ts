@@ -50,7 +50,9 @@ async function request<T>(
     throw new ApiError(detail?.message || detail?.detail || `Request failed (${res.status})`, res.status);
   }
 
-  return res.json();
+  if (res.status === 204) return undefined as T;
+  const text = await res.text();
+  return text ? JSON.parse(text) : (undefined as T);
 }
 
 export interface BackendUser {
@@ -205,6 +207,8 @@ export interface ApiProductVariantSize {
   size_code: number;
   display_text: string;
   measurement: string;
+  stock_quantity: number;
+  variant_size_stock_id: number;
 }
 
 export interface ApiProductVariant {
@@ -307,4 +311,64 @@ export async function getBanners() {
     baseUrl: CONTENT_BASE_URL,
   });
   return res.data;
+}
+
+export interface ApiCartItem {
+  id: number;
+  product: { id: number; name: string; slug: string };
+  variant_id: number;
+  color: string;
+  color_code: string;
+  size_code: number;
+  size_display_text: string;
+  image_url: string;
+  price: string;
+  quantity: number;
+  subtotal: string;
+  stock_quantity: number;
+  is_out_of_stock: boolean;
+  is_stock_insufficient: boolean;
+}
+
+export interface ApiCart {
+  items: ApiCartItem[];
+  total_quantity: number;
+  total_amount: string;
+}
+
+export async function getCart(accessToken: string) {
+  const res = await request<{ data: ApiCart }>("/cart/", {
+    baseUrl: CATALOG_BASE_URL,
+    accessToken,
+  });
+  return res.data;
+}
+
+export async function addCartItem(accessToken: string, variantSizeStockId: number, quantity: number) {
+  const res = await request<{ data: ApiCartItem }>("/cart/", {
+    method: "POST",
+    baseUrl: CATALOG_BASE_URL,
+    accessToken,
+    body: { variant_size_stock_id: variantSizeStockId, quantity },
+  });
+  return res.data;
+}
+
+export async function updateCartItem(accessToken: string, cartItemId: number, quantity: number) {
+  const res = await request<{ data: ApiCartItem }>(`/cart/${cartItemId}/`, {
+    method: "PATCH",
+    baseUrl: CATALOG_BASE_URL,
+    accessToken,
+    body: { quantity },
+  });
+  return res.data;
+}
+
+export async function deleteCartItems(accessToken: string, itemIds: number[]) {
+  await request<undefined>("/cart/", {
+    method: "DELETE",
+    baseUrl: CATALOG_BASE_URL,
+    accessToken,
+    body: { item_ids: itemIds },
+  });
 }
