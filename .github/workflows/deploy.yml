@@ -41,6 +41,8 @@ jobs:
           NEXT_PUBLIC_GA_ID: ${{ vars.GA_ID }}
           NEXT_PUBLIC_ACCOUNTS_BASE_URL: https://api.arborn.shop/accounts/v1
           NEXT_PUBLIC_CATALOG_BASE_URL: https://api.arborn.shop/catalog/v1
+          NEXT_PUBLIC_CONTENT_BASE_URL: https://api.arborn.shop/content/v1
+          NEXT_PUBLIC_PRODUCTS_PAGE_SIZE: "5"
 
       - uses: actions/configure-pages@v5
 
