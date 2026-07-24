@@ -1,8 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { cn } from "@/lib/utils";
+
+const AUTO_SCROLL_INTERVAL_MS = 3000;
 
 interface ImageGalleryProps {
   images: string[];
@@ -35,6 +37,23 @@ export default function ImageGallery({ images, alt }: ImageGalleryProps) {
       behavior: "smooth",
     });
   }
+
+  useEffect(() => {
+    if (images.length <= 1 || zooming) return;
+
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % images.length;
+        mobileScrollRef.current?.scrollTo({
+          left: next * mobileScrollRef.current.clientWidth,
+          behavior: "smooth",
+        });
+        return next;
+      });
+    }, AUTO_SCROLL_INTERVAL_MS);
+
+    return () => clearInterval(timer);
+  }, [images.length, zooming]);
 
   return (
     <div className="flex flex-col-reverse gap-4 sm:flex-row">

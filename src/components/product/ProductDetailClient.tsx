@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { sendGAEvent } from "@next/third-parties/google";
 import type { Product } from "@/lib/types";
 import { formatPrice, cn } from "@/lib/utils";
 import { buildWhatsAppLink, buildOrderInquiryMessage } from "@/lib/whatsapp";
@@ -15,6 +16,22 @@ export default function ProductDetailClient({ product }: { product: Product }) {
   const [colorIndex, setColorIndex] = useState(0);
   const [sizeIndex, setSizeIndex] = useState(0);
   const color = product.colors[colorIndex];
+
+  useEffect(() => {
+    sendGAEvent("event", "view_item", {
+      currency: "INR",
+      value: product.price,
+      items: [
+        {
+          item_id: product.id,
+          item_name: product.name,
+          item_category: product.categorySlug,
+          price: product.price,
+        },
+      ],
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product.id]);
 
   const whatsappLink = buildWhatsAppLink(
     buildOrderInquiryMessage({
@@ -102,6 +119,21 @@ export default function ProductDetailClient({ product }: { product: Product }) {
             target="_blank"
             rel="noopener noreferrer"
             aria-disabled={!product.inStock}
+            onClick={() =>
+              sendGAEvent("event", "generate_lead", {
+                currency: "INR",
+                value: product.price,
+                items: [
+                  {
+                    item_id: product.id,
+                    item_name: product.name,
+                    item_category: product.categorySlug,
+                    price: product.price,
+                    item_variant: color.name,
+                  },
+                ],
+              })
+            }
             className={cn(
               "flex flex-1 items-center justify-center gap-2 rounded-full bg-accent py-3.5 text-center text-xs font-medium tracking-widest text-white uppercase transition hover:bg-accent-dark",
               !product.inStock && "pointer-events-none cursor-not-allowed opacity-40",

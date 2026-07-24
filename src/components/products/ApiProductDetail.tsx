@@ -36,6 +36,7 @@ function tornEdgeClipPath(teeth = 16, dip = 3) {
 }
 
 const TORN_EDGE = tornEdgeClipPath();
+const AUTO_SCROLL_INTERVAL_MS = 3000;
 
 const TRUST_ITEMS = [
   {
@@ -200,6 +201,20 @@ export default function ApiProductDetail() {
     setSelectedSizeCode(matchedSize ? matchedSize.size_code : (v.sizes[0]?.size_code ?? null));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeVariantIndex, preferredSizeCodes]);
+
+  useEffect(() => {
+    if (allImages.length <= 1) return;
+
+    const timer = setInterval(() => {
+      setMainImageIndex((current) => {
+        const next = (current + 1) % allImages.length;
+        scrollToImage(next);
+        return next;
+      });
+    }, AUTO_SCROLL_INTERVAL_MS);
+
+    return () => clearInterval(timer);
+  }, [allImages.length]);
 
   function selectVariant(index: number) {
     const firstImage = allImages.findIndex((img) => img.variantIndex === index);

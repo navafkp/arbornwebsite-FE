@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import SearchBar from "@/components/layout/SearchBar";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
@@ -47,7 +48,9 @@ export default function HomeHeader() {
           </button>
 
           <div className="pointer-events-none absolute top-[6px] left-1/2 -translate-x-1/2">
-            <Image src={LOGO_IMAGE} alt="Arborn" width={64} height={64} className="h-16 w-16 object-contain" />
+            <Link href="/" aria-label="Go to homepage" className="pointer-events-auto block">
+              <Image src={LOGO_IMAGE} alt="Arborn" width={64} height={64} className="h-16 w-16 object-contain" />
+            </Link>
           </div>
 
           <div className="relative z-30 flex items-center gap-1">
