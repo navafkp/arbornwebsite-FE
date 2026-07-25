@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import WishlistButton from "@/components/product/WishlistButton";
 import { getExplore, getProducts, type ApiProduct, type ApiWishlistItem, type ExploreItem } from "@/lib/api-client";
 import { useShop } from "@/lib/shop-context";
 import { formatPrice } from "@/lib/utils";
@@ -103,20 +102,42 @@ function InspirationRail({ items, loading, error, retry }: { items: Inspiration[
 }
 
 function SavedCard({ product }: { product: ApiWishlistItem }) {
+  const { toggleWishlist } = useShop();
   const price = Number(product.base_discount_price ?? product.base_price);
   const original = product.base_discount_price ? Number(product.base_price) : null;
   const colorCount = product.variants.length;
   const sizeCount = new Set(product.variants.flatMap((v) => v.sizes.map((s) => s.size_code))).size;
+  // Same reasoning as the product detail page: only call it out of stock
+  // when we actually have variant data showing every size at zero.
+  const outOfStock =
+    product.variants.length > 0 && !product.variants.some((v) => v.sizes.some((s) => s.stock_quantity > 0));
 
   return (
     <article className="relative overflow-hidden rounded-[18px] border border-[#eedddc] bg-white/85 shadow-[0_3px_14px_rgba(83,45,52,0.07)]">
       <Link href={`/products/detail?slug=${encodeURIComponent(product.slug)}`} className="grid grid-cols-[42%_minmax(0,1fr)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
         <div className="relative aspect-[3/4] bg-[#f3e5e2]">
-          {product.image_url ? <Image src={product.image_url} alt={product.name} fill sizes="(max-width: 640px) 42vw, 220px" className="object-cover" /> : <span className="flex h-full items-center justify-center p-3 text-center text-xs text-[var(--muted)]">Image unavailable</span>}
+          {product.image_url ? (
+            <Image
+              src={product.image_url}
+              alt={product.name}
+              fill
+              sizes="(max-width: 640px) 42vw, 220px"
+              className={`object-cover ${outOfStock ? "blur-[1.5px]" : ""}`}
+            />
+          ) : (
+            <span className="flex h-full items-center justify-center p-3 text-center text-xs text-[var(--muted)]">Image unavailable</span>
+          )}
+          {outOfStock && (
+            <div className="absolute inset-x-0 bottom-0 bg-black/70 py-1.5 text-center text-[10px] font-semibold tracking-widest text-white uppercase">
+              Out of Stock
+            </div>
+          )}
         </div>
         <div className="flex min-w-0 flex-col justify-center px-4 py-5 pr-14">
-          <h2 className="line-clamp-2 font-serif text-xl leading-5 sm:text-2xl sm:leading-6">{product.name}</h2>
-          <div className="mt-3 flex items-baseline gap-2">
+          <h2 className={`line-clamp-2 font-serif text-xl leading-5 sm:text-2xl sm:leading-6 ${outOfStock ? "blur-[0.5px]" : ""}`}>
+            {product.name}
+          </h2>
+          <div className={`mt-3 flex items-baseline gap-2 ${outOfStock ? "blur-[0.5px]" : ""}`}>
             <span className="text-lg font-bold">{formatPrice(price)}</span>
             {original !== null && <span className="text-xs text-[var(--muted)] line-through">{formatPrice(original)}</span>}
           </div>
@@ -132,16 +153,35 @@ function SavedCard({ product }: { product: ApiWishlistItem }) {
               </div>
             </>
           )}
+          {outOfStock && (
+            <p className="mt-3 flex items-start gap-1.5 rounded-xl bg-accent-soft px-2.5 py-1.5 text-[10px] text-accent">
+              <svg className="mt-0.5 h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+                <path d="M7 9a5 5 0 0110 0c0 6 2.5 6.5 2.5 8h-15c0-1.5 2.5-2 2.5-8Z" strokeLinejoin="round" />
+                <path d="M10 20h4" strokeLinecap="round" />
+              </svg>
+              currently out of stock.
+            </p>
+          )}
         </div>
       </Link>
-      <WishlistButton productId={String(product.id)} className="absolute right-3 top-3 h-11 w-11 border border-[#f0dfe0] bg-[#fdeef1] text-accent shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" size="md" />
+      <button
+        type="button"
+        onClick={() => toggleWishlist(product.id).catch(() => { })}
+        aria-label={`Remove ${product.name} from wishlist`}
+        className="absolute top-3 right-3 flex h-[22px] w-[22px] items-center justify-center rounded-full bg-accent-dark text-white shadow-sm"
+      >
+        <svg className="h-[11px] w-[11px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+          <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+        </svg>
+      </button>
     </article>
   );
 }
 
 export default function WishlistPage() {
   const { hydrated: authHydrated, hasBackendSession } = useAuth();
-  const { wishlist, wishlistLoading, wishlistError, refreshWishlist } = useShop();
+  const { wishlist, wishlistLoading, wishlistError, refreshWishlist, clearWishlist } = useShop();
+  const [clearing, setClearing] = useState(false);
   // Decorative filler images only (EditorialCollage) — unrelated to the
   // actual wishlist, which now comes straight from the backend above.
   const [products, setProducts] = useState<ApiProduct[]>([]);
@@ -184,6 +224,18 @@ export default function WishlistPage() {
     previousItemCount.current = wishlist.length;
   }, [wishlist.length]);
 
+  async function handleClearAll() {
+    setClearing(true);
+    try {
+      await clearWishlist();
+    } catch {
+      // A session-expiry (401) already triggers a login prompt via
+      // shop-context's logOut() — nothing more to do here.
+    } finally {
+      setClearing(false);
+    }
+  }
+
   if (!authHydrated || (hasBackendSession && wishlistLoading && wishlist.length === 0)) return <WishlistSkeleton />;
 
   if (!hasBackendSession) {
@@ -208,11 +260,11 @@ export default function WishlistPage() {
               <p className="text-[10px] font-medium leading-3.5 text-[#513b40] sm:text-xs">Save your favourites</p>
             </div>
             <div className="flex min-w-0 flex-col items-center gap-2 border-r border-[#dfc7c5] px-2 text-center">
-              <svg className="h-6 w-6 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M7 9a5 5 0 0 1 10 0c0 6 2.5 6.5 2.5 8H4.5C4.5 15.5 7 15 7 9Z" strokeLinejoin="round"/><path d="M10 20h4" strokeLinecap="round"/></svg>
+              <svg className="h-6 w-6 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M7 9a5 5 0 0 1 10 0c0 6 2.5 6.5 2.5 8H4.5C4.5 15.5 7 15 7 9Z" strokeLinejoin="round" /><path d="M10 20h4" strokeLinecap="round" /></svg>
               <p className="text-[10px] font-medium leading-3.5 text-[#513b40] sm:text-xs">Get restock alerts</p>
             </div>
             <div className="flex min-w-0 flex-col items-center gap-2 px-2 text-center">
-              <svg className="h-6 w-6 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z" strokeLinejoin="round"/><path d="M9 8V6a3 3 0 0 1 6 0v2" strokeLinecap="round"/></svg>
+              <svg className="h-6 w-6 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z" strokeLinejoin="round" /><path d="M9 8V6a3 3 0 0 1 6 0v2" strokeLinecap="round" /></svg>
               <p className="text-[10px] font-medium leading-3.5 text-[#513b40] sm:text-xs">Shop faster next time</p>
             </div>
           </div>
@@ -236,7 +288,22 @@ export default function WishlistPage() {
     return (
       <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
         <section aria-labelledby="wishlist-heading">
-          <h1 ref={stateHeadingRef} tabIndex={-1} id="wishlist-heading" className="font-serif text-4xl outline-none sm:text-5xl">Your Wishlist</h1>
+          <div className="flex items-start justify-between gap-3">
+            <h1 ref={stateHeadingRef} tabIndex={-1} id="wishlist-heading" className="font-serif text-4xl outline-none sm:text-5xl">
+              Your Wishlist
+            </h1>
+            <button
+              type="button"
+              onClick={handleClearAll}
+              disabled={clearing}
+              className="mt-1 flex shrink-0 items-center gap-1.5 rounded-full border border-[#f0dfe0] bg-white px-4 py-2 text-xs font-semibold text-accent shadow-sm transition hover:bg-accent-soft disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden>
+                <path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0-1 13a1 1 0 01-1 1H8a1 1 0 01-1-1L6 7" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              {clearing ? "Clearing..." : "Clear"}
+            </button>
+          </div>
           <p className="mt-1 flex items-center gap-1.5 text-sm text-[var(--muted)]" role="status" aria-live="polite" aria-atomic="true">
             <HeartIcon filled className="h-3.5 w-3.5 text-accent" />
             {wishlist.length} {wishlist.length === 1 ? "item" : "items"} saved for later

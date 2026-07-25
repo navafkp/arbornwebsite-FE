@@ -6,7 +6,13 @@ import { getExplore } from "@/lib/api-client";
 import { HeartIcon } from "@/components/ui/decor";
 import CollectionCircleRail, { type CollectionCircle } from "@/components/common/CollectionCircleRail";
 
-export default function ShopByCollectionSection() {
+export default function ShopByCollectionSection({
+  activeCategory,
+  activeTag,
+}: {
+  activeCategory?: string;
+  activeTag?: string;
+} = {}) {
   const [cards, setCards] = useState<CollectionCircle[]>([]);
 
   useEffect(() => {
@@ -38,7 +44,9 @@ export default function ShopByCollectionSection() {
       </div>
 
       {cards.length > 0 ? (
-        <div className="mt-3.5"><CollectionCircleRail items={cards} /></div>
+        <div className="mt-3.5">
+          <CollectionCircleRail items={cards} activeCategory={activeCategory} activeTag={activeTag} />
+        </div>
       ) : (
         <p className="mt-4 rounded-2xl border border-dashed border-black/15 px-4 py-3.5 text-sm text-[var(--muted)]">
           No collections found here yet.

@@ -46,6 +46,7 @@ interface ShopContextValue {
   cartSubtotal: number;
   toggleWishlist: (productId: number) => Promise<void>;
   isWishlisted: (productId: number) => boolean;
+  clearWishlist: () => Promise<void>;
   wishlistCount: number;
 }
 
@@ -184,6 +185,16 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     return wishlist.some((p) => p.id === productId);
   }
 
+  // No bulk-delete endpoint on the backend for wishlist (unlike cart) — just
+  // fire every removal in parallel, then refresh once.
+  async function clearWishlist() {
+    if (!accessToken || wishlist.length === 0) return;
+    await runAuthedAction(accessToken, async (t) => {
+      await Promise.all(wishlist.map((product) => removeWishlistItem(t, product.id)));
+      await refreshWishlist(t);
+    });
+  }
+
   const value: ShopContextValue = {
     hydrated: authHydrated,
     cart,
@@ -202,6 +213,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     cartSubtotal: cartTotals.subtotal,
     toggleWishlist,
     isWishlisted,
+    clearWishlist,
     wishlistCount: wishlist.length,
   };
 

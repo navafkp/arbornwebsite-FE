@@ -15,23 +15,43 @@ const BADGES: { match: RegExp; icon: (className: string) => React.ReactNode }[] 
   { match: /cotton|leaf/i, icon: (c) => <LeafIcon className={c} /> },
 ];
 
-export default function CollectionCircleRail({ items, label = "Shop by collection" }: { items: CollectionCircle[]; label?: string }) {
+export default function CollectionCircleRail({
+  items,
+  label = "Shop by collection",
+  activeCategory,
+  activeTag,
+}: {
+  items: CollectionCircle[];
+  label?: string;
+  activeCategory?: string;
+  activeTag?: string;
+}) {
   return (
     <div className="no-scrollbar flex gap-3.5 overflow-x-auto pb-0.5 sm:gap-5" role="list" aria-label={label}>
       {items.slice(0, 6).map((item) => {
         const badge = BADGES.find((candidate) => candidate.match.test(item.name));
+        const isActive =
+          (item.kind === "category" && item.slug === activeCategory) ||
+          (item.kind === "tag" && item.slug === activeTag);
         return (
           <Link
             key={`${item.kind}-${item.id}`}
             href={`/products?${item.kind}=${encodeURIComponent(item.slug)}`}
             role="listitem"
+            aria-current={isActive ? "true" : undefined}
             className="group flex w-[69.3px] shrink-0 flex-col items-center gap-1.5 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:w-[81.9px]"
           >
-            <span className="relative block h-[60.9px] w-[60.9px] overflow-hidden rounded-full border border-[#f2dfe2] bg-[#f8f1ef] sm:h-[67.2px] sm:w-[67.2px]">
+            <span
+              className={`relative block h-[60.9px] w-[60.9px] overflow-hidden rounded-full border border-[#f2dfe2] bg-[#f8f1ef] sm:h-[67.2px] sm:w-[67.2px] ${
+                isActive ? "ring-2 ring-accent ring-offset-2" : ""
+              }`}
+            >
               <Image src={item.image_url} alt="" fill sizes="(min-width: 640px) 67px, 61px" className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none" />
               {badge && <span className="absolute bottom-0 left-1/2 flex h-[20px] w-[20px] -translate-x-1/2 items-center justify-center rounded-full bg-white text-accent shadow-sm sm:h-[22.1px] sm:w-[22.1px]">{badge.icon("h-2.5 w-2.5")}</span>}
             </span>
-            <span className="line-clamp-2 min-h-[27px] text-[10.5px] leading-[1.25] text-[#241a1d] sm:text-[11px]">{item.name}</span>
+            <span className={`line-clamp-2 min-h-[27px] text-[10.5px] leading-[1.25] sm:text-[11px] ${isActive ? "font-semibold text-accent" : "text-[#241a1d]"}`}>
+              {item.name}
+            </span>
           </Link>
         );
       })}
