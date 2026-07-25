@@ -317,11 +317,12 @@ export default function ApiProductDetail() {
   // Free-size chips (M, L, XL, ...) all share one variant_size_stock_id —
   // they're really the same stock item, so any cart line for this variant
   // already covers whichever free-size chip is currently selected.
-  const alreadyInCart = cart.some(
+  const existingCartLine = cart.find(
     (line) =>
       line.variant_id === variant?.id &&
       (selectedSize?.is_free_size || line.size_code === selectedSizeCode),
   );
+  const alreadyInCart = !!existingCartLine;
   const whatsappLink = buildWhatsAppLink(
     buildOrderInquiryMessage({
       productName: product.name,
@@ -631,8 +632,14 @@ export default function ApiProductDetail() {
                 onClick={() => {
                   // Only when already logged in — WhatsApp ordering itself
                   // stays frictionless and never gets blocked by a login
-                  // prompt; the cart add is just a bonus when possible.
-                  if (hasBackendSession) {
+                  // prompt; the cart add is just a bonus when possible. If
+                  // it's already in the cart, just tag that existing line —
+                  // never bump its quantity from here (that's the cart
+                  // page's job via the +/- stepper).
+                  if (!hasBackendSession) return;
+                  if (existingCartLine) {
+                    markContactedViaWhatsApp(existingCartLine.id);
+                  } else {
                     addCurrentToCart().then((cartItemId) => {
                       if (cartItemId) markContactedViaWhatsApp(cartItemId);
                     });
