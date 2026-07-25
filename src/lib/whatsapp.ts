@@ -25,14 +25,20 @@ function generateOrderRef() {
 export function buildCartOrderMessage({
   items,
   subtotal,
+  customerName,
+  customerEmail,
 }: {
   items: { name: string; color: string; size: string; quantity: number; price: string }[];
   subtotal: string;
+  customerName?: string;
+  customerEmail?: string;
 }) {
   return [
     "New order inquiry",
     `Status: ${ORDER_STATUS.CONTACTED}`,
     `Ref: ${generateOrderRef()}`,
+    ...(customerName ? [`Name: ${customerName}`] : []),
+    ...(customerEmail ? [`Email: ${customerEmail}`] : []),
     "",
     ...items.map(
       (item, i) => `${i + 1}. ${item.name} (${item.color} / ${item.size}) x${item.quantity} - ${item.price}`,
@@ -49,16 +55,22 @@ export function buildOrderInquiryMessage({
   color,
   size,
   price,
+  customerName,
+  customerEmail,
 }: {
   productName: string;
   color: string;
   size: string;
   price: string;
+  customerName?: string;
+  customerEmail?: string;
 }) {
   return [
     "New order inquiry",
     `Status: ${ORDER_STATUS.CONTACTED}`,
     `Ref: ${generateOrderRef()}`,
+    ...(customerName ? [`Name: ${customerName}`] : []),
+    ...(customerEmail ? [`Email: ${customerEmail}`] : []),
     `Product: ${productName}`,
     `Color: ${color}`,
     `Size: ${size}`,

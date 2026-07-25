@@ -12,11 +12,12 @@ interface WishlistButtonProps {
 }
 
 export default function WishlistButton({ productId, className, size = "sm" }: WishlistButtonProps) {
-  const { hydrated: wishlistHydrated, isWishlisted, toggleWishlist } = useShop();
+  const { isWishlisted, toggleWishlist, wishlistLoading } = useShop();
   const { hasBackendSession, hydrated } = useAuth();
   const router = useRouter();
-  const active = isWishlisted(productId);
-  const ready = hydrated && (!hasBackendSession || wishlistHydrated);
+  const numericId = Number(productId);
+  const active = isWishlisted(numericId);
+  const ready = hydrated && (!hasBackendSession || !wishlistLoading);
   const dimension = size === "sm" ? "h-4 w-4" : "h-5 w-5";
 
   return (
@@ -31,7 +32,10 @@ export default function WishlistButton({ productId, className, size = "sm" }: Wi
           router.push(`/login?next=${encodeURIComponent(next)}`);
           return;
         }
-        toggleWishlist(productId);
+        toggleWishlist(numericId).catch(() => {
+          // A session-expiry (401) already triggers a login prompt via
+          // shop-context's logOut() — nothing more to do here.
+        });
       }}
       aria-label={active ? "Remove from wishlist" : hasBackendSession ? "Add to wishlist" : "Log in to add to wishlist"}
       aria-pressed={active}

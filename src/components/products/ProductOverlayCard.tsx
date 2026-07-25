@@ -26,14 +26,8 @@ export default function ProductOverlayCard({ product }: { product: ApiProduct })
         </span>
       </div>
 
-      <div className="mt-2 flex items-start justify-between gap-2">
+      <div className="mt-2">
         <span className="line-clamp-2 text-sm font-medium text-[#241a1d]">{product.name}</span>
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-white transition group-hover:bg-accent-dark">
-          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            <path d="M6 8h12l-1 12a1.5 1.5 0 01-1.5 1.4h-7A1.5 1.5 0 017 20L6 8z" strokeLinejoin="round" />
-            <path d="M9 8V6a3 3 0 016 0v2" strokeLinecap="round" />
-          </svg>
-        </span>
       </div>
     </Link>
   );

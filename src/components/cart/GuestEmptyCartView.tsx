@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { HeartIcon, ShoppingBagIllustration } from "@/components/ui/decor";
 import CartRecommendations from "@/components/cart/CartRecommendations";
+import FeatureStrip from "@/components/home/FeatureStrip";
 
 export default function GuestEmptyCartView({ onLoginClick }: { onLoginClick: () => void }) {
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 items-center gap-6 sm:grid-cols-2">
+      <FeatureStrip />
+      <div className="mt-6 grid grid-cols-1 items-center gap-6 sm:grid-cols-2">
         <div className="text-center sm:text-left">
           <h1 className="font-serif text-3xl leading-tight sm:text-4xl">
             Your cart is <span className="italic text-accent">empty</span>{" "}

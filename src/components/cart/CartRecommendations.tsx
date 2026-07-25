@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { getProducts, getSizes, type ApiProduct, type BackendSize } from "@/lib/api-client";
 import { formatPrice } from "@/lib/utils";
 import { HeartIcon } from "@/components/ui/decor";
-import FeatureStrip from "@/components/home/FeatureStrip";
 
 function RecommendedCard({ product, sizes }: { product: ApiProduct; sizes: BackendSize[] }) {
   const price = Number(product.base_price);
@@ -82,10 +81,6 @@ export default function CartRecommendations() {
           </div>
         </>
       )}
-
-      <div className="mt-4">
-        <FeatureStrip />
-      </div>
     </div>
   );
 }

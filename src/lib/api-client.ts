@@ -372,3 +372,65 @@ export async function deleteCartItems(accessToken: string, itemIds: number[]) {
     body: { item_ids: itemIds },
   });
 }
+
+export interface ApiWishlistItem {
+  id: number;
+  name: string;
+  slug: string;
+  base_price: string;
+  base_discount_price: string | null;
+  image_url: string | null;
+  tag: ApiProductTag | null;
+  variants: ApiProductVariant[];
+  review_summary: { average_rating: number; review_count: number };
+}
+
+export async function getWishlist(accessToken: string) {
+  const res = await request<{ data: ApiWishlistItem[] }>("/wishlist/", {
+    baseUrl: CATALOG_BASE_URL,
+    accessToken,
+  });
+  return res.data;
+}
+
+export async function addWishlistItem(accessToken: string, productId: number) {
+  await request<undefined>("/wishlist/", {
+    method: "POST",
+    baseUrl: CATALOG_BASE_URL,
+    accessToken,
+    body: { product_id: productId },
+  });
+}
+
+export async function removeWishlistItem(accessToken: string, productId: number) {
+  await request<undefined>(`/wishlist/${productId}/`, {
+    method: "DELETE",
+    baseUrl: CATALOG_BASE_URL,
+    accessToken,
+  });
+}
+
+export interface ApiOrder {
+  id: number;
+  product: { id: number; name: string; slug: string };
+  variant_id: number;
+  color: string;
+  color_code: string;
+  size_code: number;
+  size_display_text: string;
+  image_url: string;
+  quantity: number;
+  collected_amount: string;
+  shipping_charge: string;
+  transport_mode: string;
+  state: string;
+  created_at: string;
+}
+
+export async function getOrders(accessToken: string) {
+  const res = await request<{ data: ApiOrder[] }>("/orders/", {
+    baseUrl: CATALOG_BASE_URL,
+    accessToken,
+  });
+  return res.data;
+}

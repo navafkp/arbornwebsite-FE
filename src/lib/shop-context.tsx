@@ -13,12 +13,17 @@ import {
   addCartItem,
   updateCartItem,
   deleteCartItems,
+  getWishlist,
+  addWishlistItem,
+  removeWishlistItem,
+  ApiError,
   type ApiCartItem,
+  type ApiWishlistItem,
 } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 
-// The cart lives entirely on the backend and only exists for logged-in
-// users — there is no guest/local cart anymore.
+// The cart and wishlist both live entirely on the backend and only exist
+// for logged-in users — there is no guest/local version of either anymore.
 export type CartLine = ApiCartItem;
 
 interface ShopContextValue {
@@ -26,70 +31,55 @@ interface ShopContextValue {
   cart: CartLine[];
   cartLoading: boolean;
   cartError: boolean;
-  wishlist: string[];
+  wishlist: ApiWishlistItem[];
+  wishlistLoading: boolean;
+  wishlistError: boolean;
+  refreshWishlist: (tokenOverride?: string) => Promise<void>;
   // tokenOverride lets a caller act immediately after login, before React
   // has re-rendered this context with the new accessToken (see refreshCart).
-  addToCart: (variantSizeStockId: number, quantity?: number, tokenOverride?: string) => Promise<void>;
+  addToCart: (variantSizeStockId: number, quantity?: number, tokenOverride?: string) => Promise<number | undefined>;
   updateQuantity: (cartItemId: number, quantity: number) => Promise<void>;
   removeFromCart: (cartItemId: number) => Promise<void>;
   removeManyFromCart: (cartItemIds: number[]) => Promise<void>;
   refreshCart: (tokenOverride?: string) => Promise<void>;
   cartCount: number;
   cartSubtotal: number;
-  toggleWishlist: (productId: string) => void;
-  isWishlisted: (productId: string) => boolean;
+  toggleWishlist: (productId: number) => Promise<void>;
+  isWishlisted: (productId: number) => boolean;
   wishlistCount: number;
 }
 
 const ShopContext = createContext<ShopContextValue | null>(null);
 
-const WISHLIST_KEY_PREFIX = "arborn_wishlist:";
-
 export function ShopProvider({ children }: { children: ReactNode }) {
-  const { user, accessToken, hasBackendSession, hydrated: authHydrated } = useAuth();
+  const { accessToken, hydrated: authHydrated, logOut, refreshSession } = useAuth();
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartTotals, setCartTotals] = useState({ count: 0, subtotal: 0 });
   const [cartLoading, setCartLoading] = useState(false);
   const [cartError, setCartError] = useState(false);
-  const [wishlist, setWishlist] = useState<string[]>([]);
-  const [wishlistLoadedKey, setWishlistLoadedKey] = useState<string | null>(null);
-  const [hydrated, setHydrated] = useState(false);
+  const [wishlist, setWishlist] = useState<ApiWishlistItem[]>([]);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [wishlistError, setWishlistError] = useState(false);
 
-  const wishlistOwner = hasBackendSession && user
-    ? String(user.id ?? user.email.trim().toLowerCase())
-    : null;
-  const wishlistKey = wishlistOwner ? `${WISHLIST_KEY_PREFIX}${wishlistOwner}` : null;
-
-  useEffect(() => {
-    // Synchronizing from an external system (auth's own hydration state).
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (authHydrated) setHydrated(true);
-  }, [authHydrated]);
-
-  useEffect(() => {
-    if (!authHydrated) return;
-    if (!wishlistKey) {
-      // Synchronize account-owned state when the external auth identity changes.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setWishlist([]);
-      setWishlistLoadedKey(null);
-      return;
-    }
+  // Shared by every cart/wishlist action: on a 401 (expired access token —
+  // it only lasts 30 minutes), try the 14-day refresh token to get a new
+  // access token and retry once. Only if that also fails is the session
+  // actually dead — clear it locally so the UI's own login-prompt logic
+  // kicks in, then rethrow the *original* 401 so callers can still detect it.
+  async function runAuthedAction<T>(token: string, action: (token: string) => Promise<T>): Promise<T> {
     try {
-      const raw = localStorage.getItem(wishlistKey);
-      setWishlist(raw ? JSON.parse(raw) : []);
-      setWishlistLoadedKey(wishlistKey);
-    } catch {
-      setWishlist([]);
-      setWishlistLoadedKey(wishlistKey);
+      return await action(token);
+    } catch (err) {
+      if (!(err instanceof ApiError) || err.status !== 401) throw err;
+      try {
+        const newToken = await refreshSession();
+        return await action(newToken);
+      } catch {
+        logOut();
+        throw err;
+      }
     }
-  }, [authHydrated, wishlistKey]);
-
-  useEffect(() => {
-    if (hydrated && wishlistKey && wishlistLoadedKey === wishlistKey) {
-      localStorage.setItem(wishlistKey, JSON.stringify(wishlist));
-    }
-  }, [wishlist, hydrated, wishlistKey, wishlistLoadedKey]);
+  }
 
   const refreshCart = useCallback(async (tokenOverride?: string) => {
     const token = tokenOverride ?? accessToken;
@@ -101,7 +91,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     setCartLoading(true);
     setCartError(false);
     try {
-      const data = await getCart(token);
+      const data = await runAuthedAction(token, getCart);
       setCart(data.items);
       setCartTotals({ count: data.total_quantity, subtotal: Number(data.total_amount) });
     } catch {
@@ -109,60 +99,100 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     } finally {
       setCartLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessToken]);
+
+  const refreshWishlist = useCallback(async (tokenOverride?: string) => {
+    const token = tokenOverride ?? accessToken;
+    if (!token) {
+      setWishlist([]);
+      return;
+    }
+    setWishlistLoading(true);
+    setWishlistError(false);
+    try {
+      const data = await runAuthedAction(token, getWishlist);
+      setWishlist(data);
+    } catch {
+      setWishlistError(true);
+    } finally {
+      setWishlistLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
 
   useEffect(() => {
-    // Fetching from an external system (the cart API) whenever the signed-in
-    // identity changes — refreshCart's own setState calls are the sync.
+    // Fetching from an external system (the cart/wishlist API) whenever the
+    // signed-in identity changes — their own setState calls are the sync.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     refreshCart();
-  }, [refreshCart]);
+    refreshWishlist();
+  }, [refreshCart, refreshWishlist]);
 
   async function addToCart(variantSizeStockId: number, quantity = 1, tokenOverride?: string) {
     const token = tokenOverride ?? accessToken;
-    if (!token) return;
-    await addCartItem(token, variantSizeStockId, quantity);
-    await refreshCart(tokenOverride);
+    if (!token) return undefined;
+    return runAuthedAction(token, async (t) => {
+      const item = await addCartItem(t, variantSizeStockId, quantity);
+      await refreshCart(t);
+      return item.id;
+    });
   }
 
   async function updateQuantity(cartItemId: number, quantity: number) {
     if (!accessToken) return;
-    if (quantity <= 0) {
-      await deleteCartItems(accessToken, [cartItemId]);
-    } else {
-      await updateCartItem(accessToken, cartItemId, quantity);
-    }
-    await refreshCart();
+    await runAuthedAction(accessToken, async (t) => {
+      if (quantity <= 0) {
+        await deleteCartItems(t, [cartItemId]);
+      } else {
+        await updateCartItem(t, cartItemId, quantity);
+      }
+      await refreshCart(t);
+    });
   }
 
   async function removeFromCart(cartItemId: number) {
     if (!accessToken) return;
-    await deleteCartItems(accessToken, [cartItemId]);
-    await refreshCart();
+    await runAuthedAction(accessToken, async (t) => {
+      await deleteCartItems(t, [cartItemId]);
+      await refreshCart(t);
+    });
   }
 
   async function removeManyFromCart(cartItemIds: number[]) {
     if (!accessToken || cartItemIds.length === 0) return;
-    await deleteCartItems(accessToken, cartItemIds);
-    await refreshCart();
+    await runAuthedAction(accessToken, async (t) => {
+      await deleteCartItems(t, cartItemIds);
+      await refreshCart(t);
+    });
   }
 
-  function toggleWishlist(productId: string) {
-    setWishlist((prev) =>
-      prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId],
-    );
+  async function toggleWishlist(productId: number) {
+    if (!accessToken) return;
+    const isCurrentlyWishlisted = wishlist.some((p) => p.id === productId);
+    await runAuthedAction(accessToken, async (t) => {
+      if (isCurrentlyWishlisted) {
+        await removeWishlistItem(t, productId);
+      } else {
+        await addWishlistItem(t, productId);
+      }
+      await refreshWishlist(t);
+    });
   }
 
-  function isWishlisted(productId: string) {
-    return wishlist.includes(productId);
+  function isWishlisted(productId: number) {
+    return wishlist.some((p) => p.id === productId);
   }
 
   const value: ShopContextValue = {
-    hydrated: hydrated && (!wishlistKey || wishlistLoadedKey === wishlistKey),
+    hydrated: authHydrated,
     cart,
     cartLoading,
     cartError,
     wishlist,
+    wishlistLoading,
+    wishlistError,
+    refreshWishlist,
     addToCart,
     updateQuantity,
     removeFromCart,

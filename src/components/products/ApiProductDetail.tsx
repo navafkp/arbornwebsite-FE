@@ -15,8 +15,10 @@ import { cn, formatPrice } from "@/lib/utils";
 import { withBasePath } from "@/lib/asset-path";
 import { getPreferredSizes } from "@/lib/preferred-size";
 import { buildOrderInquiryMessage, buildWhatsAppLink } from "@/lib/whatsapp";
+import { markContactedViaWhatsApp } from "@/lib/whatsapp-contacted";
 import ColorSwatch from "@/components/ui/ColorSwatch";
 import RatingStars from "@/components/ui/RatingStars";
+import WishlistButton from "@/components/product/WishlistButton";
 import ProductOverlayCard from "@/components/products/ProductOverlayCard";
 import { useAuth } from "@/lib/auth-context";
 import { useShop } from "@/lib/shop-context";
@@ -114,8 +116,8 @@ export default function ApiProductDetail() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const slug = searchParams.get("slug");
-  const { isLoggedIn, hasBackendSession } = useAuth();
-  const { addToCart } = useShop();
+  const { isLoggedIn, hasBackendSession, user } = useAuth();
+  const { cart, addToCart } = useShop();
   const { showToast } = useToast();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
@@ -271,24 +273,38 @@ export default function ApiProductDetail() {
 
   const selectedSize = variant?.sizes.find((s) => s.size_code === selectedSizeCode);
   const inStock = (selectedSize?.stock_quantity ?? 0) > 0;
+  const alreadyInCart = cart.some(
+    (line) => line.variant_id === variant?.id && line.size_code === selectedSizeCode,
+  );
   const whatsappLink = buildWhatsAppLink(
     buildOrderInquiryMessage({
       productName: product.name,
       color: variant?.color ?? "—",
       size: selectedSize?.display_text ?? "—",
       price: formatPrice(discountPrice ?? price),
+      customerName: user?.name,
+      customerEmail: user?.email,
     }),
   );
 
   async function addCurrentToCart(tokenOverride?: string) {
-    if (!selectedSize) return;
+    if (!selectedSize) return undefined;
     setAddToCartError(null);
     setAddingToCart(true);
     try {
-      await addToCart(selectedSize.variant_size_stock_id, 1, tokenOverride);
+      const cartItemId = await addToCart(selectedSize.variant_size_stock_id, 1, tokenOverride);
       showToast("Added to cart");
+      return cartItemId;
     } catch (err) {
-      setAddToCartError(err instanceof ApiError ? err.message : "Couldn't add to cart. Please try again.");
+      if (err instanceof ApiError && err.status === 401) {
+        // shop-context's addToCart already clears the stale session
+        // (logOut) on a 401 — just prompt a fresh login here. Logging
+        // back in re-triggers this same add.
+        setLoginModalOpen(true);
+      } else {
+        setAddToCartError(err instanceof ApiError ? err.message : "Couldn't add to cart. Please try again.");
+      }
+      return undefined;
     } finally {
       setAddingToCart(false);
     }
@@ -322,6 +338,11 @@ export default function ApiProductDetail() {
                   <HeartIcon filled className="h-3 w-3" />
                 </span>
               )}
+              <WishlistButton
+                productId={String(product.id)}
+                size="md"
+                className="absolute top-3 right-3 z-10"
+              />
               {allImages.length > 0 ? (
               <div
                 ref={galleryRef}
@@ -509,6 +530,16 @@ export default function ApiProductDetail() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-disabled={!inStock}
+                onClick={() => {
+                  // Only when already logged in — WhatsApp ordering itself
+                  // stays frictionless and never gets blocked by a login
+                  // prompt; the cart add is just a bonus when possible.
+                  if (hasBackendSession) {
+                    addCurrentToCart().then((cartItemId) => {
+                      if (cartItemId) markContactedViaWhatsApp(cartItemId);
+                    });
+                  }
+                }}
                 className={cn(
                   "flex flex-1 items-center justify-center gap-2 rounded-full bg-accent py-4 text-center text-sm font-semibold tracking-widest text-white uppercase transition hover:bg-accent-dark",
                   !inStock && "pointer-events-none cursor-not-allowed opacity-40",
@@ -524,18 +555,24 @@ export default function ApiProductDetail() {
               <button
                 type="button"
                 onClick={handleAddToCartClick}
-                disabled={!inStock || !selectedSize || addingToCart}
+                disabled={!inStock || !selectedSize || addingToCart || alreadyInCart}
                 className={cn(
                   "flex flex-1 items-center justify-center gap-2 rounded-full border border-accent py-4 text-center text-sm font-semibold tracking-widest text-accent uppercase transition hover:bg-accent-soft",
-                  (!inStock || addingToCart) && "cursor-not-allowed opacity-40",
+                  (!inStock || addingToCart || alreadyInCart) && "cursor-not-allowed opacity-40",
                 )}
               >
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
-                  <path d="M4 5h2l1.5 11.5A2 2 0 009.5 18h8a2 2 0 002-1.7L21 8H6" strokeLinecap="round" strokeLinejoin="round" />
-                  <circle cx="9.5" cy="21" r="1.3" fill="currentColor" stroke="none" />
-                  <circle cx="17" cy="21" r="1.3" fill="currentColor" stroke="none" />
-                </svg>
-                {addingToCart ? "Adding..." : "Add to Cart"}
+                {alreadyInCart ? (
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                    <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                ) : (
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+                    <path d="M4 5h2l1.5 11.5A2 2 0 009.5 18h8a2 2 0 002-1.7L21 8H6" strokeLinecap="round" strokeLinejoin="round" />
+                    <circle cx="9.5" cy="21" r="1.3" fill="currentColor" stroke="none" />
+                    <circle cx="17" cy="21" r="1.3" fill="currentColor" stroke="none" />
+                  </svg>
+                )}
+                {addingToCart ? "Adding..." : alreadyInCart ? "Already in Cart" : "Add to Cart"}
               </button>
             </div>
             {addToCartError && (

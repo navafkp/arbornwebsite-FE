@@ -2,14 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import WishlistButton from "@/components/product/WishlistButton";
-import { getExplore, getProducts, type ApiProduct, type ExploreItem } from "@/lib/api-client";
+import { getExplore, getProducts, type ApiProduct, type ApiWishlistItem, type ExploreItem } from "@/lib/api-client";
 import { useShop } from "@/lib/shop-context";
 import { formatPrice } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import CollectionCircleRail from "@/components/common/CollectionCircleRail";
 import ArbornStories from "@/components/common/ArbornStories";
+import ColorSwatch from "@/components/ui/ColorSwatch";
 
 type Inspiration = ExploreItem & { kind: "category" | "tag" };
 
@@ -101,46 +102,54 @@ function InspirationRail({ items, loading, error, retry }: { items: Inspiration[
   );
 }
 
-function SavedCard({ product }: { product: ApiProduct }) {
+function SavedCard({ product }: { product: ApiWishlistItem }) {
   const price = Number(product.base_discount_price ?? product.base_price);
   const original = product.base_discount_price ? Number(product.base_price) : null;
+  const colorCount = product.variants.length;
+  const sizeCount = new Set(product.variants.flatMap((v) => v.sizes.map((s) => s.size_code))).size;
+
   return (
     <article className="relative overflow-hidden rounded-[18px] border border-[#eedddc] bg-white/85 shadow-[0_3px_14px_rgba(83,45,52,0.07)]">
-      <Link href={`/products/detail?slug=${encodeURIComponent(product.slug)}`} className="grid grid-cols-[112px_minmax(0,1fr)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:grid-cols-[150px_minmax(0,1fr)]">
+      <Link href={`/products/detail?slug=${encodeURIComponent(product.slug)}`} className="grid grid-cols-[42%_minmax(0,1fr)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
         <div className="relative aspect-[3/4] bg-[#f3e5e2]">
-          {product.image_url ? <Image src={product.image_url} alt={product.name} fill sizes="(max-width: 640px) 112px, 150px" className="object-cover" /> : <span className="flex h-full items-center justify-center p-3 text-center text-xs text-[var(--muted)]">Image unavailable</span>}
+          {product.image_url ? <Image src={product.image_url} alt={product.name} fill sizes="(max-width: 640px) 42vw, 220px" className="object-cover" /> : <span className="flex h-full items-center justify-center p-3 text-center text-xs text-[var(--muted)]">Image unavailable</span>}
         </div>
-        <div className="flex min-w-0 flex-col justify-center px-4 py-5 pr-12">
+        <div className="flex min-w-0 flex-col justify-center px-4 py-5 pr-14">
           {product.tag?.name && <span className="mb-2 text-[10px] font-semibold tracking-[0.12em] text-accent uppercase">{product.tag.name}</span>}
           <h2 className="line-clamp-2 font-serif text-xl leading-5 sm:text-2xl sm:leading-6">{product.name}</h2>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-sm font-semibold">{formatPrice(price)}</span>
+            <span className="text-lg font-bold">{formatPrice(price)}</span>
             {original !== null && <span className="text-xs text-[var(--muted)] line-through">{formatPrice(original)}</span>}
           </div>
-          <span className="mt-3 text-xs text-[var(--muted)]">View colours and sizes</span>
+          {colorCount > 0 && (
+            <>
+              <p className="mt-2 text-xs text-[var(--muted)]">
+                {colorCount} {colorCount === 1 ? "Colour" : "Colours"} • {sizeCount} {sizeCount === 1 ? "Size" : "Sizes"}
+              </p>
+              <div className="mt-2 flex gap-1.5">
+                {product.variants.map((variant) => (
+                  <ColorSwatch key={variant.id} hex={variant.color_code} name={variant.color} />
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </Link>
-      <WishlistButton productId={String(product.id)} className="absolute right-3 top-3 h-11 w-11 border border-[#f0dfe0] bg-white text-accent shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" size="md" />
+      <WishlistButton productId={String(product.id)} className="absolute right-3 top-3 h-11 w-11 border border-[#f0dfe0] bg-[#fdeef1] text-accent shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent" size="md" />
     </article>
   );
 }
 
 export default function WishlistPage() {
   const { hydrated: authHydrated, hasBackendSession } = useAuth();
-  const { wishlist, hydrated } = useShop();
+  const { wishlist, wishlistLoading, wishlistError, refreshWishlist } = useShop();
+  // Decorative filler images only (EditorialCollage) — unrelated to the
+  // actual wishlist, which now comes straight from the backend above.
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [inspiration, setInspiration] = useState<Inspiration[]>([]);
-  const [productsLoading, setProductsLoading] = useState(true);
   const [inspirationLoading, setInspirationLoading] = useState(true);
-  const [productsError, setProductsError] = useState(false);
   const [inspirationError, setInspirationError] = useState(false);
   const stateHeadingRef = useRef<HTMLHeadingElement>(null);
-
-  const loadProducts = useCallback(() => {
-    setProductsLoading(true);
-    setProductsError(false);
-    getProducts({}).then((data) => setProducts(data.items)).catch(() => setProductsError(true)).finally(() => setProductsLoading(false));
-  }, []);
 
   const loadInspiration = useCallback(() => {
     setInspirationLoading(true);
@@ -156,8 +165,6 @@ export default function WishlistPage() {
     Promise.allSettled([getProducts({}), getExplore()]).then(([productResult, exploreResult]) => {
       if (!active) return;
       if (productResult.status === "fulfilled") setProducts(productResult.value.items);
-      else setProductsError(true);
-      setProductsLoading(false);
 
       if (exploreResult.status === "fulfilled") {
         const { categories, tags } = exploreResult.value;
@@ -171,15 +178,14 @@ export default function WishlistPage() {
     return () => { active = false; };
   }, []);
 
-  const items = useMemo(() => products.filter((product) => wishlist.includes(String(product.id))), [products, wishlist]);
-  const previousItemCount = useRef(items.length);
+  const previousItemCount = useRef(wishlist.length);
 
   useEffect(() => {
-    if (items.length < previousItemCount.current) stateHeadingRef.current?.focus();
-    previousItemCount.current = items.length;
-  }, [items.length]);
+    if (wishlist.length < previousItemCount.current) stateHeadingRef.current?.focus();
+    previousItemCount.current = wishlist.length;
+  }, [wishlist.length]);
 
-  if (!authHydrated || (hasBackendSession && (!hydrated || productsLoading))) return <WishlistSkeleton />;
+  if (!authHydrated || (hasBackendSession && wishlistLoading && wishlist.length === 0)) return <WishlistSkeleton />;
 
   if (!hasBackendSession) {
     return (
@@ -216,24 +222,33 @@ export default function WishlistPage() {
     );
   }
 
-  if (productsError) {
+  if (wishlistError) {
     return (
       <section className="mx-auto flex w-full max-w-xl flex-col items-center px-4 py-20 text-center sm:px-6" aria-labelledby="wishlist-error-heading">
         <HeartIcon className="h-12 w-12 text-[var(--accent-soft)]" filled />
         <h1 id="wishlist-error-heading" className="mt-5 font-serif text-3xl">We couldn’t open your wishlist</h1>
         <p className="mt-2 max-w-sm text-sm leading-6 text-[var(--muted)]">Your saved items are still safe. Check your connection and try loading them again.</p>
-        <button type="button" onClick={loadProducts} className="mt-6 min-h-11 rounded-full bg-accent px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-accent-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Try Again</button>
+        <button type="button" onClick={() => refreshWishlist()} className="mt-6 min-h-11 rounded-full bg-accent px-8 py-3 text-sm font-semibold text-white transition-colors hover:bg-accent-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Try Again</button>
       </section>
     );
   }
 
-  if (items.length > 0) {
+  if (wishlist.length > 0) {
     return (
-      <section className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12" aria-labelledby="wishlist-heading">
-        <h1 ref={stateHeadingRef} tabIndex={-1} id="wishlist-heading" className="font-serif text-4xl outline-none sm:text-5xl">Your Wishlist</h1>
-        <p className="mt-1 text-sm text-[var(--muted)]" role="status" aria-live="polite" aria-atomic="true">{items.length} {items.length === 1 ? "item" : "items"} saved for later</p>
-        <div className="mt-7 grid gap-4 sm:mt-9 sm:grid-cols-2">{items.map((product) => <SavedCard key={product.id} product={product} />)}</div>
-      </section>
+      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+        <section aria-labelledby="wishlist-heading">
+          <h1 ref={stateHeadingRef} tabIndex={-1} id="wishlist-heading" className="font-serif text-4xl outline-none sm:text-5xl">Your Wishlist</h1>
+          <p className="mt-1 flex items-center gap-1.5 text-sm text-[var(--muted)]" role="status" aria-live="polite" aria-atomic="true">
+            <HeartIcon filled className="h-3.5 w-3.5 text-accent" />
+            {wishlist.length} {wishlist.length === 1 ? "item" : "items"} saved for later
+          </p>
+          <div className="mt-7 flex flex-col gap-4">{wishlist.map((product) => <SavedCard key={product.id} product={product} />)}</div>
+        </section>
+        <InspirationRail items={inspiration} loading={inspirationLoading} error={inspirationError} retry={loadInspiration} />
+        <div className="mt-5 border-t border-[#eadbd7] pt-3 sm:mt-6 sm:pt-4">
+          <ArbornStories />
+        </div>
+      </div>
     );
   }
 
