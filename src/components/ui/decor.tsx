@@ -140,6 +140,32 @@ export function ShoppingBagIllustration({ className }: { className?: string }) {
   );
 }
 
+export function OpenBoxHeartIllustration({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 200 180" fill="none">
+      <ellipse cx="100" cy="158" rx="55" ry="8" fill="#f2a9bd" opacity="0.25" />
+      <path
+        d="M45,110 L155,110 L145,165 Q145,170 140,170 L60,170 Q55,170 55,165 Z"
+        fill="#fbe4e6"
+        stroke="#e8c9c0"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <path d="M45,110 L100,122 L155,110" stroke="#e8c9c0" strokeWidth="1.5" fill="none" strokeLinejoin="round" />
+      <path d="M100,122 L100,170" stroke="#e8c9c0" strokeWidth="1.2" opacity="0.5" />
+      <path d="M45,110 L20,78 L58,90 Z" fill="#f7d0d6" stroke="#e8c9c0" strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M155,110 L180,78 L142,90 Z" fill="#f7d0d6" stroke="#e8c9c0" strokeWidth="1.5" strokeLinejoin="round" />
+      <path
+        d="M100,95c-14-16-38-8-38,8c0,20,38,40,38,40s38-20,38-40c0-16-24-24-38-8z"
+        fill="#bd6e80"
+      />
+      <path d="M150,55l2.5,7.5L160,65l-7.5,2.5L150,75l-2.5-7.5L140,65l7.5-2.5z" fill="#bd6e80" opacity="0.7" />
+      <circle cx="35" cy="55" r="3" fill="#f2a9bd" />
+      <circle cx="165" cy="115" r="2.5" fill="#f2a9bd" />
+    </svg>
+  );
+}
+
 export function BunnyIllustration({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 100 100" fill="none">

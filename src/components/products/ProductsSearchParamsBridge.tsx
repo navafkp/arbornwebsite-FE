@@ -11,6 +11,7 @@ export default function ProductsSearchParamsBridge() {
   const searchParams = useSearchParams();
   const category = searchParams.get("category") ?? undefined;
   const tag = searchParams.get("tag") ?? undefined;
+  const search = searchParams.get("search") ?? undefined;
   const sizeParams = searchParams.getAll("size");
   // /select-size sends a numeric size_code (e.g. ?size=1); ignore letters.
   const sizeCodes = sizeParams
@@ -19,6 +20,6 @@ export default function ProductsSearchParamsBridge() {
     .filter((n) => !isNaN(n));
 
   return (
-    <ApiProductGrid category={category} tag={tag} sizes={sizeCodes} />
+    <ApiProductGrid category={category} tag={tag} search={search} sizes={sizeCodes} />
   );
 }

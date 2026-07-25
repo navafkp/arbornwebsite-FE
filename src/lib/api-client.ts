@@ -118,6 +118,11 @@ export async function updateMyProfile(
   return unwrapData(json);
 }
 
+export async function getSearchSuggestions() {
+  const res = await request<{ data: string[] }>("/search-suggestions/");
+  return res.data;
+}
+
 export interface BackendSize {
   size_code: number;
   display_text: string;
@@ -176,7 +181,17 @@ export interface ApiProductPage {
 }
 
 export async function getProducts(
-  filters: { category?: string; tag?: string; sizes?: number[]; page?: number; page_size?: number } = {},
+  filters: {
+    category?: string;
+    tag?: string;
+    sizes?: number[];
+    search?: string;
+    sort?: "low-high" | "high-low";
+    price_min?: number;
+    price_max?: number;
+    page?: number;
+    page_size?: number;
+  } = {},
 ): Promise<ApiProductPage> {
   const query = new URLSearchParams();
   if (filters.category) query.set("category", filters.category);
@@ -184,6 +199,10 @@ export async function getProducts(
   if (filters.sizes && filters.sizes.length > 0) {
     query.set("size", filters.sizes.join(","));
   }
+  if (filters.search) query.set("search", filters.search);
+  if (filters.sort) query.set("sort", filters.sort);
+  if (filters.price_min !== undefined) query.set("price_min", String(filters.price_min));
+  if (filters.price_max !== undefined) query.set("price_max", String(filters.price_max));
   if (filters.page) query.set("page", String(filters.page));
   if (filters.page_size) query.set("page_size", String(filters.page_size));
   const qs = query.toString();

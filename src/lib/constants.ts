@@ -1,8 +1,7 @@
 export const PRICE_PRESETS = [
-  { key: "under-700", label: "Under ₹700", min: 0, max: 700 },
-  { key: "700-1000", label: "₹700 – ₹1,000", min: 700, max: 1000 },
-  { key: "1000-1500", label: "₹1,000 – ₹1,500", min: 1000, max: 1500 },
-  { key: "1500-plus", label: "₹1,500 & Above", min: 1500, max: Infinity },
+  { key: "under-500", label: "Under ₹500", min: 0, max: 500 },
+  { key: "501-699", label: "₹501 – ₹699", min: 501, max: 699 },
+  { key: "700-plus", label: "₹700 & Above", min: 700, max: Infinity },
 ] as const;
 
 export const SORT_OPTIONS = [

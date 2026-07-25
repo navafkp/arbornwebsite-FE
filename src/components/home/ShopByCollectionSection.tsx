@@ -20,8 +20,6 @@ export default function ShopByCollectionSection() {
       .catch(() => setCards([]));
   }, []);
 
-  if (cards.length === 0) return null;
-
   return (
     <div className="mt-[7.6px]" style={{ marginLeft: "-2.5%", marginRight: "-2.5%" }}>
       <div className="flex items-center justify-between">
@@ -29,15 +27,23 @@ export default function ShopByCollectionSection() {
           Shop by Collection
           <HeartIcon filled className="h-4 w-4 text-accent" />
         </h2>
-        <Link href="/categories" className="flex items-center gap-1 text-xs font-medium text-accent">
-          View all
-          <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </Link>
+        {cards.length > 6 && (
+          <Link href="/categories" className="flex items-center gap-1 text-xs font-medium text-accent">
+            View all
+            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
+        )}
       </div>
 
-      <div className="mt-3.5"><CollectionCircleRail items={cards} /></div>
+      {cards.length > 0 ? (
+        <div className="mt-3.5"><CollectionCircleRail items={cards} /></div>
+      ) : (
+        <p className="mt-4 rounded-2xl border border-dashed border-black/15 px-4 py-3.5 text-sm text-[var(--muted)]">
+          No collections found here yet.
+        </p>
+      )}
     </div>
   );
 }

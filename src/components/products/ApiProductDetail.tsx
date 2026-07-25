@@ -311,6 +311,14 @@ export default function ApiProductDetail() {
   const selectedSizeLabel =
     selectedSize?.display_text ??
     product.variants.flatMap((v) => v.sizes).find((s) => s.size_code === selectedSizeCode)?.display_text;
+  // Only call it "out of stock" when we actually have variant data showing
+  // every size at zero (e.g. a fully sold-out free-size stock record). An
+  // *empty* variants list means the backend dropped everything because the
+  // size filter we sent didn't match anything on this product — that tells
+  // us nothing about real stock elsewhere, so it keeps the "change size"
+  // messaging instead of wrongly claiming it's out of stock.
+  const genuinelyOutOfStock =
+    product.variants.length > 0 && !product.variants.some((v) => v.sizes.some((s) => s.stock_quantity > 0));
   // Free-size chips (M, L, XL, ...) all share one variant_size_stock_id —
   // they're really the same stock item, so any cart line for this variant
   // already covers whichever free-size chip is currently selected.
@@ -404,27 +412,47 @@ export default function ApiProductDetail() {
                         <path d="M12 4a2.5 2.5 0 012.5 2.5M12 4a2.5 2.5 0 00-2.5 2.5M12 8l9 6.5a1.2 1.2 0 01-.7 2.2H3.7a1.2 1.2 0 01-.7-2.2L12 8z" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </span>
-                    <h3 className="mt-3 font-serif text-lg">
-                      This model is not available in size {selectedSizeLabel ?? "you selected"}
-                    </h3>
-                    <p className="mt-1 text-sm text-[var(--muted)]">
-                      Good news! It&rsquo;s available in other sizes
-                      <HeartIcon filled className="inline h-3.5 w-3.5 text-accent" />
-                    </p>
-                    <div className="mt-5 flex flex-col gap-2.5">
-                      <Link
-                        href="/select-size"
-                        className="flex w-full items-center justify-center rounded-full bg-accent py-3 text-sm font-semibold tracking-wide text-white transition hover:bg-accent-dark"
-                      >
-                        Change Size
-                      </Link>
-                      <Link
-                        href="/products"
-                        className="flex w-full items-center justify-center rounded-full border border-accent/30 py-3 text-sm font-semibold tracking-wide text-accent transition hover:border-accent"
-                      >
-                        Explore More
-                      </Link>
-                    </div>
+                    {!genuinelyOutOfStock ? (
+                      <>
+                        <h3 className="mt-3 font-serif text-lg">
+                          This model is not available in size {selectedSizeLabel ?? "you selected"}
+                        </h3>
+                        <p className="mt-1 text-sm text-[var(--muted)]">
+                          Good news! It&rsquo;s available in other sizes
+                          <HeartIcon filled className="inline h-3.5 w-3.5 text-accent" />
+                        </p>
+                        <div className="mt-5 flex flex-col gap-2.5">
+                          <Link
+                            href="/select-size"
+                            className="flex w-full items-center justify-center rounded-full bg-accent py-3 text-sm font-semibold tracking-wide text-white transition hover:bg-accent-dark"
+                          >
+                            Change Size
+                          </Link>
+                          <Link
+                            href="/products"
+                            className="flex w-full items-center justify-center rounded-full border border-accent/30 py-3 text-sm font-semibold tracking-wide text-accent transition hover:border-accent"
+                          >
+                            Explore More
+                          </Link>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <h3 className="mt-3 font-serif text-lg">This model is currently out of stock</h3>
+                        <p className="mt-1 text-sm text-[var(--muted)]">
+                          Check back soon, or explore our other collections
+                          <HeartIcon filled className="inline h-3.5 w-3.5 text-accent" />
+                        </p>
+                        <div className="mt-5 flex flex-col gap-2.5">
+                          <Link
+                            href="/products"
+                            className="flex w-full items-center justify-center rounded-full bg-accent py-3 text-sm font-semibold tracking-wide text-white transition hover:bg-accent-dark"
+                          >
+                            Explore More
+                          </Link>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               ) : allImages.length > 0 ? (

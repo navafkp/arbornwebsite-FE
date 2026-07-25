@@ -88,7 +88,7 @@ export default function BustSizeBanner({ large = false }: { large?: boolean }) {
           </p>
           <div className="mt-[5.4px]">
             {preferred.length === 1 ? (
-              <span className={`flex shrink-0 items-center justify-center rounded-full bg-white font-bold text-accent ${large ? "h-6 w-6 text-[12px]" : "h-5 w-5 text-[10px]"}`}>
+              <span className={`inline-flex shrink-0 items-center justify-center rounded-full bg-white font-bold text-accent ${large ? "h-6 min-w-6 px-1.5 text-[12px]" : "h-5 min-w-5 px-1 text-[10px]"}`}>
                 {preferred[0].display_text}
               </span>
             ) : (

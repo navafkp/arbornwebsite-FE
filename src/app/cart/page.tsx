@@ -7,18 +7,18 @@ import { useAuth } from "@/lib/auth-context";
 import { formatPrice } from "@/lib/utils";
 import { buildWhatsAppLink, buildCartOrderMessage } from "@/lib/whatsapp";
 import { markContactedViaWhatsApp, wasContactedViaWhatsApp } from "@/lib/whatsapp-contacted";
-import CartLineItem from "@/components/cart/CartLineItem";
+import { getPreferredSizes } from "@/lib/preferred-size";
+import CartGroupSection from "@/components/cart/CartGroupSection";
 import LoginModal from "@/components/auth/LoginModal";
 import GuestEmptyCartView from "@/components/cart/GuestEmptyCartView";
 import CartRecommendations from "@/components/cart/CartRecommendations";
 import FeatureStrip from "@/components/home/FeatureStrip";
 
 export default function CartPage() {
-  const { cart, cartSubtotal, cartLoading, refreshCart, removeManyFromCart } = useShop();
+  const { cart, cartSubtotal, cartLoading, refreshCart, removeManyFromCart, toggleWishlist, isWishlisted } = useShop();
   const { hasBackendSession, hydrated, user } = useAuth();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [deletingSelected, setDeletingSelected] = useState(false);
   // Bumped after marking cart items as WhatsApp-contacted to force a
   // re-render — wasContactedViaWhatsApp reads localStorage directly and
   // isn't otherwise part of any state this component re-renders on.
@@ -40,17 +40,23 @@ export default function CartPage() {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   }
 
-  async function handleDeleteSelected() {
-    setDeletingSelected(true);
-    try {
-      await removeManyFromCart(selectedIds);
-      setSelectedIds([]);
-    } catch {
-      // A session-expiry (401) already triggers the login prompt below via
-      // shop-context's logOut() — nothing more to do here.
-    } finally {
-      setDeletingSelected(false);
-    }
+  function selectAllInGroup(ids: number[], select: boolean) {
+    setSelectedIds((prev) => (select ? Array.from(new Set([...prev, ...ids])) : prev.filter((id) => !ids.includes(id))));
+  }
+
+  async function removeSelectedGroup(ids: number[]) {
+    await removeManyFromCart(ids);
+  }
+
+  // Adds each selected line's product to the wishlist (skipping ones
+  // already there, since toggleWishlist would otherwise remove them) before
+  // dropping the lines from the cart.
+  async function moveSelectedGroupToWishlist(ids: number[]) {
+    const lines = cart.filter((line) => ids.includes(line.id));
+    await Promise.all(
+      lines.filter((line) => !isWishlisted(line.product.id)).map((line) => toggleWishlist(line.product.id)),
+    );
+    await removeManyFromCart(ids);
   }
 
   useEffect(() => {
@@ -128,8 +134,28 @@ export default function CartPage() {
     }),
   );
 
-  const allSelected = selectedIds.length === cart.length;
   const hasContactedItem = cart.some((line) => wasContactedViaWhatsApp(line.id));
+
+  // A cart line was added in whatever size was current at the time — the
+  // shopper may have since changed their saved size elsewhere (product page,
+  // /select-size). Free-size lines fit every size they list, so they always
+  // match; everything else is compared against the current preference.
+  const preferredSizeCodes = getPreferredSizes();
+  function matchesPreferredSize(line: (typeof cart)[number]) {
+    if (preferredSizeCodes.length === 0) return true;
+    if (line.size_display_text.toLowerCase().includes("free size")) return true;
+    return preferredSizeCodes.includes(line.size_code);
+  }
+
+  const outOfStockItems = cart.filter((line) => line.is_out_of_stock);
+  const inStockItems = cart.filter((line) => !line.is_out_of_stock);
+  const mismatchedIds = new Set(
+    inStockItems.filter((line) => line.is_stock_insufficient || !matchesPreferredSize(line)).map((line) => line.id),
+  );
+  // cartSubtotal (from the backend's total_amount) covers every line —
+  // out-of-stock items can't actually be bought, so the summary shouldn't
+  // charge for them.
+  const purchasableSubtotal = inStockItems.reduce((sum, line) => sum + Number(line.subtotal), 0);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
@@ -145,49 +171,36 @@ export default function CartPage() {
             </svg>
           </span>
           <p className="text-xs text-[#7a4650]">
-            <span className="block font-medium">Already sorted this over WhatsApp?</span>
-            Remove it anytime to keep your cart tidy.
+            <span className="block font-medium">Your order is already on WhatsApp ❤️</span>
+            Remove those items from your cart.
           </p>
         </div>
       )}
 
       <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <div className="flex items-center justify-between pb-3">
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-semibold text-accent">{cart.length} {cart.length === 1 ? "Item" : "Items"}</span>
-              <label className="flex items-center gap-2 text-xs text-[var(--muted)]">
-                <input
-                  type="checkbox"
-                  checked={allSelected}
-                  onChange={() => setSelectedIds(allSelected ? [] : cart.map((line) => line.id))}
-                  className="h-4 w-4 accent-accent"
-                />
-                Select all
-              </label>
-            </div>
-            {selectedIds.length > 0 && (
-              <button
-                type="button"
-                onClick={handleDeleteSelected}
-                disabled={deletingSelected}
-                className="text-xs font-medium text-red-600 underline underline-offset-2 disabled:opacity-40"
-              >
-                {deletingSelected ? "Removing..." : `Remove selected (${selectedIds.length})`}
-              </button>
-            )}
-          </div>
+        <div className="flex flex-col gap-8 lg:col-span-2">
+          <span className="text-sm font-semibold text-accent">{cart.length} {cart.length === 1 ? "Item" : "Items"}</span>
 
-          <div className="flex flex-col gap-3">
-            {cart.map((line) => (
-              <CartLineItem
-                key={line.id}
-                line={line}
-                selected={selectedIds.includes(line.id)}
-                onToggleSelect={() => toggleSelect(line.id)}
-              />
-            ))}
-          </div>
+          <CartGroupSection
+            title="Available"
+            items={inStockItems}
+            mismatchedIds={mismatchedIds}
+            selectedIds={selectedIds}
+            onToggleSelect={toggleSelect}
+            onSelectAllGroup={selectAllInGroup}
+            onRemoveSelected={removeSelectedGroup}
+            onMoveToWishlistSelected={moveSelectedGroupToWishlist}
+          />
+          <CartGroupSection
+            title="Out of Stock"
+            tone="danger"
+            items={outOfStockItems}
+            selectedIds={selectedIds}
+            onToggleSelect={toggleSelect}
+            onSelectAllGroup={selectAllInGroup}
+            onRemoveSelected={removeSelectedGroup}
+            onMoveToWishlistSelected={moveSelectedGroupToWishlist}
+          />
         </div>
 
         <div className="h-fit rounded-2xl bg-accent-soft/60 p-6">
@@ -195,7 +208,7 @@ export default function CartPage() {
           <div className="mt-4 flex flex-col gap-2.5 text-sm">
             <div className="flex justify-between text-[var(--muted)]">
               <span>Subtotal</span>
-              <span className="text-black">{formatPrice(cartSubtotal)}</span>
+              <span className="text-black">{formatPrice(purchasableSubtotal)}</span>
             </div>
             <div className="flex justify-between text-[var(--muted)]">
               <span>Shipping</span>
@@ -203,7 +216,7 @@ export default function CartPage() {
             </div>
             <div className="mt-2 flex items-baseline justify-between border-t border-black/10 pt-3">
               <span className="text-sm font-medium">Total</span>
-              <span className="text-lg font-bold text-accent">{formatPrice(cartSubtotal)}</span>
+              <span className="text-lg font-bold text-accent">{formatPrice(purchasableSubtotal)}</span>
             </div>
           </div>
 
@@ -219,13 +232,7 @@ export default function CartPage() {
             </svg>
             Order via WhatsApp
           </a>
-          <Link
-            href="/products"
-            className="mt-3 flex items-center justify-center gap-1 text-xs font-medium text-accent underline underline-offset-2"
-          >
-            Continue Shopping
-            <span aria-hidden="true">→</span>
-          </Link>
+          <p className="mt-3 text-center text-[11px] text-[var(--muted)]">Out of stock items excluded from cart</p>
         </div>
       </div>
 

@@ -10,10 +10,12 @@ import { wasContactedViaWhatsApp } from "@/lib/whatsapp-contacted";
 
 export default function CartLineItem({
   line,
+  sizeMismatch,
   selected,
   onToggleSelect,
 }: {
   line: CartLine;
+  sizeMismatch?: boolean;
   selected: boolean;
   onToggleSelect: () => void;
 }) {
@@ -61,17 +63,33 @@ export default function CartLineItem({
         className="mt-1 h-4 w-4 shrink-0 accent-accent"
       />
       <Link href={href} className="relative h-24 w-20 shrink-0 overflow-hidden rounded-xl bg-[#f4f2ee]">
-        <Image src={line.image_url} alt={line.product.name} fill sizes="80px" className="object-cover" />
+        <Image
+          src={line.image_url}
+          alt={line.product.name}
+          fill
+          sizes="80px"
+          className={`object-cover ${line.is_out_of_stock ? "blur-[1.5px]" : ""}`}
+        />
+        {line.is_out_of_stock && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/35 p-2">
+            <span className="rounded-md bg-white/90 px-1.5 py-1 text-center text-[8px] leading-tight font-semibold tracking-wide text-red-600 uppercase">
+              Out of
+              <br />
+              Stock
+            </span>
+          </div>
+        )}
       </Link>
 
       <div className="flex flex-1 flex-col">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <Link href={href} className="text-sm font-medium">
+            <Link href={href} className={`text-sm font-medium ${line.is_out_of_stock ? "blur-[0.75px]" : ""}`}>
               {line.product.name}
             </Link>
-            <p className="mt-0.5 text-xs text-[var(--muted)]">
-              {line.color} · Size {sizeMain}
+            <p className={`mt-0.5 text-xs text-[var(--muted)] ${line.is_out_of_stock ? "blur-[0.75px]" : ""}`}>
+              {line.color} ·{" "}
+              <span className={sizeMismatch ? "font-bold text-amber-700" : undefined}>Size {sizeMain}</span>
             </p>
             {sizeNote && (
               <p className="mt-0.5 text-xs font-medium text-green-600">{sizeNote}</p>
@@ -95,38 +113,40 @@ export default function CartLineItem({
             onClick={handleRemove}
             disabled={pending}
             aria-label="Remove item"
-            className="p-1 text-black/40 transition hover:text-black disabled:opacity-40"
+            className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-accent-dark text-white transition disabled:opacity-40"
           >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+            <svg className="h-[9px] w-[9px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6">
               <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
             </svg>
           </button>
         </div>
 
-        <div className="mt-auto flex items-center justify-between pt-2">
-          <div className="flex items-center gap-3 rounded-full border border-black/10 px-2 py-1">
-            <button
-              type="button"
-              onClick={() => changeQuantity(line.quantity - 1)}
-              disabled={pending}
-              aria-label="Decrease quantity"
-              className="flex h-5 w-5 items-center justify-center text-sm disabled:opacity-40"
-            >
-              −
-            </button>
-            <span className="w-4 text-center text-xs">{line.quantity}</span>
-            <button
-              type="button"
-              onClick={() => changeQuantity(line.quantity + 1)}
-              disabled={pending}
-              aria-label="Increase quantity"
-              className="flex h-5 w-5 items-center justify-center text-sm disabled:opacity-40"
-            >
-              +
-            </button>
+        {!line.is_out_of_stock && (
+          <div className="mt-auto flex items-center justify-between pt-2">
+            <div className="flex items-center gap-3 rounded-full border border-black/10 px-2 py-1">
+              <button
+                type="button"
+                onClick={() => changeQuantity(line.quantity - 1)}
+                disabled={pending}
+                aria-label="Decrease quantity"
+                className="flex h-5 w-5 items-center justify-center text-sm disabled:opacity-40"
+              >
+                −
+              </button>
+              <span className="w-4 text-center text-xs">{line.quantity}</span>
+              <button
+                type="button"
+                onClick={() => changeQuantity(line.quantity + 1)}
+                disabled={pending}
+                aria-label="Increase quantity"
+                className="flex h-5 w-5 items-center justify-center text-sm disabled:opacity-40"
+              >
+                +
+              </button>
+            </div>
+            <span className="text-sm font-semibold text-accent">{formatPrice(Number(line.subtotal))}</span>
           </div>
-          <span className="text-sm font-semibold text-accent">{formatPrice(Number(line.subtotal))}</span>
-        </div>
+        )}
       </div>
     </div>
   );

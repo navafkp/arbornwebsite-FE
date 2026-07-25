@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { getSearchSuggestions } from "@/lib/api-client";
 
 interface SearchBarProps {
   defaultValue?: string;
@@ -9,9 +10,6 @@ interface SearchBarProps {
   onSubmitted?: () => void;
   className?: string;
 }
-
-// TEMP: hardcoded suggestions until the backend sends these from an API.
-const SUGGESTED_KEYWORDS = ["Pyjama", "Nighty", "Cozy", "Pinteresty", "Trending", "Arborn"];
 
 export default function SearchBar({
   defaultValue = "",
@@ -21,6 +19,13 @@ export default function SearchBar({
 }: SearchBarProps) {
   const router = useRouter();
   const [value, setValue] = useState(defaultValue);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  useEffect(() => {
+    getSearchSuggestions()
+      .then(setSuggestions)
+      .catch(() => setSuggestions([]));
+  }, []);
 
   function runSearch(query: string) {
     const params = new URLSearchParams();
@@ -64,18 +69,20 @@ export default function SearchBar({
         </div>
       </form>
 
-      <div className="absolute inset-x-0 top-full z-10 flex flex-wrap gap-2 bg-background px-1 pt-3 pb-2">
-        {SUGGESTED_KEYWORDS.map((keyword) => (
-          <button
-            key={keyword}
-            type="button"
-            onClick={() => handleKeywordClick(keyword)}
-            className="rounded-full border border-black/15 px-3 py-1.5 text-xs text-black/70 transition hover:border-accent hover:text-accent"
-          >
-            {keyword}
-          </button>
-        ))}
-      </div>
+      {suggestions.length > 0 && (
+        <div className="absolute inset-x-0 top-full z-10 flex flex-wrap gap-2 bg-background px-1 pt-3 pb-2">
+          {suggestions.map((keyword) => (
+            <button
+              key={keyword}
+              type="button"
+              onClick={() => handleKeywordClick(keyword)}
+              className="rounded-full border border-black/15 px-3 py-1.5 text-xs text-black/70 transition hover:border-accent hover:text-accent"
+            >
+              {keyword}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
