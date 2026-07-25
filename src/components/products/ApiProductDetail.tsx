@@ -78,10 +78,6 @@ function squigglePath() {
   return "M0 5 Q 12 0, 25 5 T 50 5 T 75 5 T 100 5";
 }
 
-function humanize(slug: string) {
-  return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
 // Temporary local fallback while product reviews are not available from the API.
 // These are intentionally only used for products with no backend reviews.
 const SAMPLE_REVIEWS: ApiReview[] = [
