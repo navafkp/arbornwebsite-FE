@@ -154,7 +154,7 @@ function SavedCard({ product }: { product: ApiWishlistItem }) {
             </>
           )}
           {outOfStock && (
-            <p className="mt-3 flex items-start gap-1.5 rounded-xl bg-accent-soft px-2.5 py-1.5 text-[10px] text-accent">
+            <p className="mt-3 flex items-start gap-1.5 rounded-xl bg-accent-soft px-2.5 py-1.5 text-[8px] text-accent">
               <svg className="mt-0.5 h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
                 <path d="M7 9a5 5 0 0110 0c0 6 2.5 6.5 2.5 8h-15c0-1.5 2.5-2 2.5-8Z" strokeLinejoin="round" />
                 <path d="M10 20h4" strokeLinecap="round" />
