@@ -382,12 +382,6 @@ export default function ApiProductDetail() {
         <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2">
           <div>
             <div className="relative">
-              {product.tags.length > 0 && (
-                <span className="absolute top-3 left-3 z-20 flex items-center gap-1 rounded-full bg-accent-soft px-3 py-1.5 text-xs font-medium text-[#b4425f] shadow-sm">
-                  {humanize(product.tags[0])}
-                  <HeartIcon filled className="h-3 w-3" />
-                </span>
-              )}
               {!selectedSizeUnavailable && (
                 <WishlistButton
                   productId={String(product.id)}
@@ -720,20 +714,6 @@ export default function ApiProductDetail() {
 
             {product.description && (
               <p className="text-sm whitespace-pre-line">{product.description}</p>
-            )}
-
-            {product.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {product.tags.map((tagSlug) => (
-                  <Link
-                    key={tagSlug}
-                    href={`/products?tag=${tagSlug}`}
-                    className="rounded-full border border-black/10 px-2.5 py-1 text-[11px] text-[var(--muted)]"
-                  >
-                    {humanize(tagSlug)}
-                  </Link>
-                ))}
-              </div>
             )}
           </div>
         </div>

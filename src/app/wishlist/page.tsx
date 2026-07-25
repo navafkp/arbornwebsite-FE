@@ -115,7 +115,6 @@ function SavedCard({ product }: { product: ApiWishlistItem }) {
           {product.image_url ? <Image src={product.image_url} alt={product.name} fill sizes="(max-width: 640px) 42vw, 220px" className="object-cover" /> : <span className="flex h-full items-center justify-center p-3 text-center text-xs text-[var(--muted)]">Image unavailable</span>}
         </div>
         <div className="flex min-w-0 flex-col justify-center px-4 py-5 pr-14">
-          {product.tag?.name && <span className="mb-2 text-[10px] font-semibold tracking-[0.12em] text-accent uppercase">{product.tag.name}</span>}
           <h2 className="line-clamp-2 font-serif text-xl leading-5 sm:text-2xl sm:leading-6">{product.name}</h2>
           <div className="mt-3 flex items-baseline gap-2">
             <span className="text-lg font-bold">{formatPrice(price)}</span>

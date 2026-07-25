@@ -21,9 +21,6 @@ function RecommendedCard({ product }: { product: ApiProduct }) {
         </div>
         <div className="px-2 pt-2 pb-2">
           <span className="block truncate text-xs font-medium">{product.name}</span>
-          {product.tag?.name && (
-            <span className="block truncate text-[10px] text-[var(--muted)]">{product.tag.name}</span>
-          )}
           <span className="mt-1 block text-xs font-semibold text-accent">
             {formatPrice(discountPrice ?? price)}
           </span>

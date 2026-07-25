@@ -50,18 +50,15 @@ function RelatedProductPreviews({ images, compact = false }: { images: string[];
 
 export default function ApiProductCard({
   product,
-  badgeLabel,
   showWishlist = true,
   compactPatternPreviews = false,
 }: {
   product: ApiProduct;
-  badgeLabel?: string;
   showWishlist?: boolean;
   compactPatternPreviews?: boolean;
 }) {
   const price = Number(product.base_price);
   const discountPrice = product.base_discount_price ? Number(product.base_discount_price) : null;
-  const label = badgeLabel ?? product.tag?.name;
 
   // Rendered straight from the listing response now — no extra per-card
   // detail fetch. colors and related_product_images are two independent
@@ -97,11 +94,6 @@ export default function ApiProductCard({
             <div className="flex h-full w-full items-center justify-center text-xs text-[var(--muted)]">
               No image available
             </div>
-          )}
-          {label && (
-            <span className="absolute top-1.5 left-1.5 hidden max-w-[calc(100%-3.75rem)] truncate rounded-full bg-white/92 px-1.5 py-0.5 text-[8px] font-medium tracking-wide text-black/75 shadow-sm sm:block">
-              {label}
-            </span>
           )}
           <RelatedProductPreviews images={relatedImages} compact={compactPatternPreviews} />
 

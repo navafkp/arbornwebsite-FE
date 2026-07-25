@@ -225,11 +225,7 @@ export default function ApiProductGrid({
         <>
           <div className="mt-5 grid grid-cols-2 gap-3 sm:mt-6 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5 lg:gap-4">
             {visibleProducts.map((product) => (
-              <ApiProductCard
-                key={product.id}
-                product={product}
-                badgeLabel={tag ? (activeTagName ?? humanize(tag)) : undefined}
-              />
+              <ApiProductCard key={product.id} product={product} />
             ))}
           </div>
 
