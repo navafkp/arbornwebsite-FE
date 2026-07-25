@@ -192,7 +192,7 @@ export default function ApiProductDetail() {
   // variant (in visible order), primary image first within each group.
   const allImages = useMemo(() => {
     if (!product) return [];
-    return visibleVariantIndices.flatMap((variantIndex) =>
+    const variantImages = visibleVariantIndices.flatMap((variantIndex) =>
       [...product.variants[variantIndex].images]
         .sort((a, b) => {
           if (a.is_primary !== b.is_primary) return a.is_primary ? -1 : 1;
@@ -200,6 +200,19 @@ export default function ApiProductDetail() {
         })
         .map((img) => ({ ...img, variantIndex })),
     );
+    // The product-level thumbnail always leads the gallery, ahead of every
+    // variant's own images — it's not tied to any one color.
+    if (!product.thumbnail_image) return variantImages;
+    return [
+      {
+        id: -1,
+        image_url: product.thumbnail_image,
+        display_order: -1,
+        is_primary: true,
+        variantIndex: visibleVariantIndices[0] ?? 0,
+      },
+      ...variantImages,
+    ];
   }, [product, visibleVariantIndices]);
 
   const activeVariantIndex =

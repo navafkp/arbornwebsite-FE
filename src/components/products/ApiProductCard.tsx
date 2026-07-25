@@ -66,6 +66,7 @@ export default function ApiProductCard({
   // related_product_images are sibling products' photos (for the stack).
   const colors = product.colors ?? [];
   const relatedImages = product.related_product_images ?? [];
+  const cardImage = product.thumbnail_image ?? product.image_url;
 
   const footerColours = Array.from(new Map(colors.map((c) => [c.toLowerCase(), c])).values());
   // Keep the price legible on narrow cards: mobile shows two swatches, while
@@ -82,9 +83,9 @@ export default function ApiProductCard({
         className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-inset"
       >
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#f8f1ef]">
-          {product.image_url ? (
+          {cardImage ? (
             <Image
-              src={product.image_url}
+              src={cardImage}
               alt={product.name}
               fill
               sizes="(max-width: 639px) 33vw, (max-width: 1023px) 25vw, 20vw"

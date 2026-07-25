@@ -10,13 +10,14 @@ import { HeartIcon } from "@/components/ui/decor";
 function RecommendedCard({ product }: { product: ApiProduct }) {
   const price = Number(product.base_price);
   const discountPrice = product.base_discount_price ? Number(product.base_discount_price) : null;
+  const cardImage = product.thumbnail_image ?? product.image_url;
 
   return (
     <article className="w-[42vw] shrink-0 snap-start overflow-hidden rounded-[8px] border border-[#f2dfe2] bg-[#fffefd] shadow-[0_2px_9px_rgba(85,43,55,0.07)] sm:w-[180px]">
       <Link href={`/products/detail?slug=${product.slug}`} className="block">
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#f8f1ef]">
-          {product.image_url && (
-            <Image src={product.image_url} alt={product.name} fill sizes="(max-width: 639px) 42vw, 180px" className="object-cover" />
+          {cardImage && (
+            <Image src={cardImage} alt={product.name} fill sizes="(max-width: 639px) 42vw, 180px" className="object-cover" />
           )}
         </div>
         <div className="px-2 pt-2 pb-2">

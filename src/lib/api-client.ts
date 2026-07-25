@@ -160,6 +160,7 @@ export interface ApiProduct {
   base_price: string;
   base_discount_price: string | null;
   image_url: string | null;
+  thumbnail_image?: string | null;
   tag: ApiProductTag | null;
   colors?: string[];
   related_product_images?: string[];
@@ -250,6 +251,7 @@ export interface ApiProductDetail {
   description: string;
   base_price: string;
   base_discount_price: string | null;
+  thumbnail_image?: string | null;
   category: ApiProductCategory;
   tags: string[];
   variants: ApiProductVariant[];
