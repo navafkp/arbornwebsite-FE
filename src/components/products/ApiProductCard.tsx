@@ -2,64 +2,22 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
 import WishlistButton from "@/components/product/WishlistButton";
-import { getProductDetail, type ApiProduct, type BackendSize } from "@/lib/api-client";
+import { type ApiProduct } from "@/lib/api-client";
 import { formatPrice } from "@/lib/utils";
 
-type VariantCue = {
-  id: number;
-  colour?: string;
-  imageUrl?: string;
-};
+// Small stacked-thumbnail preview of *other, related* products (siblings
+// under the same parent group) — not this product's own color variants.
+// That's why it's driven by related_product_images, separately from colors.
+function RelatedProductPreviews({ images, compact = false }: { images: string[]; compact?: boolean }) {
+  if (images.length === 0) return null;
 
-const variantCueCache = new Map<string, VariantCue[]>();
-const variantCueRequests = new Map<string, Promise<VariantCue[]>>();
-
-function isUsableColourCode(colourCode: string) {
-  return /^#(?:[\da-f]{3}|[\da-f]{4}|[\da-f]{6}|[\da-f]{8})$/i.test(colourCode.trim());
-}
-
-function loadVariantCues(slug: string) {
-  const cached = variantCueCache.get(slug);
-  if (cached) return Promise.resolve(cached);
-
-  const inFlight = variantCueRequests.get(slug);
-  if (inFlight) return inFlight;
-
-  const request = getProductDetail(slug)
-    .then(({ variants }) => {
-      const cues = variants
-        .map((variant) => {
-          const colour = variant.color_code.trim();
-          const primaryImage = variant.images.find((image) => image.is_primary)
-            ?? [...variant.images].sort((a, b) => a.display_order - b.display_order)[0];
-
-          return {
-            id: variant.id,
-            colour: isUsableColourCode(colour) ? colour : undefined,
-            imageUrl: primaryImage?.image_url || undefined,
-          };
-        })
-        .filter((cue) => cue.colour || cue.imageUrl);
-      variantCueCache.set(slug, cues);
-      return cues;
-    })
-    .catch(() => []);
-
-  variantCueRequests.set(slug, request);
-  return request;
-}
-
-function VariantPatternPreviews({ cues, compact = false }: { cues: VariantCue[]; compact?: boolean }) {
-  if (cues.length === 0) return null;
-
-  const visibleCues = cues.slice(0, 3);
-  const remainingCount = cues.length - visibleCues.length;
+  const visibleImages = images.slice(0, 3);
+  const remainingCount = images.length - visibleImages.length;
 
   return (
     <>
-      <span className="sr-only">Available in {cues.length} {cues.length === 1 ? "variant" : "variants"}</span>
+      <span className="sr-only">{images.length} related {images.length === 1 ? "style" : "styles"}</span>
 
       <div
         aria-hidden="true"
@@ -68,19 +26,19 @@ function VariantPatternPreviews({ cues, compact = false }: { cues: VariantCue[];
           : "right-1.5 bottom-1.5 w-7 sm:right-2 sm:bottom-2 sm:w-8"
         }`}
       >
-        {visibleCues.map((cue, index) => (
+        {visibleImages.map((imageUrl, index) => (
           <span
-            key={cue.id}
-            className={`relative block aspect-square w-full overflow-hidden shadow-[0_1px_3px_rgba(85,43,55,0.3)] ${compact ? "rounded-[6.8px]" : "rounded-lg"} ${index > 0 ? "-mt-[25%]" : ""}`}
-            style={{ backgroundColor: cue.colour, zIndex: index }}
+            key={index}
+            className={`relative block aspect-square w-full overflow-hidden bg-[#f4f2ee] shadow-[0_1px_3px_rgba(85,43,55,0.3)] ${compact ? "rounded-[6.8px]" : "rounded-lg"} ${index > 0 ? "-mt-[25%]" : ""}`}
+            style={{ zIndex: index }}
           >
-            {cue.imageUrl && <Image src={cue.imageUrl} alt="" fill sizes={compact ? "24px" : "28px"} className="object-cover" />}
+            <Image src={imageUrl} alt="" fill sizes={compact ? "24px" : "28px"} className="object-cover" />
           </span>
         ))}
         {remainingCount > 0 && (
           <span
             className={`relative -mt-[50%] flex aspect-square items-center justify-center bg-white font-semibold text-[#2a2022] shadow-[0_1px_3px_rgba(85,43,55,0.3)] ${compact ? "rounded-[6.8px] text-[6px] sm:text-[6.8px]" : "rounded-lg text-[7px] sm:text-[8px]"}`}
-            style={{ zIndex: visibleCues.length }}
+            style={{ zIndex: visibleImages.length }}
           >
             +{remainingCount}
           </span>
@@ -95,58 +53,24 @@ export default function ApiProductCard({
   badgeLabel,
   showWishlist = true,
   compactPatternPreviews = false,
-  sizeHints = [],
 }: {
   product: ApiProduct;
   badgeLabel?: string;
   showWishlist?: boolean;
   compactPatternPreviews?: boolean;
-  sizeHints?: BackendSize[];
 }) {
   const price = Number(product.base_price);
   const discountPrice = product.base_discount_price ? Number(product.base_discount_price) : null;
   const label = badgeLabel ?? product.tag?.name;
-  const cardRef = useRef<HTMLElement>(null);
-  const [isNearViewport, setIsNearViewport] = useState(false);
-  const [variantCues, setVariantCues] = useState<VariantCue[]>(() => variantCueCache.get(product.slug) ?? []);
 
-  useEffect(() => {
-    const card = cardRef.current;
-    if (!card || variantCueCache.has(product.slug)) {
-      setIsNearViewport(true);
-      return;
-    }
+  // Rendered straight from the listing response now — no extra per-card
+  // detail fetch. colors and related_product_images are two independent
+  // fields: colors are this product's own variants (for the footer dots);
+  // related_product_images are sibling products' photos (for the stack).
+  const colors = product.colors ?? [];
+  const relatedImages = product.related_product_images ?? [];
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
-        setIsNearViewport(true);
-        observer.disconnect();
-      },
-      { rootMargin: "240px 0px" },
-    );
-    observer.observe(card);
-    return () => observer.disconnect();
-  }, [product.slug]);
-
-  useEffect(() => {
-    if (!isNearViewport) return;
-    let active = true;
-    loadVariantCues(product.slug).then((cues) => {
-      if (active) setVariantCues(cues);
-    });
-    return () => {
-      active = false;
-    };
-  }, [isNearViewport, product.slug]);
-
-  const footerColours = Array.from(
-    new Map(
-      variantCues
-        .filter((cue): cue is VariantCue & { colour: string } => Boolean(cue.colour))
-        .map((cue) => [cue.colour.toLowerCase(), cue.colour]),
-    ).values(),
-  );
+  const footerColours = Array.from(new Map(colors.map((c) => [c.toLowerCase(), c])).values());
   // Keep the price legible on narrow cards: mobile shows two swatches, while
   // larger cards retain a third preview colour.
   const visibleFooterColours = footerColours.slice(0, 3);
@@ -154,7 +78,7 @@ export default function ApiProductCard({
   const remainingDesktopFooterColours = footerColours.length - 3;
 
   return (
-    <article ref={cardRef} className="group relative min-w-0 overflow-hidden rounded-[8px] border border-[#f2dfe2] bg-[#fffefd] shadow-[0_2px_9px_rgba(85,43,55,0.07)] transition-shadow duration-300 hover:shadow-[0_6px_16px_rgba(85,43,55,0.11)]">
+    <article className="group relative min-w-0 overflow-hidden rounded-[8px] border border-[#f2dfe2] bg-[#fffefd] shadow-[0_2px_9px_rgba(85,43,55,0.07)] transition-shadow duration-300 hover:shadow-[0_6px_16px_rgba(85,43,55,0.11)]">
       <Link
         href={`/products/detail?slug=${product.slug}`}
         aria-label={`View ${product.name}`}
@@ -179,7 +103,7 @@ export default function ApiProductCard({
               {label}
             </span>
           )}
-          <VariantPatternPreviews cues={variantCues} compact={compactPatternPreviews} />
+          <RelatedProductPreviews images={relatedImages} compact={compactPatternPreviews} />
 
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 to-transparent px-2 pt-6 pb-1.5">
             <span className="block truncate text-[11px] font-medium leading-tight text-white sm:text-[13px]">
@@ -218,18 +142,23 @@ export default function ApiProductCard({
           )}
         </div>
 
-        {sizeHints.length > 0 && (
+        {product.sizes && product.sizes.length > 0 && (
           <div className="flex gap-1 bg-[#fffafa] px-1.5 pb-1.5 sm:px-2">
-            {sizeHints.slice(0, 3).map((s, i) => (
+            {product.sizes.slice(0, 3).map((size, i) => (
               <span
-                key={s.size_code}
+                key={size}
                 className={`flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-medium sm:h-5 sm:w-5 sm:text-[9px] ${
                   i === 0 ? "bg-accent-soft text-accent" : "bg-black/5 text-black/60"
                 }`}
               >
-                {s.display_text}
+                {size}
               </span>
             ))}
+            {product.sizes.length > 3 && (
+              <span className="flex h-4 items-center justify-center rounded-full bg-black/5 px-1 text-[8px] font-medium text-black/60 sm:h-5 sm:text-[9px]">
+                +{product.sizes.length - 3}
+              </span>
+            )}
           </div>
         )}
       </Link>

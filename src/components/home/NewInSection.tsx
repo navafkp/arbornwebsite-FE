@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getProducts, getSizes, type ApiProduct, type BackendSize } from "@/lib/api-client";
+import { getProducts, type ApiProduct } from "@/lib/api-client";
 import { getPreferredSizes, hasMadeSizeDecision } from "@/lib/preferred-size";
 import ApiProductCard from "@/components/products/ApiProductCard";
 
 export default function NewInSection() {
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
-  const [sizes, setSizes] = useState<BackendSize[]>([]);
   // Static export prerenders with no localStorage, so this starts pointing
   // at the size picker and only switches to a direct product-list link
   // (skipping the picker) once we know a size is already stored.
@@ -22,9 +21,6 @@ export default function NewInSection() {
         setLoadState("ready");
       })
       .catch(() => setLoadState("error"));
-    getSizes()
-      .then(setSizes)
-      .catch(() => setSizes([]));
   }, []);
 
   useEffect(() => {
@@ -67,7 +63,7 @@ export default function NewInSection() {
         <div className="mt-[10.8px] grid grid-cols-3 gap-1.5" style={{ marginLeft: "-2.5%", marginRight: "-2.5%" }}>
           {products.map((product) => (
             <div key={product.id} className="mx-auto w-full">
-              <ApiProductCard product={product} showWishlist={false} compactPatternPreviews sizeHints={sizes} />
+              <ApiProductCard product={product} showWishlist={false} compactPatternPreviews />
             </div>
           ))}
         </div>

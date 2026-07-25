@@ -21,6 +21,13 @@ export default function CartLineItem({
   const [pending, setPending] = useState(false);
   const href = `/products/detail/?slug=${line.product.slug}`;
 
+  // size_display_text sometimes carries a "(Suitable for M-XXXXL)"-style
+  // note in parentheses (e.g. free-size items) — split it onto its own line
+  // instead of cramming it into the color/size line.
+  const sizeNoteMatch = line.size_display_text.match(/^(.*?)\s*(\(.+\))$/);
+  const sizeMain = sizeNoteMatch ? sizeNoteMatch[1] : line.size_display_text;
+  const sizeNote = sizeNoteMatch ? sizeNoteMatch[2] : null;
+
   async function changeQuantity(quantity: number) {
     setPending(true);
     try {
@@ -64,8 +71,11 @@ export default function CartLineItem({
               {line.product.name}
             </Link>
             <p className="mt-0.5 text-xs text-[var(--muted)]">
-              {line.color} · Size {line.size_display_text}
+              {line.color} · Size {sizeMain}
             </p>
+            {sizeNote && (
+              <p className="mt-0.5 text-xs font-medium text-green-600">{sizeNote}</p>
+            )}
             {line.is_out_of_stock ? (
               <p className="mt-0.5 text-xs text-red-600">Out of stock</p>
             ) : line.is_stock_insufficient ? (

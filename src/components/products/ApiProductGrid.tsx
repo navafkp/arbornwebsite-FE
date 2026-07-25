@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { getProducts, getExplore, getSizes, type ApiProduct, type BackendSize } from "@/lib/api-client";
+import { getProducts, getExplore, type ApiProduct } from "@/lib/api-client";
 import { getPreferredSizes } from "@/lib/preferred-size";
 import { PRICE_PRESETS } from "@/lib/constants";
 import ApiProductCard from "@/components/products/ApiProductCard";
@@ -49,7 +49,6 @@ export default function ApiProductGrid({
   const [sort, setSort] = useState<SortKey>("newest");
   const [pricePreset, setPricePreset] = useState<string | null>(null);
   const [openPanel, setOpenPanel] = useState<"sort" | "filter" | null>(null);
-  const [allSizes, setAllSizes] = useState<BackendSize[]>([]);
   const [page, setPage] = useState(1);
   const [hasNext, setHasNext] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -62,16 +61,6 @@ export default function ApiProductGrid({
     const preferred = getPreferredSizes();
     setEffectiveSizes(preferred);
   }, [sizes]);
-
-  useEffect(() => {
-    getSizes()
-      .then(setAllSizes)
-      .catch(() => setAllSizes([]));
-  }, []);
-
-  // Only nudge with size pills when the shopper hasn't picked a size yet —
-  // once they have, effectiveSizes already scopes the grid to their size.
-  const sizeHints = effectiveSizes.length === 0 ? allSizes : [];
 
   useEffect(() => {
     setLoadState("loading");
@@ -240,7 +229,6 @@ export default function ApiProductGrid({
                 key={product.id}
                 product={product}
                 badgeLabel={tag ? (activeTagName ?? humanize(tag)) : undefined}
-                sizeHints={sizeHints}
               />
             ))}
           </div>

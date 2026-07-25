@@ -161,6 +161,9 @@ export interface ApiProduct {
   base_discount_price: string | null;
   image_url: string | null;
   tag: ApiProductTag | null;
+  colors?: string[];
+  related_product_images?: string[];
+  sizes?: string[];
 }
 
 export interface ApiProductPage {
@@ -209,6 +212,8 @@ export interface ApiProductVariantSize {
   measurement: string;
   stock_quantity: number;
   variant_size_stock_id: number;
+  is_free_size?: boolean;
+  free_size_note?: string;
 }
 
 export interface ApiProductVariant {
@@ -258,16 +263,10 @@ export interface ApiProductDetail {
   instagram_thumbnail_url?: string | null;
 }
 
-export async function getProductDetail(slug: string, sizes?: number[]) {
-  const query = new URLSearchParams();
-  if (sizes && sizes.length > 0) {
-    query.set("size", sizes.join(","));
-  }
-  const qs = query.toString();
-  const res = await request<{ data: ApiProductDetail }>(
-    `/products/${slug}/${qs ? `?${qs}` : ""}`,
-    { baseUrl: CATALOG_BASE_URL },
-  );
+export async function getProductDetail(slug: string) {
+  const res = await request<{ data: ApiProductDetail }>(`/products/${slug}/`, {
+    baseUrl: CATALOG_BASE_URL,
+  });
   return res.data;
 }
 

@@ -3,11 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { getProducts, getSizes, type ApiProduct, type BackendSize } from "@/lib/api-client";
+import { getProducts, type ApiProduct } from "@/lib/api-client";
 import { formatPrice } from "@/lib/utils";
 import { HeartIcon } from "@/components/ui/decor";
 
-function RecommendedCard({ product, sizes }: { product: ApiProduct; sizes: BackendSize[] }) {
+function RecommendedCard({ product }: { product: ApiProduct }) {
   const price = Number(product.base_price);
   const discountPrice = product.base_discount_price ? Number(product.base_discount_price) : null;
 
@@ -27,18 +27,23 @@ function RecommendedCard({ product, sizes }: { product: ApiProduct; sizes: Backe
           <span className="mt-1 block text-xs font-semibold text-accent">
             {formatPrice(discountPrice ?? price)}
           </span>
-          {sizes.length > 0 && (
+          {product.sizes && product.sizes.length > 0 && (
             <div className="mt-1.5 flex gap-1">
-              {sizes.slice(0, 3).map((s, i) => (
+              {product.sizes.slice(0, 3).map((size, i) => (
                 <span
-                  key={s.size_code}
+                  key={size}
                   className={`flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-medium ${
                     i === 0 ? "bg-accent-soft text-accent" : "bg-black/5 text-black/60"
                   }`}
                 >
-                  {s.display_text}
+                  {size}
                 </span>
               ))}
+              {product.sizes.length > 3 && (
+                <span className="flex h-5 items-center justify-center rounded-full bg-black/5 px-1.5 text-[9px] font-medium text-black/60">
+                  +{product.sizes.length - 3}
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -49,15 +54,11 @@ function RecommendedCard({ product, sizes }: { product: ApiProduct; sizes: Backe
 
 export default function CartRecommendations() {
   const [products, setProducts] = useState<ApiProduct[]>([]);
-  const [sizes, setSizes] = useState<BackendSize[]>([]);
 
   useEffect(() => {
     getProducts({ page_size: 8 })
       .then((data) => setProducts(data.items))
       .catch(() => setProducts([]));
-    getSizes()
-      .then(setSizes)
-      .catch(() => setSizes([]));
   }, []);
 
   return (
@@ -76,7 +77,7 @@ export default function CartRecommendations() {
 
           <div className="no-scrollbar mt-5 flex snap-x gap-2 overflow-x-auto pb-1 sm:gap-3">
             {products.map((product) => (
-              <RecommendedCard key={product.id} product={product} sizes={sizes} />
+              <RecommendedCard key={product.id} product={product} />
             ))}
           </div>
         </>
