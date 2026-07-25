@@ -34,7 +34,7 @@ export default function FeatureStrip() {
 
   return (
     <div
-      className="relative mt-[2.2px] aspect-[1450/244] w-full overflow-hidden rounded-3xl"
+      className="relative mt-[2.2px] aspect-[1450/256] w-full overflow-hidden"
       style={{ marginLeft: "-2.5%", marginRight: "-2.5%", width: "auto" }}
     >
       <div

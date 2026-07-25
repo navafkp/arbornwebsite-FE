@@ -113,9 +113,9 @@ export default function CartLineItem({
             onClick={handleRemove}
             disabled={pending}
             aria-label="Remove item"
-            className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-accent-dark text-white transition disabled:opacity-40"
+            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-accent/30 bg-accent-soft/50 text-accent transition disabled:opacity-40"
           >
-            <svg className="h-[9px] w-[9px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6">
+            <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
               <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
             </svg>
           </button>

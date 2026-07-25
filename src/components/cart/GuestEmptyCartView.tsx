@@ -7,7 +7,7 @@ import FeatureStrip from "@/components/home/FeatureStrip";
 
 export default function GuestEmptyCartView({ onLoginClick }: { onLoginClick: () => void }) {
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-5xl px-4 pb-8 sm:px-6 lg:px-8">
       <FeatureStrip />
       <div className="mt-6 grid grid-cols-1 items-center gap-6 sm:grid-cols-2">
         <div className="text-center sm:text-left">

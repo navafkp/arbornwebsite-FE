@@ -83,7 +83,7 @@ export default function CartPage() {
 
   if (cartLoading && cart.length === 0) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl px-4 pb-10 sm:px-6 lg:px-8">
         <div className="h-8 w-40 animate-pulse rounded bg-black/5" />
         <div className="mt-8 flex flex-col gap-4">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -96,7 +96,7 @@ export default function CartPage() {
 
   if (cart.length === 0) {
     return (
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl px-4 pb-8 sm:px-6 lg:px-8">
         <FeatureStrip />
         <div className="flex flex-col items-center py-16 text-center">
           <svg className="h-12 w-12 text-black/20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
@@ -158,7 +158,7 @@ export default function CartPage() {
   const purchasableSubtotal = inStockItems.reduce((sum, line) => sum + Number(line.subtotal), 0);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-4xl px-4 pb-10 sm:px-6 lg:px-8">
       <FeatureStrip />
 
       <h1 className="mt-6 font-serif text-3xl">Your Cart</h1>
@@ -179,10 +179,7 @@ export default function CartPage() {
 
       <div className="mt-8 grid grid-cols-1 gap-10 lg:grid-cols-3">
         <div className="flex flex-col gap-8 lg:col-span-2">
-          <span className="text-sm font-semibold text-accent">{cart.length} {cart.length === 1 ? "Item" : "Items"}</span>
-
           <CartGroupSection
-            title="Available"
             items={inStockItems}
             mismatchedIds={mismatchedIds}
             selectedIds={selectedIds}
@@ -192,8 +189,7 @@ export default function CartPage() {
             onMoveToWishlistSelected={moveSelectedGroupToWishlist}
           />
           <CartGroupSection
-            title="Out of Stock"
-            tone="danger"
+            variant="unavailable"
             items={outOfStockItems}
             selectedIds={selectedIds}
             onToggleSelect={toggleSelect}
