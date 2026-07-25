@@ -13,7 +13,7 @@ import {
 } from "@/lib/api-client";
 import { cn, formatPrice } from "@/lib/utils";
 import { withBasePath } from "@/lib/asset-path";
-import { getPreferredSizes, clearPreferredSize } from "@/lib/preferred-size";
+import { getPreferredSizes } from "@/lib/preferred-size";
 import { buildOrderInquiryMessage, buildWhatsAppLink } from "@/lib/whatsapp";
 import { markContactedViaWhatsApp } from "@/lib/whatsapp-contacted";
 import ColorSwatch from "@/components/ui/ColorSwatch";
@@ -138,12 +138,7 @@ export default function ApiProductDetail() {
       return;
     }
     setLoadState("loading");
-    // Fetch the full, unfiltered product — passing the preferred size to the
-    // backend here would make it drop variants that don't stock that size
-    // entirely (variants: []), which breaks the "not available in your
-    // size" flow below. Visible-variant filtering already happens client
-    // side via getVisibleVariantIndices.
-    getProductDetail(slug)
+    getProductDetail(slug, preferredCodes)
       .then((data) => {
         const visibleIndices = getVisibleVariantIndices(data.variants, preferredCodes);
         const initialVariant = data.variants[visibleIndices[0] ?? 0];
@@ -174,16 +169,6 @@ export default function ApiProductDetail() {
     loadProduct(getPreferredSizes());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
-
-  // Lets the shopper look at this product in a size that's actually in
-  // stock, without committing to it as their saved preference — their old
-  // preferred size (which caused the "not available" state) is cleared
-  // entirely rather than replaced, so it doesn't affect other products too.
-  function exploreAvailableSize(sizeCode: number) {
-    clearPreferredSize();
-    setPreferredSizeCodes([]);
-    setSelectedSizeCode(sizeCode);
-  }
 
   function scrollToImage(index: number) {
     const el = galleryRef.current;
@@ -313,7 +298,6 @@ export default function ApiProductDetail() {
   const selectedSizeLabel =
     selectedSize?.display_text ??
     product.variants.flatMap((v) => v.sizes).find((s) => s.size_code === selectedSizeCode)?.display_text;
-  const suggestedSizes = variant?.sizes.filter((s) => s.stock_quantity > 0) ?? [];
   // Free-size chips (M, L, XL, ...) all share one variant_size_stock_id —
   // they're really the same stock item, so any cart line for this variant
   // already covers whichever free-size chip is currently selected.
@@ -386,77 +370,65 @@ export default function ApiProductDetail() {
                   className="absolute top-3 right-3 z-20"
                 />
               )}
-              {allImages.length > 0 ? (
-              <div
-                ref={galleryRef}
-                onScroll={handleGalleryScroll}
-                className="no-scrollbar relative flex aspect-[3/4] w-full snap-x snap-mandatory gap-0 overflow-x-auto bg-[#f4f2ee]"
-                style={{ clipPath: TORN_EDGE }}
-              >
-                {allImages.map((img, i) => (
-                  <div key={img.id} className="relative h-full w-full flex-shrink-0 snap-start">
-                    <Image
-                      src={img.image_url}
-                      alt={product.name}
-                      fill
-                      sizes="(min-width: 1024px) 50vw, 100vw"
-                      className="object-cover"
-                      priority={i === 0}
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="flex aspect-[3/4] w-full items-center justify-center rounded-xl bg-[#f4f2ee] text-sm text-[var(--muted)]">
-                No image
-              </div>
-            )}
-            {selectedSizeUnavailable && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 px-6 text-center">
-                <div className="rounded-2xl bg-white px-5 py-6">
-                  <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-soft text-accent">
-                    <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
-                      <path d="M12 4a2.5 2.5 0 012.5 2.5M12 4a2.5 2.5 0 00-2.5 2.5M12 8l9 6.5a1.2 1.2 0 01-.7 2.2H3.7a1.2 1.2 0 01-.7-2.2L12 8z" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </span>
-                  <h3 className="mt-3 font-serif text-lg">
-                    This model is not available in size {selectedSizeLabel ?? "you selected"}
-                  </h3>
-                  <p className="mt-1 text-sm text-[var(--muted)]">
-                    Good news! It&rsquo;s available in other sizes.
-                    <br />
-                    Check your perfect fit below <HeartIcon filled className="inline h-3.5 w-3.5 text-accent" />
-                  </p>
-                  {suggestedSizes.length > 0 && (
-                    <>
-                      <p className="mt-5 text-[11px] font-semibold tracking-widest text-accent uppercase">
-                        Available in these sizes
-                      </p>
-                      <div className="mt-2.5 flex flex-wrap justify-center gap-2">
-                        {suggestedSizes.map((s) => (
-                          <button
-                            key={s.size_code}
-                            type="button"
-                            onClick={() => exploreAvailableSize(s.size_code)}
-                            className="flex min-w-14 flex-col items-center gap-0.5 rounded-xl border border-accent/30 bg-white px-3 py-2 transition hover:border-accent"
-                          >
-                            <span className="text-sm font-semibold">{s.display_text}</span>
-                            <span className="text-[10px] text-[var(--muted)]">{s.stock_quantity} left</span>
-                          </button>
-                        ))}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => exploreAvailableSize(suggestedSizes[0].size_code)}
-                        className="mt-5 w-full rounded-full bg-accent py-3 text-sm font-semibold tracking-wide text-white transition hover:bg-accent-dark"
+              {selectedSizeUnavailable ? (
+                <div
+                  className="flex aspect-[3/4] w-full items-center justify-center bg-[#f4f2ee] px-6 text-center"
+                  style={{ clipPath: TORN_EDGE }}
+                >
+                  <div className="rounded-2xl bg-white px-5 py-6">
+                    <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-soft text-accent">
+                      <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
+                        <path d="M12 4a2.5 2.5 0 012.5 2.5M12 4a2.5 2.5 0 00-2.5 2.5M12 8l9 6.5a1.2 1.2 0 01-.7 2.2H3.7a1.2 1.2 0 01-.7-2.2L12 8z" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                    <h3 className="mt-3 font-serif text-lg">
+                      This model is not available in size {selectedSizeLabel ?? "you selected"}
+                    </h3>
+                    <p className="mt-1 text-sm text-[var(--muted)]">
+                      Good news! It&rsquo;s available in other sizes
+                      <HeartIcon filled className="inline h-3.5 w-3.5 text-accent" />
+                    </p>
+                    <div className="mt-5 flex flex-col gap-2.5">
+                      <Link
+                        href="/select-size"
+                        className="flex w-full items-center justify-center rounded-full bg-accent py-3 text-sm font-semibold tracking-wide text-white transition hover:bg-accent-dark"
                       >
-                        View in Available Sizes
-                      </button>
-                    </>
-                  )}
+                        Change Size
+                      </Link>
+                      <Link
+                        href="/products"
+                        className="flex w-full items-center justify-center rounded-full border border-accent/30 py-3 text-sm font-semibold tracking-wide text-accent transition hover:border-accent"
+                      >
+                        Explore More
+                      </Link>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
+              ) : allImages.length > 0 ? (
+                <div
+                  ref={galleryRef}
+                  onScroll={handleGalleryScroll}
+                  className="no-scrollbar relative flex aspect-[3/4] w-full snap-x snap-mandatory gap-0 overflow-x-auto bg-[#f4f2ee]"
+                  style={{ clipPath: TORN_EDGE }}
+                >
+                  {allImages.map((img, i) => (
+                    <div key={img.id} className="relative h-full w-full flex-shrink-0 snap-start">
+                      <Image
+                        src={img.image_url}
+                        alt={product.name}
+                        fill
+                        sizes="(min-width: 1024px) 50vw, 100vw"
+                        className="object-cover"
+                        priority={i === 0}
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex aspect-[3/4] w-full items-center justify-center rounded-xl bg-[#f4f2ee] text-sm text-[var(--muted)]">
+                  No image
+                </div>
+              )}
             </div>
 
             {allImages.length > 1 && (
