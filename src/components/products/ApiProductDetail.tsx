@@ -385,10 +385,20 @@ export default function ApiProductDetail() {
               )}
               {selectedSizeUnavailable ? (
                 <div
-                  className="flex aspect-[3/4] w-full items-center justify-center bg-[#f4f2ee] px-6 text-center"
+                  className="relative flex aspect-[3/4] w-full items-center justify-center bg-[#f4f2ee] px-6 text-center"
                   style={{ clipPath: TORN_EDGE }}
                 >
-                  <div className="rounded-2xl bg-white px-5 py-6">
+                  {product.thumbnail_image && (
+                    <Image
+                      src={product.thumbnail_image}
+                      alt={product.name}
+                      fill
+                      sizes="(min-width: 1024px) 50vw, 100vw"
+                      className="object-cover"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-black/60" />
+                  <div className="relative rounded-2xl bg-white px-5 py-6">
                     <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-soft text-accent">
                       <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
                         <path d="M12 4a2.5 2.5 0 012.5 2.5M12 4a2.5 2.5 0 00-2.5 2.5M12 8l9 6.5a1.2 1.2 0 01-.7 2.2H3.7a1.2 1.2 0 01-.7-2.2L12 8z" strokeLinecap="round" strokeLinejoin="round" />
