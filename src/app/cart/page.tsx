@@ -69,6 +69,7 @@ export default function CartPage() {
           open={loginModalOpen}
           onClose={() => setLoginModalOpen(false)}
           onSuccess={refreshCart}
+          message="Sign in to view your cart."
         />
       </>
     );

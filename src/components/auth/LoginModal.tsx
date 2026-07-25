@@ -9,10 +9,12 @@ export default function LoginModal({
   open,
   onClose,
   onSuccess,
+  message = "Sign in to add this to your cart.",
 }: {
   open: boolean;
   onClose: () => void;
   onSuccess: (accessToken: string) => void;
+  message?: string;
 }) {
   const { loginWithGoogle } = useAuth();
 
@@ -69,7 +71,7 @@ export default function LoginModal({
         </div>
 
         <h2 className="mt-5 font-serif text-2xl">Log in to continue</h2>
-        <p className="mt-1.5 text-sm text-[var(--muted)]">Sign in to add this to your cart.</p>
+        <p className="mt-1.5 text-sm text-[var(--muted)]">{message}</p>
 
         <div className="mt-5 flex items-center gap-3">
           <span className="h-px flex-1 bg-black/10" />
