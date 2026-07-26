@@ -11,10 +11,10 @@ type ExploreCard = ExploreItem & { kind: "category" | "tag" };
 // Cycled per card index so a dynamic (API-driven) list of any length still
 // alternates through the same pastel label/button palette seen in the design.
 const THEMES = [
-  { label: "Cozy & Cute", pillBg: "#f6d9df", pillText: "#b4425f", buttonBg: "#df7296", buttonText: "#fff" },
-  { label: "Soft & Dreamy", pillBg: "#f9e4e0", pillText: "#b4425f", buttonBg: "#f3ece3", buttonText: "#5b3a41" },
-  { label: "New & Pretty", pillBg: "#f6d9df", pillText: "#b4425f", buttonBg: "#df7296", buttonText: "#fff" },
-  { label: "Most Loved", pillBg: "#e3e6c4", pillText: "#5c6330", buttonBg: "#8a8f4f", buttonText: "#fff" },
+  { label: "Cozy & Cute", pillBg: "#f6d9df", pillText: "#b4425f" },
+  { label: "Soft & Dreamy", pillBg: "#f9e4e0", pillText: "#b4425f" },
+  { label: "New & Pretty", pillBg: "#f6d9df", pillText: "#b4425f" },
+  { label: "Most Loved", pillBg: "#e3e6c4", pillText: "#5c6330" },
 ];
 
 // Approximates the "torn paper" edge between the image and the text panel:
@@ -126,12 +126,9 @@ export default function CategoriesPageClient() {
                       <HeartIcon filled className="h-3.5 w-3.5" />
                     </span>
                   </h3>
-                  <p className="mt-1 line-clamp-2 pr-11 text-sm leading-5 text-[var(--muted)]">{card.description}</p>
+                  <p className="mt-1 line-clamp-2 pr-11 text-[7px] leading-tight text-[var(--muted)]">{card.description}</p>
 
-                  <span
-                    className="absolute right-3 bottom-3 flex h-9 w-9 items-center justify-center rounded-full shadow-sm"
-                    style={{ backgroundColor: theme.buttonBg, color: theme.buttonText }}
-                  >
+                  <span className="absolute right-3 bottom-3 flex h-9 w-9 items-center justify-center rounded-full bg-accent text-white shadow-sm">
                     <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>

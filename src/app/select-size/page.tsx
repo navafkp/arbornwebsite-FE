@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { getPreferredSizes, setPreferredSizes, clearPreferredSize, markSizeDecisionMade } from "@/lib/preferred-size";
 import { getSizes, type BackendSize } from "@/lib/api-client";
@@ -15,7 +15,6 @@ export default function SelectSizePage() {
   const [sizes, setSizes] = useState<BackendSize[]>([]);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
   const [selected, setSelected] = useState<number[]>([]);
-  const continueRef = useRef<HTMLButtonElement>(null);
   const [accordionOpen, setAccordionOpen] = useState(false);
 
   useEffect(() => {
@@ -44,34 +43,9 @@ export default function SelectSizePage() {
   }
 
   function handleSelectSize(sizeCode: number) {
-    const isChoosingFirstSize = selected.length === 0 && !selected.includes(sizeCode);
-
     setSelected((prev) =>
       prev.includes(sizeCode) ? prev.filter((code) => code !== sizeCode) : [...prev, sizeCode],
     );
-
-    // A first selection enables Continue below the supporting fit guidance. On
-    // shorter screens, bring that next step into a comfortable viewing position
-    // without moving keyboard focus away from the selected size.
-    if (isChoosingFirstSize) {
-      requestAnimationFrame(() => {
-        const continueButton = continueRef.current;
-        if (!continueButton) return;
-
-        const buttonBounds = continueButton.getBoundingClientRect();
-        const viewportHeight = window.innerHeight;
-        const isComfortablyVisible =
-          buttonBounds.top >= viewportHeight * 0.35 && buttonBounds.bottom <= viewportHeight - 24;
-
-        if (isComfortablyVisible) return;
-
-        const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        window.scrollBy({
-          top: buttonBounds.top - viewportHeight * 0.62,
-          behavior: prefersReducedMotion ? "auto" : "smooth",
-        });
-      });
-    }
   }
 
   function handleClose() {
@@ -259,24 +233,30 @@ export default function SelectSizePage() {
         </p>
       </div>
 
-      <button
-        ref={continueRef}
-        type="button"
-        onClick={handleContinue}
-        disabled={selected.length === 0}
-        className="mt-4 flex items-center justify-center gap-2 rounded-full bg-accent py-4 text-xs font-medium tracking-widest text-white uppercase transition hover:bg-accent-dark disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        Continue
-        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </button>
+      {selected.length > 0 && <div className="h-20" aria-hidden="true" />}
 
       <CloudShape className="pointer-events-none absolute -bottom-2 -left-4 h-10 w-24 text-accent-soft" />
       <SparkleIcon className="pointer-events-none absolute right-6 bottom-16 h-4 w-4 text-accent/60" />
 
       <ScrollHint className="bottom-4" />
       </div>
+
+      {selected.length > 0 && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-black/5 bg-background px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))] sm:px-6">
+          <div className="mx-auto max-w-xl">
+            <button
+              type="button"
+              onClick={handleContinue}
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-accent py-4 text-xs font-medium tracking-widest text-white uppercase transition hover:bg-accent-dark"
+            >
+              Continue
+              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
