@@ -75,12 +75,9 @@ export default function SplashScreen() {
             alt="Arborn"
             width={200}
             height={200}
-            className="h-24 w-24 object-contain sm:h-28 sm:w-28"
+            className="h-40 w-40 object-contain sm:h-48 sm:w-48"
             priority
           />
-          <span className="mt-1 text-[9px] font-medium tracking-[0.25em] text-accent uppercase">
-            Sleep · Soft · You
-          </span>
         </div>
       </div>
     </div>
