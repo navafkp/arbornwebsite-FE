@@ -41,13 +41,11 @@ export default function CollectionCircleRail({
             aria-current={isActive ? "true" : undefined}
             className="group flex w-[69.3px] shrink-0 flex-col items-center gap-1.5 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:w-[81.9px]"
           >
-            <span
-              className={`relative block h-[60.9px] w-[60.9px] overflow-hidden rounded-full border border-[#f2dfe2] bg-[#f8f1ef] sm:h-[67.2px] sm:w-[67.2px] ${
-                isActive ? "ring-2 ring-accent ring-offset-2" : ""
-              }`}
-            >
-              <Image src={item.image_url} alt="" fill sizes="(min-width: 640px) 67px, 61px" className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none" />
-              {badge && <span className="absolute bottom-0 left-1/2 flex h-[20px] w-[20px] -translate-x-1/2 items-center justify-center rounded-full bg-white text-accent shadow-sm sm:h-[22.1px] sm:w-[22.1px]">{badge.icon("h-2.5 w-2.5")}</span>}
+            <span className={`block rounded-full ${isActive ? "bg-accent p-[2.5px]" : ""}`}>
+              <span className="relative block h-[60.9px] w-[60.9px] overflow-hidden rounded-full border border-[#f2dfe2] bg-[#f8f1ef] sm:h-[67.2px] sm:w-[67.2px]">
+                <Image src={item.image_url} alt="" fill sizes="(min-width: 640px) 67px, 61px" className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none" />
+                {badge && <span className="absolute bottom-0 left-1/2 flex h-[20px] w-[20px] -translate-x-1/2 items-center justify-center rounded-full bg-white text-accent shadow-sm sm:h-[22.1px] sm:w-[22.1px]">{badge.icon("h-2.5 w-2.5")}</span>}
+              </span>
             </span>
             <span className={`line-clamp-2 min-h-[27px] text-[10.5px] leading-[1.25] sm:text-[11px] ${isActive ? "font-semibold text-accent" : "text-[#241a1d]"}`}>
               {item.name}

@@ -124,9 +124,14 @@ export async function getSearchSuggestions() {
 }
 
 export interface BackendSize {
-  size_code: number;
+  // A plain numeric size (M, L, ...) has size_code === codes[0]. A grouped
+  // entry like "Plus Size" has a non-numeric size_code (e.g. "plus_size")
+  // and codes lists every underlying numeric size it stands in for — send
+  // all of them to the backend, not size_code itself.
+  size_code: number | string;
   display_text: string;
   measurement: string;
+  codes: number[];
 }
 
 export async function getSizes() {

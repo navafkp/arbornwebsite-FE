@@ -258,16 +258,16 @@ export default function WishlistPage() {
 
           <div className="grid grid-cols-3 border-t border-[#ead8d5] bg-[#faecec]/75 px-2 py-4 sm:px-6 sm:py-5" aria-label="Account benefits">
             <div className="flex min-w-0 flex-col items-center gap-2 border-r border-[#dfc7c5] px-2 text-center">
-              <HeartIcon className="h-6 w-6 text-accent" />
-              <p className="text-[10px] font-medium leading-3.5 text-[#513b40] sm:text-xs">Save your favourites</p>
+              <span className="text-xl" aria-hidden="true">🤍</span>
+              <p className="text-[10px] font-medium leading-3.5 text-[#513b40] sm:text-xs">Save your picks</p>
             </div>
             <div className="flex min-w-0 flex-col items-center gap-2 border-r border-[#dfc7c5] px-2 text-center">
-              <svg className="h-6 w-6 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M7 9a5 5 0 0 1 10 0c0 6 2.5 6.5 2.5 8H4.5C4.5 15.5 7 15 7 9Z" strokeLinejoin="round" /><path d="M10 20h4" strokeLinecap="round" /></svg>
-              <p className="text-[10px] font-medium leading-3.5 text-[#513b40] sm:text-xs">Get restock alerts</p>
+              <span className="text-xl" aria-hidden="true">🌸</span>
+              <p className="text-[10px] font-medium leading-3.5 text-[#513b40] sm:text-xs">Soft & Premium</p>
             </div>
             <div className="flex min-w-0 flex-col items-center gap-2 px-2 text-center">
-              <svg className="h-6 w-6 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z" strokeLinejoin="round" /><path d="M9 8V6a3 3 0 0 1 6 0v2" strokeLinecap="round" /></svg>
-              <p className="text-[10px] font-medium leading-3.5 text-[#513b40] sm:text-xs">Shop faster next time</p>
+              <span className="text-xl" aria-hidden="true">🚚</span>
+              <p className="text-[10px] font-medium leading-3.5 text-[#513b40] sm:text-xs">Ships across India</p>
             </div>
           </div>
         </section>

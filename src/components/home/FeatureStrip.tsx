@@ -1,16 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getBanners, type ApiBanner } from "@/lib/api-client";
 
 const DEFAULT_SLIDE_INTERVAL_MS = 5000;
+const SWIPE_THRESHOLD_PX = 40;
 
 export default function FeatureStrip() {
   const [banners, setBanners] = useState<ApiBanner[]>([]);
   // Always starts at the first banner on mount — including on a hard
   // refresh, since this is plain component state, not persisted anywhere.
   const [index, setIndex] = useState(0);
+  const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
     getBanners()
@@ -32,10 +34,27 @@ export default function FeatureStrip() {
 
   if (banners.length === 0) return null;
 
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null || banners.length <= 1) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    if (deltaX > SWIPE_THRESHOLD_PX) {
+      setIndex((i) => (i - 1 + banners.length) % banners.length);
+    } else if (deltaX < -SWIPE_THRESHOLD_PX) {
+      setIndex((i) => (i + 1) % banners.length);
+    }
+    touchStartX.current = null;
+  }
+
   return (
     <div
       className="relative mt-[2.2px] aspect-[1450/256] w-full overflow-hidden"
       style={{ marginLeft: "-2.5%", marginRight: "-2.5%", width: "auto" }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       <div
         className="flex h-full transition-transform duration-700 ease-in-out"
@@ -72,17 +91,6 @@ export default function FeatureStrip() {
           );
         })}
       </div>
-
-      {banners.length > 1 && (
-        <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1">
-          {banners.map((banner, i) => (
-            <span
-              key={banner.id}
-              className={`h-1.5 w-1.5 rounded-full transition ${i === index ? "bg-white" : "bg-white/50"}`}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 }

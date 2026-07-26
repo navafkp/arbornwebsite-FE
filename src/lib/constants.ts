@@ -1,6 +1,6 @@
 export const PRICE_PRESETS = [
-  { key: "under-500", label: "Under ₹500", min: 0, max: 500 },
-  { key: "501-699", label: "₹501 – ₹699", min: 501, max: 699 },
+  { key: "under-499", label: "Under ₹499", min: 0, max: 499 },
+  { key: "500-699", label: "₹500 – ₹699", min: 500, max: 699 },
   { key: "700-plus", label: "₹700 & Above", min: 700, max: Infinity },
 ] as const;
 

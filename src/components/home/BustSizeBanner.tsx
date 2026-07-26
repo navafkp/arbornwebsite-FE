@@ -20,9 +20,10 @@ export default function BustSizeBanner({ large = false }: { large?: boolean }) {
   }, []);
 
   const preferredCodes = getPreferredSizes();
-  const preferred = preferredCodes
-    .map((code) => sizes.find((s) => s.size_code === code))
-    .filter((s): s is BackendSize => Boolean(s));
+  // Matched by codes overlap, not size_code equality — a grouped entry like
+  // "Plus Size" stores several underlying codes, none of which equal its
+  // own (non-numeric) size_code.
+  const preferred = sizes.filter((s) => s.codes.some((code) => preferredCodes.includes(code)));
   const hasSize = preferred.length > 0;
 
   if (!hasSize) {

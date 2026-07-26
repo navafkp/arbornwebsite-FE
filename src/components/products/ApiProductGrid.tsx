@@ -75,7 +75,7 @@ export default function ApiProductGrid({
   // the shopper's selected size — same reasoning as the detail page's
   // "More Patterns Like This" filter.
   const preferredSizeLabels = sizeLabels
-    .filter((s) => effectiveSizes.includes(s.size_code))
+    .filter((s) => s.codes.some((code) => effectiveSizes.includes(code)))
     .map((s) => s.display_text);
   const visibleProducts = products.filter((p) => {
     const hasStock = (p.colors?.length ?? 0) > 0 || (p.sizes?.length ?? 0) > 0;

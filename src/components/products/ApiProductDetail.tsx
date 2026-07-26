@@ -342,7 +342,7 @@ export default function ApiProductDetail() {
   // no stock anywhere, and (when a size is saved) anything that doesn't
   // stock that size either.
   const preferredSizeLabelsList = sizeLabels
-    .filter((s) => preferredSizeCodes.includes(s.size_code))
+    .filter((s) => s.codes.some((code) => preferredSizeCodes.includes(code)))
     .map((s) => s.display_text);
   function filterAvailable(items: ApiProduct[]) {
     return items.filter((p) => {
