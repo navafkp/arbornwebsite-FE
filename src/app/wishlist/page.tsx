@@ -313,7 +313,7 @@ export default function WishlistPage() {
           <div className="mt-7 flex flex-col gap-4">{wishlist.map((product) => <SavedCard key={product.id} product={product} />)}</div>
         </section>
         <InspirationRail items={inspiration} loading={inspirationLoading} error={inspirationError} retry={loadInspiration} />
-        <div className="mt-5 border-t border-[#eadbd7] pt-3 sm:mt-6 sm:pt-4">
+        <div className="mt-5 sm:mt-6">
           <ArbornStories />
         </div>
       </div>
@@ -330,7 +330,7 @@ export default function WishlistPage() {
         <Link href="/products" className="mx-auto mt-6 inline-flex min-h-12 items-center justify-center rounded-full bg-accent px-9 py-3 text-sm font-semibold tracking-[0.08em] text-white uppercase transition-colors hover:bg-accent-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Explore Collections</Link>
       </section>
       <InspirationRail items={inspiration} loading={inspirationLoading} error={inspirationError} retry={loadInspiration} />
-      <div className="mt-5 border-t border-[#eadbd7] pt-3 sm:mt-6 sm:pt-4">
+      <div className="mt-5 sm:mt-6">
         <ArbornStories />
       </div>
     </div>
