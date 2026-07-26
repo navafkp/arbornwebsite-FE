@@ -80,7 +80,7 @@ function InspirationRail({ items, loading, error, retry }: { items: Inspiration[
     <section className="mt-11 sm:mt-14" aria-labelledby="inspiration-heading">
       <div className="flex items-center gap-3 text-center text-accent">
         <span className="h-px flex-1 bg-[#d9c6c1]" />
-        <h2 id="inspiration-heading" className="shrink-0 text-xs font-medium tracking-[0.12em] uppercase sm:text-sm">Looking for inspiration?</h2>
+        <h2 id="inspiration-heading" className="shrink-0 text-xs font-medium tracking-[0.12em] uppercase sm:text-sm">Shop by Collection</h2>
         <span className="h-px flex-1 bg-[#d9c6c1]" />
       </div>
 
@@ -146,15 +146,17 @@ function SavedCard({ product }: { product: ApiWishlistItem }) {
               <p className="mt-2 text-xs text-[var(--muted)]">
                 {colorCount} {colorCount === 1 ? "Colour" : "Colours"} • {sizeCount} {sizeCount === 1 ? "Size" : "Sizes"}
               </p>
-              <div className="mt-2 flex gap-1.5">
-                {product.variants.map((variant) => (
-                  <ColorSwatch key={variant.id} hex={variant.color_code} name={variant.color} />
-                ))}
-              </div>
+              {colorCount > 1 && (
+                <div className="mt-2 flex gap-1.5">
+                  {product.variants.map((variant) => (
+                    <ColorSwatch key={variant.id} hex={variant.color_code} name={variant.color} />
+                  ))}
+                </div>
+              )}
             </>
           )}
           {outOfStock && (
-            <p className="mt-3 flex items-start gap-1.5 rounded-xl bg-accent-soft px-2.5 py-1.5 text-[8px] text-accent">
+            <p className="mt-3 flex items-start gap-1.5 rounded-xl bg-accent-soft px-2.5 py-1.5 text-[6.8px] text-accent">
               <svg className="mt-0.5 h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
                 <path d="M7 9a5 5 0 0110 0c0 6 2.5 6.5 2.5 8h-15c0-1.5 2.5-2 2.5-8Z" strokeLinejoin="round" />
                 <path d="M10 20h4" strokeLinecap="round" />
