@@ -36,7 +36,7 @@ export function PageHeader({
 
   if (searchOpen) {
     return (
-      <header className="fixed top-0 right-0 left-0 z-50 flex h-[67px] items-center border-b border-black/5 bg-accent-soft/35 px-4">
+      <header className="fixed top-0 right-0 left-0 z-50 flex h-[67px] items-center border-b border-black/5 bg-accent-soft px-4">
         <SearchBar autoFocus onSubmitted={() => setSearchOpen(false)} className="flex-1" />
         <button
           type="button"
@@ -53,7 +53,7 @@ export function PageHeader({
   }
 
   return (
-    <header className="fixed top-0 right-0 left-0 z-50 flex h-[67px] items-center justify-between bg-accent-soft/35 px-4">
+    <header className="fixed top-0 right-0 left-0 z-50 flex h-[67px] items-center justify-between bg-accent-soft px-4">
       <div className="relative z-30 flex items-center gap-1">
         {showBackButton && <BackButton variant="bare" />}
         {showSearch && (
