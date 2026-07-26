@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getExplore } from "@/lib/api-client";
-import { HeartIcon } from "@/components/ui/decor";
 import CollectionCircleRail, { type CollectionCircle } from "@/components/common/CollectionCircleRail";
 
 export default function ShopByCollectionSection({
@@ -28,13 +27,17 @@ export default function ShopByCollectionSection({
 
   return (
     <div className="mt-[7.6px]">
-      <div className="flex items-center justify-between">
-        <h2 className="flex items-center gap-1.5 font-serif text-2xl">
+      <div className="relative flex items-center gap-3 text-accent">
+        <span className="h-px flex-1 bg-[#d9c6c1]" />
+        <h2 className="shrink-0 text-xs font-medium tracking-[0.12em] uppercase sm:text-sm">
           Shop by Collection
-          <HeartIcon filled className="h-4 w-4 text-accent" />
         </h2>
+        <span className="h-px flex-1 bg-[#d9c6c1]" />
         {cards.length > 6 && (
-          <Link href="/categories" className="flex items-center gap-1 text-xs font-medium text-accent">
+          <Link
+            href="/categories"
+            className="absolute top-1/2 right-0 flex -translate-y-1/2 items-center gap-1 bg-background pl-2 text-xs font-medium text-accent"
+          >
             View all
             <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />

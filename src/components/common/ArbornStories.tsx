@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getStories, type ApiStoryCircle } from "@/lib/api-client";
-import { HeartIcon } from "@/components/ui/decor";
 
 const DEFAULT_STORY_DURATION = 6000;
 const RING_GRADIENT = "from-[#cf7186] via-[#f29a85] to-[#e9b968]";
@@ -146,11 +145,12 @@ export default function ArbornStories({ compactBubbles = false }: { compactBubbl
       className={`px-0.5 sm:px-1 ${compactBubbles ? "mt-[3.6px] pt-0 pb-0" : "mt-3 pt-2 pb-3 sm:mt-5 sm:pt-3"}`}
       style={compactBubbles ? undefined : { marginLeft: "-2.5%", marginRight: "-2.5%" }}
     >
-      <div className="flex items-center gap-4">
-        <h2 id="product-stories-title" className={`flex items-center gap-1.5 font-serif ${compactBubbles ? "text-base" : "text-2xl"}`}>
+      <div className="flex items-center gap-3 text-accent">
+        <span className="h-px flex-1 bg-[#d9c6c1]" />
+        <h2 id="product-stories-title" className="shrink-0 text-xs font-medium tracking-[0.12em] uppercase sm:text-sm">
           Arborn Stories
-          <HeartIcon filled className={compactBubbles ? "h-2.5 w-2.5 text-accent" : "h-4 w-4 text-accent"} />
         </h2>
+        <span className="h-px flex-1 bg-[#d9c6c1]" />
       </div>
       <div
         className="no-scrollbar mt-[10.8px] flex snap-x gap-3.5 overflow-x-auto pb-0.5 sm:justify-between sm:gap-5"
