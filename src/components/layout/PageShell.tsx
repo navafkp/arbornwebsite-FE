@@ -15,7 +15,8 @@ const INSTAGRAM_URL = "https://www.instagram.com/arborn__/?hl=en";
 export default function PageShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const normalizedPathname = pathname.length > 1 ? pathname.replace(/\/$/, "") : pathname;
-  const hasPageHeader = normalizedPathname !== "/" && normalizedPathname !== "/select-size";
+  const NO_SHELL_HEADER = ["/", "/select-size", "/orders/detail"];
+  const hasPageHeader = !NO_SHELL_HEADER.includes(normalizedPathname);
 
   return (
     <>

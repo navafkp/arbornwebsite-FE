@@ -6,38 +6,87 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth, type AuthUser } from "@/lib/auth-context";
 import { getMyProfile, updateMyProfile, getOrders, ApiError, type ApiOrder } from "@/lib/api-client";
+import { formatPrice } from "@/lib/utils";
 
 function ProfileLoading() {
   return <div className="mx-auto max-w-2xl px-4 py-12" aria-label="Loading your account" aria-busy="true"><div className="h-72 animate-pulse rounded-[2rem] bg-[#f3e5e4] motion-reduce:animate-none" /></div>;
 }
 
-interface PurchasedCollection {
-  productId: number;
-  productSlug: string;
-  name: string;
-  imageUrl: string;
-  itemCount: number;
-}
+// TEMPORARY: the API has no order-status field yet (only a delivery `state`,
+// e.g. "Kerala") — showing "Delivered" as a static label until the backend
+// exposes real status.
+const STATUS_LABEL = "Delivered";
 
-// Orders come back as one row per line item — group them by product so
-// each purchased product shows once, with its total quantity bought.
-function groupOrdersByProduct(orders: ApiOrder[]): PurchasedCollection[] {
-  const byProduct = new Map<number, PurchasedCollection>();
-  for (const order of orders) {
-    const existing = byProduct.get(order.product.id);
-    if (existing) {
-      existing.itemCount += order.quantity;
-    } else {
-      byProduct.set(order.product.id, {
-        productId: order.product.id,
-        productSlug: order.product.slug,
-        name: order.product.name,
-        imageUrl: order.image_url,
-        itemCount: order.quantity,
-      });
-    }
-  }
-  return Array.from(byProduct.values());
+function OrderCard({ order }: { order: ApiOrder }) {
+  const firstItem = order.items[0];
+  const extraItemCount = order.items.length - 1;
+  const totalQuantity = order.items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalAmount = Number(order.collected_amount) + Number(order.shipping_charge);
+  const placedOn = new Date(order.created_at).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+  return (
+    <div className="rounded-2xl border border-[#f2dfe2] bg-white p-3 shadow-[0_4px_16px_rgba(190,120,130,0.06)]">
+      <div className="flex gap-3">
+        <div className="relative h-[110px] w-[90px] shrink-0 overflow-hidden rounded-xl bg-[#f4f2ee]">
+          <Image src={firstItem.image_url} alt={firstItem.product.name} fill sizes="90px" className="object-cover" />
+          {order.items.length > 1 && (
+            <span className="absolute -bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full bg-accent-soft px-2 py-1 text-[10px] font-medium whitespace-nowrap text-accent shadow-[0_2px_6px_rgba(190,120,130,0.25)]">
+              <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M6 8h12l-1 12a1.5 1.5 0 01-1.5 1.4h-7A1.5 1.5 0 017 20L6 8z" strokeLinejoin="round" />
+                <path d="M9 8V6a3 3 0 016 0v2" strokeLinecap="round" />
+              </svg>
+              {order.items.length} Items
+            </span>
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <span className="flex items-center gap-1 rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-medium text-accent">
+              <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <rect x="4" y="10" width="16" height="10" rx="1.5" />
+                <path d="M4 10h16M12 10v10" />
+                <path d="M8 10C6.5 10 5.5 9 5.5 7.8S6.5 5.5 8 6.5 12 10 12 10 9.5 10 8 10z" strokeLinejoin="round" />
+                <path d="M16 10c1.5 0 2.5-1 2.5-2.2S17.5 5.5 16 6.5 12 10 12 10 14.5 10 16 10z" strokeLinejoin="round" />
+              </svg>
+              {STATUS_LABEL}
+            </span>
+            <span className="shrink-0 text-[11px] text-[var(--muted)]">{placedOn}</span>
+          </div>
+          <p className="mt-2 truncate text-sm font-semibold">
+            {firstItem.product.name}
+            {extraItemCount > 0 && ` + ${extraItemCount} more`}
+          </p>
+          <p className="mt-1 text-xs text-[var(--muted)]">
+            Size: {firstItem.size_display_text} &nbsp;•&nbsp; Qty: {totalQuantity}
+          </p>
+          <p className="mt-1 flex items-center gap-1 text-xs text-[var(--muted)]">
+            <svg className="h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <path d="M12 21s-7-6.2-7-11.2A7 7 0 0112 3a7 7 0 017 6.8C19 14.8 12 21 12 21z" strokeLinejoin="round" />
+              <circle cx="12" cy="9.8" r="2.2" />
+            </svg>
+            {order.state}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-3 flex items-center justify-between border-t border-[#f2dfe2] pt-3">
+        <Link
+          href={`/orders/detail?id=${encodeURIComponent(order.id)}`}
+          className="flex items-center gap-1 text-sm font-medium text-accent"
+        >
+          View Details
+          <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </Link>
+        <span className="text-base font-semibold text-accent">{formatPrice(totalAmount)}</span>
+      </div>
+    </div>
+  );
 }
 
 export default function ProfilePageClient() {
@@ -49,7 +98,7 @@ export default function ProfilePageClient() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [name, setName] = useState("");
-  const [collections, setCollections] = useState<PurchasedCollection[]>([]);
+  const [orders, setOrders] = useState<ApiOrder[]>([]);
 
   useEffect(() => {
     if (!hydrated || !hasBackendSession || !accessToken) return;
@@ -84,7 +133,7 @@ export default function ProfilePageClient() {
     async function loadOrders(token: string, canRefresh = true) {
       try {
         const orders = await getOrders(token);
-        if (active) setCollections(groupOrdersByProduct(orders));
+        if (active) setOrders(orders);
       } catch (err) {
         if (canRefresh && err instanceof ApiError && err.status === 401) {
           try { await loadOrders(await refreshSession(), false); return; } catch { /* no purchase history shown on failure */ }
@@ -163,39 +212,19 @@ export default function ProfilePageClient() {
         ) : <button type="button" onClick={() => setEditing(true)} className="mt-7 min-h-11 w-full rounded-full border border-[#dcc9c6] text-sm font-semibold text-accent hover:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Edit name</button>}
       </section>
 
-      {collections.length > 0 && (
-        <section className="mt-8" aria-labelledby="purchased-collections-heading">
-          <div className="flex items-center gap-2">
-            <svg className="h-5 w-5 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden>
-              <path d="M6 8h12l-1 12a1.5 1.5 0 01-1.5 1.4h-7A1.5 1.5 0 017 20L6 8z" strokeLinejoin="round" />
-              <path d="M9 8V6a3 3 0 016 0v2" strokeLinecap="round" />
-            </svg>
-            <h2 id="purchased-collections-heading" className="font-serif text-xl">Your Purchased Collections</h2>
+      {orders.length > 0 && (
+        <section className="mt-8" aria-labelledby="order-history-heading">
+          <div className="flex items-center gap-3 text-accent">
+            <span className="h-px flex-1 bg-[#d9c6c1]" />
+            <h2 id="order-history-heading" className="shrink-0 text-xs font-medium tracking-[0.12em] uppercase sm:text-sm">
+              Order History
+            </h2>
+            <span className="h-px flex-1 bg-[#d9c6c1]" />
           </div>
-          <p className="mt-1 text-sm text-[var(--muted)]">Pieces you&rsquo;ve bought and loved</p>
 
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {collections.map((collection) => (
-              <Link
-                key={collection.productId}
-                href={`/products/detail?slug=${encodeURIComponent(collection.productSlug)}`}
-                className="group"
-              >
-                <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-[#f4f2ee]">
-                  <Image
-                    src={collection.imageUrl}
-                    alt={collection.name}
-                    fill
-                    sizes="(max-width: 640px) 33vw, 200px"
-                    className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                  />
-                  <span className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-accent text-xs font-semibold text-white">
-                    {collection.itemCount}
-                  </span>
-                </div>
-                <p className="mt-2 truncate text-sm font-medium">{collection.name}</p>
-                <p className="text-xs text-[var(--muted)]">{collection.itemCount} {collection.itemCount === 1 ? "item" : "items"}</p>
-              </Link>
+          <div className="mt-4 flex flex-col gap-4">
+            {orders.map((order) => (
+              <OrderCard key={order.id} order={order} />
             ))}
           </div>
         </section>

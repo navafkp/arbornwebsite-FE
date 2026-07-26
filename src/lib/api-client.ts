@@ -283,8 +283,8 @@ export interface ApiProductDetail {
   related_products: ApiProduct[];
   review_summary: { average_rating: number; review_count: number };
   reviews: ApiReview[];
-  // Not sent by the backend yet — once it is, an Instagram reel card renders
-  // as the last slide of the image gallery. Absent/null hides that slide.
+  // When present, an Instagram reel card renders below the gallery.
+  // Absent/null hides that card entirely.
   instagram_reel_url?: string | null;
   instagram_thumbnail_url?: string | null;
 }
@@ -440,7 +440,8 @@ export async function removeWishlistItem(accessToken: string, productId: number)
   });
 }
 
-export interface ApiOrder {
+// One product line within a purchase.
+export interface ApiOrderItem {
   id: number;
   product: { id: number; name: string; slug: string };
   variant_id: number;
@@ -450,17 +451,23 @@ export interface ApiOrder {
   size_display_text: string;
   image_url: string;
   quantity: number;
-  collected_amount: string;
+}
+
+// One purchase — can bundle multiple products bought together, listed in `items`.
+export interface ApiOrder {
+  id: number;
+  collected_amount: string; // price collected for the order
   shipping_charge: string;
-  transport_mode: string;
-  state: string;
+  transport_mode: string; // courier, e.g. "dtdc"
+  state: string; // delivery destination state, e.g. "Kerala" — not an order status
   created_at: string;
+  items: ApiOrderItem[];
 }
 
 export async function getOrders(accessToken: string) {
-  const res = await request<{ data: ApiOrder[] }>("/orders/", {
+  const res = await request<{ data: ApiOrder[] | { items: ApiOrder[] } }>("/orders/", {
     baseUrl: CATALOG_BASE_URL,
     accessToken,
   });
-  return res.data;
+  return Array.isArray(res.data) ? res.data : res.data.items;
 }

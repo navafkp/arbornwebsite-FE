@@ -3,6 +3,7 @@ import NewInSection from "@/components/home/NewInSection";
 import ShopByCollectionSection from "@/components/home/ShopByCollectionSection";
 import ArbornStories from "@/components/common/ArbornStories";
 import FeatureStrip from "@/components/home/FeatureStrip";
+import AboutUsIconGrid from "@/components/home/AboutUsIconGrid";
 
 export default function HomeScreen() {
   return (
@@ -13,6 +14,7 @@ export default function HomeScreen() {
         <NewInSection />
         <ShopByCollectionSection />
         <ArbornStories />
+        <AboutUsIconGrid />
       </div>
     </>
   );

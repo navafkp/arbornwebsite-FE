@@ -15,7 +15,6 @@ import {
   type BackendSize,
 } from "@/lib/api-client";
 import { cn, formatPrice } from "@/lib/utils";
-import { withBasePath } from "@/lib/asset-path";
 import { getPreferredSizes } from "@/lib/preferred-size";
 import { buildOrderInquiryMessage, buildWhatsAppLink } from "@/lib/whatsapp";
 import { markContactedViaWhatsApp } from "@/lib/whatsapp-contacted";
@@ -45,7 +44,6 @@ function tornEdgeClipPath(teeth = 16, dip = 3) {
 }
 
 const TORN_EDGE = tornEdgeClipPath();
-const AUTO_SCROLL_INTERVAL_MS = 3000;
 
 const ABOUT_PRODUCT_ITEMS = [
   {
@@ -247,30 +245,6 @@ export default function ApiProductDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeVariantIndex, preferredSizeCodes]);
 
-  useEffect(() => {
-    if (allImages.length <= 1) return;
-
-    const timer = setInterval(() => {
-      setMainImageIndex((current) => {
-        // Only cycle through the currently active variant's own images —
-        // crossing into another variant's photos would silently swap the
-        // selected color/size/price too, which isn't what auto-scroll is for.
-        const currentVariantIndex = allImages[current]?.variantIndex;
-        const sameVariantIndices = allImages
-          .map((img, i) => (img.variantIndex === currentVariantIndex ? i : -1))
-          .filter((i) => i !== -1);
-        if (sameVariantIndices.length <= 1) return current;
-        const posInGroup = sameVariantIndices.indexOf(current);
-        const next = sameVariantIndices[(posInGroup + 1) % sameVariantIndices.length];
-        scrollToImage(next);
-        return next;
-      });
-    }, AUTO_SCROLL_INTERVAL_MS);
-
-    return () => clearInterval(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allImages.length]);
-
   function selectVariant(index: number) {
     const firstImage = allImages.findIndex((img) => img.variantIndex === index);
     if (firstImage >= 0) {
@@ -408,10 +382,8 @@ export default function ApiProductDetail() {
   }
 
   const displayedReviews = product.reviews.length > 0 ? product.reviews : SAMPLE_REVIEWS;
-  // TEMP: preview fallback until the backend sends instagram_reel_url — remove this fallback once it does.
-  const instagramReelUrl = product.instagram_reel_url ?? "https://www.instagram.com/reel/Da-dYBpIcb2/?igsh=bWdvZzIzdmppNTF1";
-  // TEMP: placeholder thumbnail until a real one is uploaded — remove this fallback once the user adds it.
-  const instagramThumbnailUrl = product.instagram_thumbnail_url ?? withBasePath("/images/arborn-nightwear.png");
+  const instagramReelUrl = product.instagram_reel_url;
+  const instagramThumbnailUrl = product.instagram_thumbnail_url;
 
   return (
     <div>
