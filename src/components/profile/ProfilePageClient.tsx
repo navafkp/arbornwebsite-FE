@@ -18,7 +18,12 @@ function ProfileLoading() {
 // exposes real status.
 const STATUS_LABEL = "Delivered";
 
-function OrderCard({ order, onAddReview }: { order: ApiOrder; onAddReview: (productName: string) => void }) {
+interface ReviewTarget {
+  productName: string;
+  productImage: string;
+}
+
+function OrderCard({ order, onAddReview }: { order: ApiOrder; onAddReview: (target: ReviewTarget) => void }) {
   const firstItem = order.items[0];
   const extraItemCount = order.items.length - 1;
   const totalQuantity = order.items.reduce((sum, item) => sum + item.quantity, 0);
@@ -32,7 +37,10 @@ function OrderCard({ order, onAddReview }: { order: ApiOrder; onAddReview: (prod
   return (
     <div className="rounded-2xl border border-[#f2dfe2] bg-white p-3 shadow-[0_4px_16px_rgba(190,120,130,0.06)]">
       <div className="flex gap-3">
-        <div className="relative h-[110px] w-[90px] shrink-0 overflow-hidden rounded-xl bg-[#f4f2ee]">
+        <Link
+          href={`/products/detail?slug=${encodeURIComponent(firstItem.product.slug)}`}
+          className="relative h-[110px] w-[90px] shrink-0 overflow-hidden rounded-xl bg-[#f4f2ee]"
+        >
           <Image src={firstItem.image_url} alt={firstItem.product.name} fill sizes="90px" className="object-cover" />
           {order.items.length > 1 && (
             <span className="absolute -bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full bg-accent-soft px-2 py-1 text-[10px] font-medium whitespace-nowrap text-accent shadow-[0_2px_6px_rgba(190,120,130,0.25)]">
@@ -43,7 +51,7 @@ function OrderCard({ order, onAddReview }: { order: ApiOrder; onAddReview: (prod
               {order.items.length} Items
             </span>
           )}
-        </div>
+        </Link>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <span className="flex items-center gap-1 rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-medium text-accent">
@@ -89,7 +97,7 @@ function OrderCard({ order, onAddReview }: { order: ApiOrder; onAddReview: (prod
 
       <button
         type="button"
-        onClick={() => onAddReview(firstItem.product.name)}
+        onClick={() => onAddReview({ productName: firstItem.product.name, productImage: firstItem.image_url })}
         className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-full border border-accent/30 py-2 text-xs font-medium text-accent"
       >
         <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
@@ -111,7 +119,7 @@ export default function ProfilePageClient() {
   const [saveError, setSaveError] = useState("");
   const [name, setName] = useState("");
   const [orders, setOrders] = useState<ApiOrder[]>([]);
-  const [reviewProductName, setReviewProductName] = useState<string | null>(null);
+  const [reviewTarget, setReviewTarget] = useState<ReviewTarget | null>(null);
 
   useEffect(() => {
     if (!hydrated || !hasBackendSession || !accessToken) return;
@@ -189,6 +197,8 @@ export default function ProfilePageClient() {
   }
 
   const initials = (user.name || user.email).split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase();
+  // Orders with no items are incomplete/broken records — nothing to show.
+  const visibleOrders = orders.filter((order) => order.items.length > 0);
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-10 sm:px-6 sm:py-14">
       <div className="flex items-start justify-between gap-4">
@@ -225,7 +235,7 @@ export default function ProfilePageClient() {
         ) : <button type="button" onClick={() => setEditing(true)} className="mt-7 min-h-11 w-full rounded-full border border-[#dcc9c6] text-sm font-semibold text-accent hover:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">Edit name</button>}
       </section>
 
-      {orders.length > 0 && (
+      {visibleOrders.length > 0 && (
         <section className="mt-8" aria-labelledby="order-history-heading">
           <div className="flex items-center gap-3 text-accent">
             <span className="h-px flex-1 bg-[#d9c6c1]" />
@@ -236,15 +246,19 @@ export default function ProfilePageClient() {
           </div>
 
           <div className="mt-4 flex flex-col gap-4">
-            {orders.map((order) => (
-              <OrderCard key={order.id} order={order} onAddReview={setReviewProductName} />
+            {visibleOrders.map((order) => (
+              <OrderCard key={order.id} order={order} onAddReview={setReviewTarget} />
             ))}
           </div>
         </section>
       )}
 
-      {reviewProductName && (
-        <AddReviewModal productName={reviewProductName} onClose={() => setReviewProductName(null)} />
+      {reviewTarget && (
+        <AddReviewModal
+          productName={reviewTarget.productName}
+          productImage={reviewTarget.productImage}
+          onClose={() => setReviewTarget(null)}
+        />
       )}
     </div>
   );

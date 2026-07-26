@@ -122,7 +122,7 @@ export default function ApiProductDetail() {
   const [addToCartError, setAddToCartError] = useState<string | null>(null);
 
   const [product, setProduct] = useState<ApiProductDetailData | null>(null);
-  const [loadState, setLoadState] = useState<"loading" | "ready" | "error" | "not-found">(
+  const [loadState, setLoadState] = useState<"loading" | "ready" | "error" | "not-found" | "unavailable">(
     "loading",
   );
   const [mainImageIndex, setMainImageIndex] = useState(0);
@@ -147,6 +147,10 @@ export default function ApiProductDetail() {
     setLoadState("loading");
     getProductDetail(slug, preferredCodes)
       .then((data) => {
+        if (data.is_active === false) {
+          setLoadState("unavailable");
+          return;
+        }
         const visibleIndices = getVisibleVariantIndices(data.variants, preferredCodes);
         const initialVariant = data.variants[visibleIndices[0] ?? 0];
         // Keep the preferred size selected even if this variant doesn't
@@ -169,7 +173,7 @@ export default function ApiProductDetail() {
         setLoadState("ready");
         galleryRef.current?.scrollTo({ left: 0 });
       })
-      .catch(() => setLoadState("error"));
+      .catch((err) => setLoadState(err instanceof ApiError && err.status === 404 ? "unavailable" : "error"));
   }
 
   useEffect(() => {
@@ -266,6 +270,26 @@ export default function ApiProductDetail() {
             <div className="h-4 w-1/3 animate-pulse rounded bg-black/5" />
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (loadState === "unavailable") {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-16 text-center sm:px-6 lg:px-8">
+        <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#f7e7e9] text-accent" aria-hidden="true">
+          <HeartIcon className="h-7 w-7" />
+        </span>
+        <h1 className="mt-5 font-serif text-3xl">This product is not available now</h1>
+        <p className="mx-auto mt-2 max-w-sm text-sm text-[var(--muted)]">
+          It may have been removed or is temporarily out of listing. Take a look at our other pieces instead.
+        </p>
+        <Link
+          href="/products"
+          className="mt-6 inline-flex items-center justify-center rounded-full bg-accent px-7 py-3 text-xs font-medium tracking-widest text-white uppercase transition hover:bg-accent-dark"
+        >
+          Explore More
+        </Link>
       </div>
     );
   }

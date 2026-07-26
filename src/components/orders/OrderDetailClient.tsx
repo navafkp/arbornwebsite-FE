@@ -44,7 +44,7 @@ export default function OrderDetailClient() {
   const { hydrated, hasBackendSession, accessToken, refreshSession } = useAuth();
   const [order, setOrder] = useState<ApiOrder | null>(null);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
-  const [reviewProductName, setReviewProductName] = useState<string | null>(null);
+  const [reviewTarget, setReviewTarget] = useState<{ productName: string; productImage: string } | null>(null);
 
   useEffect(() => {
     if (!hydrated || !hasBackendSession || !accessToken || !orderId) return;
@@ -53,7 +53,7 @@ export default function OrderDetailClient() {
       try {
         const orders = await getOrders(token);
         if (!active) return;
-        const match = orders.find((o) => String(o.id) === orderId) ?? null;
+        const match = orders.find((o) => String(o.id) === orderId && o.items.length > 0) ?? null;
         setOrder(match);
         setLoadState(match ? "ready" : "error");
       } catch (err) {
@@ -168,9 +168,12 @@ export default function OrderDetailClient() {
               key={item.id}
               className={`relative flex items-center gap-3 p-4 ${i > 0 ? "border-t border-[#f2dfe2]" : ""}`}
             >
-              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-[#f4f2ee]">
+              <Link
+                href={`/products/detail?slug=${encodeURIComponent(item.product.slug)}`}
+                className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-[#f4f2ee]"
+              >
                 <Image src={item.image_url} alt={item.product.name} fill sizes="56px" className="object-cover" />
-              </div>
+              </Link>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold">{item.product.name}</p>
                 <p className="mt-0.5 text-xs text-[var(--muted)]">
@@ -178,7 +181,7 @@ export default function OrderDetailClient() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => setReviewProductName(item.product.name)}
+                  onClick={() => setReviewTarget({ productName: item.product.name, productImage: item.image_url })}
                   className="mt-1.5 flex items-center gap-1 text-xs font-medium text-accent"
                 >
                   <svg className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
@@ -234,8 +237,12 @@ export default function OrderDetailClient() {
         </a>
       </div>
 
-      {reviewProductName && (
-        <AddReviewModal productName={reviewProductName} onClose={() => setReviewProductName(null)} />
+      {reviewTarget && (
+        <AddReviewModal
+          productName={reviewTarget.productName}
+          productImage={reviewTarget.productImage}
+          onClose={() => setReviewTarget(null)}
+        />
       )}
     </div>
   );

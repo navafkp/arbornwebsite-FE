@@ -271,6 +271,7 @@ export interface ApiProductDetail {
   id: number;
   name: string;
   slug: string;
+  is_active?: boolean;
   short_description: string;
   description: string;
   base_price: string;
