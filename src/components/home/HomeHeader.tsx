@@ -14,7 +14,7 @@ export default function HomeHeader() {
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
-    <header className={`fixed top-0 right-0 left-0 z-50 flex h-[67px] items-center justify-between bg-background px-4 ${searchOpen ? "border-b border-black/5" : ""}`}>
+    <header className={`fixed top-0 right-0 left-0 z-50 flex h-[67px] items-center justify-between bg-accent-soft/35 px-4 ${searchOpen ? "border-b border-black/5" : ""}`}>
       {searchOpen ? (
         <>
           <SearchBar
@@ -39,7 +39,7 @@ export default function HomeHeader() {
             type="button"
             onClick={() => setSearchOpen(true)}
             aria-label="Search"
-            className="relative z-30 flex h-[37px] w-[37px] shrink-0 items-center justify-center rounded-full text-accent"
+            className="relative z-30 flex h-[37px] w-[37px] shrink-0 items-center justify-center rounded-full border border-accent/25 text-accent"
           >
             <svg className="h-[23.1px] w-[23.1px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
               <circle cx="11" cy="11" r="7" />
@@ -59,7 +59,7 @@ export default function HomeHeader() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Follow us on Instagram"
-              className="flex h-[37px] w-[37px] shrink-0 items-center justify-center rounded-full text-accent"
+              className="flex h-[37px] w-[37px] shrink-0 items-center justify-center rounded-full border border-accent/25 text-accent"
             >
               <svg className="h-[23.1px] w-[23.1px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
                 <rect x="3" y="3" width="18" height="18" rx="5" />
@@ -72,7 +72,7 @@ export default function HomeHeader() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Chat with us on WhatsApp"
-              className="flex h-[37px] w-[37px] shrink-0 items-center justify-center rounded-full text-black"
+              className="flex h-[37px] w-[37px] shrink-0 items-center justify-center rounded-full border border-accent/25 text-accent"
             >
               <svg className="h-[23.1px] w-[23.1px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
                 <path d="M12 3a9 9 0 00-7.6 13.8L3 21l4.4-1.4A9 9 0 1012 3z" strokeLinejoin="round" />
