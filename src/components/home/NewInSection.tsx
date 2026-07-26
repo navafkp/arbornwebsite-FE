@@ -34,6 +34,12 @@ export default function NewInSection() {
     setViewMoreHref(href);
   }, []);
 
+  // Never render a card for a
+  // product that has no stock anywhere.
+  const visibleProducts = products.filter(
+    (p) => (p.colors?.length ?? 0) > 0 || (p.sizes?.length ?? 0) > 0,
+  );
+
   return (
     <div className="mt-[6.5px]">
       {loadState === "loading" && (
@@ -53,15 +59,15 @@ export default function NewInSection() {
         </p>
       )}
 
-      {loadState === "ready" && products.length === 0 && (
+      {loadState === "ready" && visibleProducts.length === 0 && (
         <p className="mt-4 rounded-2xl border border-dashed border-black/15 px-4 py-3.5 text-sm text-[var(--muted)]">
           No products found here yet.
         </p>
       )}
 
-      {loadState === "ready" && products.length > 0 && (
+      {loadState === "ready" && visibleProducts.length > 0 && (
         <div className="mt-[10.8px] grid grid-cols-3 gap-1.5" style={{ marginLeft: "-2.5%", marginRight: "-2.5%" }}>
-          {products.map((product) => (
+          {visibleProducts.map((product) => (
             <div key={product.id} className="mx-auto w-full">
               <ApiProductCard product={product} showWishlist={false} compactPatternPreviews />
             </div>
@@ -71,7 +77,7 @@ export default function NewInSection() {
 
       <Link
         href={viewMoreHref}
-        className="mt-3 flex items-center justify-center gap-[4.2px] rounded-full border border-accent bg-accent py-[6.3px] text-[9.5px] font-bold text-white outline-none transition hover:border-accent-dark hover:bg-accent-dark focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+        className="mt-3 flex items-center justify-center gap-[4.2px] rounded-full border border-accent bg-accent py-[11px] text-[10.5px] font-bold text-white outline-none transition hover:border-accent-dark hover:bg-accent-dark focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
       >
         VIEW MORE
         <svg className="h-[8.4px] w-[8.4px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

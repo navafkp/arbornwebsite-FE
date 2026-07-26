@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getProducts, getExplore, type ApiProduct } from "@/lib/api-client";
+import { getProducts, getExplore, getSizes, type ApiProduct, type BackendSize } from "@/lib/api-client";
 import { getPreferredSizes, clearPreferredSize } from "@/lib/preferred-size";
 import { PRICE_PRESETS } from "@/lib/constants";
 import ApiProductCard from "@/components/products/ApiProductCard";
@@ -49,6 +49,7 @@ export default function ApiProductGrid({
   // plain/category/tag browsing is still scoped to their sizes without
   // requiring them to go through /select-size again.
   const [effectiveSizes, setEffectiveSizes] = useState<number[]>(sizes);
+  const [sizeLabels, setSizeLabels] = useState<BackendSize[]>([]);
   const [sort, setSort] = useState<SortKey | null>(null);
   const [pricePreset, setPricePreset] = useState<string | null>(null);
   const [openPanel, setOpenPanel] = useState<"sort" | "filter" | null>(null);
@@ -64,6 +65,24 @@ export default function ApiProductGrid({
     const preferred = getPreferredSizes();
     setEffectiveSizes(preferred);
   }, [sizes]);
+
+  useEffect(() => {
+    getSizes().then(setSizeLabels).catch(() => setSizeLabels([]));
+  }, []);
+
+  // The backend already filters by ?size= server-side, but as a safety net
+  // never render a card that has no stock anywhere, or that doesn't stock
+  // the shopper's selected size — same reasoning as the detail page's
+  // "More Patterns Like This" filter.
+  const preferredSizeLabels = sizeLabels
+    .filter((s) => effectiveSizes.includes(s.size_code))
+    .map((s) => s.display_text);
+  const visibleProducts = products.filter((p) => {
+    const hasStock = (p.colors?.length ?? 0) > 0 || (p.sizes?.length ?? 0) > 0;
+    if (!hasStock) return false;
+    if (preferredSizeLabels.length === 0) return true;
+    return (p.sizes ?? []).some((s) => preferredSizeLabels.includes(s));
+  });
 
   // Sort/price filter are scoped to whatever's being browsed right now —
   // switching to a different collection (category/tag) or search is a new
@@ -274,7 +293,7 @@ export default function ApiProductGrid({
         </p>
       )}
 
-      {loadState === "ready" && products.length === 0 && (
+      {loadState === "ready" && visibleProducts.length === 0 && (
         <div className="mt-8 flex flex-col items-center px-4 text-center">
           <OpenBoxHeartIllustration className="h-36 w-36" />
           <h2 className="mt-2 font-serif text-xl">No products found</h2>
@@ -312,10 +331,10 @@ export default function ApiProductGrid({
         </div>
       )}
 
-      {loadState === "ready" && products.length > 0 && (
+      {loadState === "ready" && visibleProducts.length > 0 && (
         <>
           <div className="mt-5 grid grid-cols-2 gap-3 sm:mt-6 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5 lg:gap-4">
-            {products.map((product) => (
+            {visibleProducts.map((product) => (
               <ApiProductCard key={product.id} product={product} />
             ))}
           </div>

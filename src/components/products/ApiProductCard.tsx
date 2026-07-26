@@ -116,44 +116,44 @@ export default function ApiProductCard({
               </span>
             )}
           </div>
-          {visibleFooterColours.length > 0 && (
-            <div aria-hidden="true" className="flex shrink-0 items-center justify-end gap-[1px] whitespace-nowrap sm:gap-0.5">
-              {visibleFooterColours.map((colour, index) => (
-                <span
-                  key={`${colour}-${index}`}
-                  className={`h-[9px] w-[9px] shrink-0 rounded-full border border-white shadow-[0_1px_2px_rgba(85,43,55,0.16)] sm:h-[14px] sm:w-[14px] ${index === 2 ? "hidden sm:block" : ""}`}
-                  style={{ backgroundColor: colour }}
-                />
-              ))}
-              {remainingMobileFooterColours > 0 && (
-                <span className="ml-px shrink-0 text-[6px] font-semibold leading-none text-[#2a2022] sm:hidden">+{remainingMobileFooterColours}</span>
-              )}
-              {remainingDesktopFooterColours > 0 && (
-                <span className="ml-0.5 hidden shrink-0 text-[7px] leading-none font-semibold text-[#2a2022] sm:inline">+{remainingDesktopFooterColours}</span>
-              )}
-            </div>
-          )}
-        </div>
-
-        {product.sizes && product.sizes.length > 0 && (
-          <div className="flex gap-1 bg-[#fffafa] px-1.5 pb-1.5 sm:px-2">
-            {product.sizes.slice(0, 3).map((size, i) => (
-              <span
-                key={size}
-                className={`flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-medium sm:h-5 sm:w-5 sm:text-[9px] ${
-                  i === 0 ? "bg-accent-soft text-accent" : "bg-black/5 text-black/60"
-                }`}
-              >
-                {size}
-              </span>
-            ))}
-            {product.sizes.length > 3 && (
-              <span className="flex h-4 items-center justify-center rounded-full bg-black/5 px-1 text-[8px] font-medium text-black/60 sm:h-5 sm:text-[9px]">
-                +{product.sizes.length - 3}
-              </span>
+          <div aria-hidden="true" className="flex h-[9px] shrink-0 items-center justify-end gap-[1px] whitespace-nowrap sm:h-[14px] sm:gap-0.5">
+            {footerColours.length > 1 && (
+              <>
+                {visibleFooterColours.map((colour, index) => (
+                  <span
+                    key={`${colour}-${index}`}
+                    className={`h-[9px] w-[9px] shrink-0 rounded-full border border-white shadow-[0_1px_2px_rgba(85,43,55,0.16)] sm:h-[14px] sm:w-[14px] ${index === 2 ? "hidden sm:block" : ""}`}
+                    style={{ backgroundColor: colour }}
+                  />
+                ))}
+                {remainingMobileFooterColours > 0 && (
+                  <span className="ml-px shrink-0 text-[6px] font-semibold leading-none text-[#2a2022] sm:hidden">+{remainingMobileFooterColours}</span>
+                )}
+                {remainingDesktopFooterColours > 0 && (
+                  <span className="ml-0.5 hidden shrink-0 text-[7px] leading-none font-semibold text-[#2a2022] sm:inline">+{remainingDesktopFooterColours}</span>
+                )}
+              </>
             )}
           </div>
-        )}
+        </div>
+
+        <div className="flex h-4 gap-1 bg-[#fffafa] px-1.5 pb-[22px] sm:h-5 sm:px-2">
+          {product.sizes?.slice(0, 3).map((size, i) => (
+            <span
+              key={size}
+              className={`flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-medium sm:h-5 sm:w-5 sm:text-[9px] ${
+                i === 0 ? "bg-accent-soft text-accent" : "bg-black/5 text-black/60"
+              }`}
+            >
+              {size}
+            </span>
+          ))}
+          {product.sizes && product.sizes.length > 3 && (
+            <span className="flex h-4 items-center justify-center rounded-full bg-black/5 px-1 text-[8px] font-medium text-black/60 sm:h-5 sm:text-[9px]">
+              +{product.sizes.length - 3}
+            </span>
+          )}
+        </div>
       </Link>
 
       {showWishlist && (

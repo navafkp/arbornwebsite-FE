@@ -6,10 +6,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   getProductDetail,
+  getSizes,
   ApiError,
   type ApiProductDetail as ApiProductDetailData,
+  type ApiProduct,
   type ApiReview,
   type ApiProductVariant,
+  type BackendSize,
 } from "@/lib/api-client";
 import { cn, formatPrice } from "@/lib/utils";
 import { withBasePath } from "@/lib/asset-path";
@@ -130,7 +133,12 @@ export default function ApiProductDetail() {
   const [manualVariantIndex, setManualVariantIndex] = useState<number | null>(null);
   const [selectedSizeCode, setSelectedSizeCode] = useState<number | null>(null);
   const [preferredSizeCodes, setPreferredSizeCodes] = useState<number[]>([]);
+  const [sizeLabels, setSizeLabels] = useState<BackendSize[]>([]);
   const galleryRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    getSizes().then(setSizeLabels).catch(() => setSizeLabels([]));
+  }, []);
 
   function loadProduct(preferredCodes: number[]) {
     if (!slug) {
@@ -328,6 +336,24 @@ export default function ApiProductDetail() {
       (selectedSize?.is_free_size || line.size_code === selectedSizeCode),
   );
   const alreadyInCart = !!existingCartLine;
+
+  // "More Patterns Like This" / "Recommended for You" should never surface
+  // something the shopper can't actually buy right now — drop anything with
+  // no stock anywhere, and (when a size is saved) anything that doesn't
+  // stock that size either.
+  const preferredSizeLabelsList = sizeLabels
+    .filter((s) => preferredSizeCodes.includes(s.size_code))
+    .map((s) => s.display_text);
+  function filterAvailable(items: ApiProduct[]) {
+    return items.filter((p) => {
+      const hasStock = (p.colors?.length ?? 0) > 0 || (p.sizes?.length ?? 0) > 0;
+      if (!hasStock) return false;
+      if (preferredSizeLabelsList.length === 0) return true;
+      return (p.sizes ?? []).some((s) => preferredSizeLabelsList.includes(s));
+    });
+  }
+  const visibleRelatedProducts = filterAvailable(product.related_products);
+  const visibleRecommendedProducts = filterAvailable(product.recommended_products);
   const whatsappLink = buildWhatsAppLink(
     buildOrderInquiryMessage({
       productName: product.name,
@@ -745,7 +771,7 @@ export default function ApiProductDetail() {
         </div>
       </div>
 
-      {product.related_products.length > 0 && (
+      {visibleRelatedProducts.length > 0 && (
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <h2 className="relative flex items-center gap-1.5 font-serif text-2xl">
@@ -765,14 +791,14 @@ export default function ApiProductDetail() {
             </Link>
           </div>
           <div className="no-scrollbar mt-6 flex gap-4 overflow-x-auto pb-1">
-            {product.related_products.map((p) => (
+            {visibleRelatedProducts.map((p) => (
               <ProductOverlayCard key={p.id} product={p} />
             ))}
           </div>
         </div>
       )}
 
-      {product.recommended_products.length > 0 && (
+      {visibleRecommendedProducts.length > 0 && (
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <h2 className="relative flex items-center gap-1.5 font-serif text-2xl">
@@ -792,7 +818,7 @@ export default function ApiProductDetail() {
             </Link>
           </div>
           <div className="no-scrollbar mt-6 flex gap-4 overflow-x-auto pb-1">
-            {product.recommended_products.map((p) => (
+            {visibleRecommendedProducts.map((p) => (
               <ProductOverlayCard key={p.id} product={p} />
             ))}
           </div>
