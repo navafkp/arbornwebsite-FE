@@ -605,12 +605,9 @@ export default function ApiProductDetail() {
             </div>
 
             {product.short_description && (
-              <p className="relative inline-flex w-fit items-center gap-1.5 text-sm text-[#b4425f]">
-                <span className="relative z-0">
-                  <span className="absolute inset-x-0 bottom-0.5 -z-10 h-2.5 bg-accent-soft" />
-                  {product.short_description}
-                </span>
-                <HeartIcon filled className="h-3.5 w-3.5 shrink-0 text-accent" />
+              <p className="flex items-start gap-1.5 text-sm text-[#b4425f]">
+                <span className="line-clamp-2">{product.short_description}</span>
+                <HeartIcon filled className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
               </p>
             )}
 
@@ -751,9 +748,6 @@ export default function ApiProductDetail() {
             {addToCartError && (
               <p className="text-center text-xs text-red-600">{addToCartError}</p>
             )}
-            <p className="text-center text-[11px] text-[var(--muted)] sm:text-left">
-              Chat with us to confirm size, color and delivery.
-            </p>
               </>
             )}
             <LoginModal
@@ -763,37 +757,38 @@ export default function ApiProductDetail() {
             />
 
             <div className="relative overflow-hidden rounded-3xl bg-accent-soft/40 p-6">
-              <div className="pointer-events-none absolute -top-12 -right-12 h-40 w-40 rounded-full bg-accent-soft/70" />
-              <svg
-                className="pointer-events-none absolute top-4 right-3 h-24 w-28 text-accent/25"
-                viewBox="0 0 120 100"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.3"
-                aria-hidden="true"
-              >
-                <path d="M10 95c25-5 45-15 60-35s25-40 45-45" strokeLinecap="round" />
-                {[
-                  [22, 82, -20],
-                  [38, 68, -10],
-                  [54, 54, 5],
-                  [68, 40, 20],
-                  [82, 26, 35],
-                ].map(([cx, cy, rotate]) => (
-                  <ellipse key={cx} cx={cx} cy={cy} rx="9" ry="4.5" transform={`rotate(${rotate} ${cx} ${cy})`} />
-                ))}
-              </svg>
-
-              <p className="relative flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.2em] text-accent uppercase">
-                <SparkleIcon className="h-3.5 w-3.5" />
-                About This
-              </p>
-              <span className="relative mt-2 block h-0.5 w-10 bg-accent" />
-
               {product.description && (
-                <p className="relative mt-4 text-sm leading-7 text-foreground/80 whitespace-pre-line">
-                  {product.description}
-                </p>
+                <>
+                  <div className="pointer-events-none absolute -top-12 -right-12 h-40 w-40 rounded-full bg-accent-soft/70" />
+                  <svg
+                    className="pointer-events-none absolute top-4 right-3 h-24 w-28 text-accent/25"
+                    viewBox="0 0 120 100"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                    aria-hidden="true"
+                  >
+                    <path d="M10 95c25-5 45-15 60-35s25-40 45-45" strokeLinecap="round" />
+                    {[
+                      [22, 82, -20],
+                      [38, 68, -10],
+                      [54, 54, 5],
+                      [68, 40, 20],
+                      [82, 26, 35],
+                    ].map(([cx, cy, rotate]) => (
+                      <ellipse key={cx} cx={cx} cy={cy} rx="9" ry="4.5" transform={`rotate(${rotate} ${cx} ${cy})`} />
+                    ))}
+                  </svg>
+
+                  <p className="relative flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.2em] text-accent uppercase">
+                    <SparkleIcon className="h-3.5 w-3.5" />
+                    About This
+                  </p>
+                  <span className="relative mt-2 block h-0.5 w-10 bg-accent" />
+                  <p className="relative mt-4 text-sm leading-7 text-foreground/80 whitespace-pre-line">
+                    {product.description}
+                  </p>
+                </>
               )}
 
               <div className="relative mt-6 flex items-stretch justify-between border-t border-dashed border-accent/30 pt-4">

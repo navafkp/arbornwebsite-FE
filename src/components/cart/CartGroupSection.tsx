@@ -75,6 +75,52 @@ export default function CartGroupSection({
     }
   }
 
+  // Stays hidden until the shopper checks at least one item directly on a
+  // card — bulk actions have nothing to act on before that, so showing an
+  // empty "Select all" bar up front is just noise.
+  const selectionBar = selectedInGroup.length > 0 && (
+    <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-accent-soft/60 px-4 py-3">
+      <div className="flex items-center gap-3">
+        <input
+          type="checkbox"
+          checked={allSelected}
+          onChange={() => onSelectAllGroup(groupIds, !allSelected)}
+          className="h-4 w-4 accent-accent"
+        />
+        <span className="text-sm font-semibold text-accent">
+          {selectedInGroup.length} {selectedInGroup.length === 1 ? "item" : "items"} selected
+        </span>
+        <button
+          type="button"
+          onClick={() => onSelectAllGroup(groupIds, !allSelected)}
+          className="text-xs font-medium text-[var(--muted)] underline underline-offset-2"
+        >
+          Select all
+        </button>
+      </div>
+      <div className="flex items-center gap-4">
+        <button
+          type="button"
+          onClick={handleMoveToWishlist}
+          disabled={pending}
+          className="flex items-center gap-1 text-xs font-medium text-accent disabled:opacity-40"
+        >
+          <HeartOutlineIcon className="h-3.5 w-3.5" />
+          Move to Wishlist
+        </button>
+        <button
+          type="button"
+          onClick={handleRemove}
+          disabled={pending}
+          className="flex items-center gap-1 text-xs font-medium text-red-600 disabled:opacity-40"
+        >
+          <TrashIcon className="h-3.5 w-3.5" />
+          Remove ({selectedInGroup.length})
+        </button>
+      </div>
+    </div>
+  );
+
   if (variant === "unavailable") {
     return (
       <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-red-200 bg-red-50/40 p-3">
@@ -83,6 +129,7 @@ export default function CartGroupSection({
           <span className="text-sm font-semibold text-red-600">Out of Stock ({items.length})</span>
         </div>
         <p className="-mt-2 px-1 text-xs text-[var(--muted)]">Check back soon — these items are currently unavailable</p>
+        {selectionBar}
         <div className="flex flex-col gap-3">
           {items.map((line) => (
             <CartLineItem key={line.id} line={line} selected={selectedIds.includes(line.id)} onToggleSelect={() => onToggleSelect(line.id)} />
@@ -94,50 +141,7 @@ export default function CartGroupSection({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-accent-soft/60 px-4 py-3">
-        <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            checked={allSelected}
-            onChange={() => onSelectAllGroup(groupIds, !allSelected)}
-            className="h-4 w-4 accent-accent"
-          />
-          {selectedInGroup.length > 0 && (
-            <span className="text-sm font-semibold text-accent">
-              {selectedInGroup.length} {selectedInGroup.length === 1 ? "item" : "items"} selected
-            </span>
-          )}
-          <button
-            type="button"
-            onClick={() => onSelectAllGroup(groupIds, !allSelected)}
-            className="text-xs font-medium text-[var(--muted)] underline underline-offset-2"
-          >
-            Select all
-          </button>
-        </div>
-        {selectedInGroup.length > 0 && (
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={handleMoveToWishlist}
-              disabled={pending}
-              className="flex items-center gap-1 text-xs font-medium text-accent disabled:opacity-40"
-            >
-              <HeartOutlineIcon className="h-3.5 w-3.5" />
-              Move to Wishlist
-            </button>
-            <button
-              type="button"
-              onClick={handleRemove}
-              disabled={pending}
-              className="flex items-center gap-1 text-xs font-medium text-red-600 disabled:opacity-40"
-            >
-              <TrashIcon className="h-3.5 w-3.5" />
-              Remove ({selectedInGroup.length})
-            </button>
-          </div>
-        )}
-      </div>
+      {selectionBar}
 
       <div className="flex flex-col gap-3">
         {items.map((line) => (
