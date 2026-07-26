@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth-context";
 import { getOrders, ApiError, type ApiOrder } from "@/lib/api-client";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { formatPrice } from "@/lib/utils";
+import AddReviewModal from "@/components/orders/AddReviewModal";
 
 function IconBadge({ children }: { children: React.ReactNode }) {
   return (
@@ -43,6 +44,7 @@ export default function OrderDetailClient() {
   const { hydrated, hasBackendSession, accessToken, refreshSession } = useAuth();
   const [order, setOrder] = useState<ApiOrder | null>(null);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
+  const [reviewProductName, setReviewProductName] = useState<string | null>(null);
 
   useEffect(() => {
     if (!hydrated || !hasBackendSession || !accessToken || !orderId) return;
@@ -174,6 +176,16 @@ export default function OrderDetailClient() {
                 <p className="mt-0.5 text-xs text-[var(--muted)]">
                   Size: {item.size_display_text} &nbsp;•&nbsp; Color: {item.color} &nbsp;•&nbsp; Qty: {item.quantity}
                 </p>
+                <button
+                  type="button"
+                  onClick={() => setReviewProductName(item.product.name)}
+                  className="mt-1.5 flex items-center gap-1 text-xs font-medium text-accent"
+                >
+                  <svg className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 1.5l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.2-5.4 3.2 1.3-6-4.6-4.1 6.1-.6z" />
+                  </svg>
+                  Add Review
+                </button>
               </div>
             </div>
           ))}
@@ -221,6 +233,10 @@ export default function OrderDetailClient() {
           </svg>
         </a>
       </div>
+
+      {reviewProductName && (
+        <AddReviewModal productName={reviewProductName} onClose={() => setReviewProductName(null)} />
+      )}
     </div>
   );
 }

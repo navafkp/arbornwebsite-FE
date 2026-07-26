@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useAuth, type AuthUser } from "@/lib/auth-context";
 import { getMyProfile, updateMyProfile, getOrders, ApiError, type ApiOrder } from "@/lib/api-client";
 import { formatPrice } from "@/lib/utils";
+import AddReviewModal from "@/components/orders/AddReviewModal";
 
 function ProfileLoading() {
   return <div className="mx-auto max-w-2xl px-4 py-12" aria-label="Loading your account" aria-busy="true"><div className="h-72 animate-pulse rounded-[2rem] bg-[#f3e5e4] motion-reduce:animate-none" /></div>;
@@ -17,7 +18,7 @@ function ProfileLoading() {
 // exposes real status.
 const STATUS_LABEL = "Delivered";
 
-function OrderCard({ order }: { order: ApiOrder }) {
+function OrderCard({ order, onAddReview }: { order: ApiOrder; onAddReview: (productName: string) => void }) {
   const firstItem = order.items[0];
   const extraItemCount = order.items.length - 1;
   const totalQuantity = order.items.reduce((sum, item) => sum + item.quantity, 0);
@@ -85,6 +86,17 @@ function OrderCard({ order }: { order: ApiOrder }) {
         </Link>
         <span className="text-base font-semibold text-accent">{formatPrice(totalAmount)}</span>
       </div>
+
+      <button
+        type="button"
+        onClick={() => onAddReview(firstItem.product.name)}
+        className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-full border border-accent/30 py-2 text-xs font-medium text-accent"
+      >
+        <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10 1.5l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.2-5.4 3.2 1.3-6-4.6-4.1 6.1-.6z" />
+        </svg>
+        Add Review
+      </button>
     </div>
   );
 }
@@ -99,6 +111,7 @@ export default function ProfilePageClient() {
   const [saveError, setSaveError] = useState("");
   const [name, setName] = useState("");
   const [orders, setOrders] = useState<ApiOrder[]>([]);
+  const [reviewProductName, setReviewProductName] = useState<string | null>(null);
 
   useEffect(() => {
     if (!hydrated || !hasBackendSession || !accessToken) return;
@@ -224,10 +237,14 @@ export default function ProfilePageClient() {
 
           <div className="mt-4 flex flex-col gap-4">
             {orders.map((order) => (
-              <OrderCard key={order.id} order={order} />
+              <OrderCard key={order.id} order={order} onAddReview={setReviewProductName} />
             ))}
           </div>
         </section>
+      )}
+
+      {reviewProductName && (
+        <AddReviewModal productName={reviewProductName} onClose={() => setReviewProductName(null)} />
       )}
     </div>
   );
