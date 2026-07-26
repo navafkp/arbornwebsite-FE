@@ -26,7 +26,7 @@ import ProductOverlayCard from "@/components/products/ProductOverlayCard";
 import { useAuth } from "@/lib/auth-context";
 import { useShop } from "@/lib/shop-context";
 import { useToast } from "@/lib/toast-context";
-import { HeartIcon } from "@/components/ui/decor";
+import { HeartIcon, SparkleIcon } from "@/components/ui/decor";
 import BustSizeBanner from "@/components/home/BustSizeBanner";
 import FeatureStrip from "@/components/home/FeatureStrip";
 import LoginModal from "@/components/auth/LoginModal";
@@ -47,27 +47,28 @@ function tornEdgeClipPath(teeth = 16, dip = 3) {
 const TORN_EDGE = tornEdgeClipPath();
 const AUTO_SCROLL_INTERVAL_MS = 3000;
 
-const TRUST_ITEMS = [
+const ABOUT_PRODUCT_ITEMS = [
   {
-    label: "Soft & Breathable",
+    label: "Ultra Soft",
     icon: (
       <path
-        d="M4 12c2-4 6-6 8-6s6 2 8 6c-2 4-6 6-8 6s-6-2-8-6z M12 9v6"
+        d="M20 4C10 4 4 10 4 18v2h2c8 0 14-6 14-14V4z"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
     ),
   },
   {
-    label: "Premium Fabric",
+    label: "Breathable",
     icon: (
-      <>
-        <path d="M6 10a4 4 0 018 0 3.5 3.5 0 013.5 3.5H6.5A3.5 3.5 0 016 10z" strokeLinejoin="round" />
-      </>
+      <path
+        d="M6 17a3.5 3.5 0 010-7 4.5 4.5 0 018.6-1.6A3.5 3.5 0 0118 15.5 3.5 3.5 0 0117.5 17H6z"
+        strokeLinejoin="round"
+      />
     ),
   },
   {
-    label: "Loved by Thousands",
+    label: "All Day Comfort",
     icon: (
       <path
         d="M12 20s-7-4.5-9.5-9C1 8 2 4.5 5.5 4 8 3.6 10 5 12 7c2-2 4-3.4 6.5-3 3.5.5 4.5 4 3 7-2.5 4.5-9.5 9-9.5 9z"
@@ -251,13 +252,23 @@ export default function ApiProductDetail() {
 
     const timer = setInterval(() => {
       setMainImageIndex((current) => {
-        const next = (current + 1) % allImages.length;
+        // Only cycle through the currently active variant's own images —
+        // crossing into another variant's photos would silently swap the
+        // selected color/size/price too, which isn't what auto-scroll is for.
+        const currentVariantIndex = allImages[current]?.variantIndex;
+        const sameVariantIndices = allImages
+          .map((img, i) => (img.variantIndex === currentVariantIndex ? i : -1))
+          .filter((i) => i !== -1);
+        if (sameVariantIndices.length <= 1) return current;
+        const posInGroup = sameVariantIndices.indexOf(current);
+        const next = sameVariantIndices[(posInGroup + 1) % sameVariantIndices.length];
         scrollToImage(next);
         return next;
       });
     }, AUTO_SCROLL_INTERVAL_MS);
 
     return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allImages.length]);
 
   function selectVariant(index: number) {
@@ -751,22 +762,56 @@ export default function ApiProductDetail() {
               onSuccess={addCurrentToCart}
             />
 
-            <FeatureStrip />
+            <div className="relative overflow-hidden rounded-3xl bg-accent-soft/40 p-6">
+              <div className="pointer-events-none absolute -top-12 -right-12 h-40 w-40 rounded-full bg-accent-soft/70" />
+              <svg
+                className="pointer-events-none absolute top-4 right-3 h-24 w-28 text-accent/25"
+                viewBox="0 0 120 100"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.3"
+                aria-hidden="true"
+              >
+                <path d="M10 95c25-5 45-15 60-35s25-40 45-45" strokeLinecap="round" />
+                {[
+                  [22, 82, -20],
+                  [38, 68, -10],
+                  [54, 54, 5],
+                  [68, 40, 20],
+                  [82, 26, 35],
+                ].map(([cx, cy, rotate]) => (
+                  <ellipse key={cx} cx={cx} cy={cy} rx="9" ry="4.5" transform={`rotate(${rotate} ${cx} ${cy})`} />
+                ))}
+              </svg>
 
-            <div className="grid grid-cols-3 gap-2 border-t border-black/5 pt-4">
-              {TRUST_ITEMS.map((item) => (
-                <div key={item.label} className="flex flex-col items-center gap-1.5 text-center">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" className="h-6 w-6 text-accent">
-                    {item.icon}
-                  </svg>
-                  <span className="text-[10px] leading-tight text-[var(--muted)]">{item.label}</span>
-                </div>
-              ))}
+              <p className="relative flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.2em] text-accent uppercase">
+                <SparkleIcon className="h-3.5 w-3.5" />
+                About This
+              </p>
+              <span className="relative mt-2 block h-0.5 w-10 bg-accent" />
+
+              {product.description && (
+                <p className="relative mt-4 text-sm leading-7 text-foreground/80 whitespace-pre-line">
+                  {product.description}
+                </p>
+              )}
+
+              <div className="relative mt-6 flex items-stretch justify-between border-t border-dashed border-accent/30 pt-4">
+                {ABOUT_PRODUCT_ITEMS.map((item, i) => (
+                  <div
+                    key={item.label}
+                    className={`flex flex-1 items-center gap-2 ${i > 0 ? "border-l border-black/10 pl-3" : ""}`}
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent">
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                        {item.icon}
+                      </svg>
+                    </span>
+                    <span className="text-xs text-foreground">{item.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-
-            {product.description && (
-              <p className="text-sm whitespace-pre-line">{product.description}</p>
-            )}
           </div>
         </div>
       </div>
@@ -825,8 +870,12 @@ export default function ApiProductDetail() {
         </div>
       )}
 
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <FeatureStrip />
+      </div>
+
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div>
+        <div className="flex items-center justify-between gap-3">
           <h2 className="relative flex w-fit items-center gap-1.5 font-serif text-2xl">
             <span className="relative">
               Review
@@ -839,7 +888,7 @@ export default function ApiProductDetail() {
           <button
             type="button"
             aria-label="Add your review"
-            className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-[#f3c8d5] bg-[#fff1f5] px-3 py-1.5 text-xs font-medium text-[#b94f71] transition-colors hover:border-[#e9a8bd] hover:bg-[#ffe7ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d95f88]"
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#f3c8d5] bg-[#fff1f5] px-3 py-1.5 text-xs font-medium text-[#b94f71] transition-colors hover:border-[#e9a8bd] hover:bg-[#ffe7ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d95f88]"
           >
             <svg aria-hidden="true" viewBox="0 0 16 16" className="size-3.5" fill="none">
               <path
