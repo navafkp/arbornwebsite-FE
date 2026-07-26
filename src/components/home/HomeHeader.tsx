@@ -14,7 +14,7 @@ export default function HomeHeader() {
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
-    <header className={`fixed top-0 right-0 left-0 z-50 flex h-[67px] items-center justify-between bg-accent-soft px-4 ${searchOpen ? "border-b border-black/5" : ""}`}>
+    <header className={`fixed top-0 right-0 left-0 z-50 flex h-[67px] items-center justify-between bg-[#fcf0ef] px-4 ${searchOpen ? "border-b border-black/5" : ""}`}>
       {searchOpen ? (
         <>
           <SearchBar
