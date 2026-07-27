@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { useAuth, type AuthUser } from "@/lib/auth-context";
 import { getMyProfile, updateMyProfile, getOrders, ApiError, type ApiOrder } from "@/lib/api-client";
 import { formatPrice } from "@/lib/utils";
-import AddReviewModal from "@/components/orders/AddReviewModal";
 
 function ProfileLoading() {
   return <div className="mx-auto max-w-2xl px-4 py-12" aria-label="Loading your account" aria-busy="true"><div className="h-72 animate-pulse rounded-[2rem] bg-[#f3e5e4] motion-reduce:animate-none" /></div>;
@@ -18,12 +17,7 @@ function ProfileLoading() {
 // exposes real status.
 const STATUS_LABEL = "Delivered";
 
-interface ReviewTarget {
-  productName: string;
-  productImage: string;
-}
-
-function OrderCard({ order, onAddReview }: { order: ApiOrder; onAddReview: (target: ReviewTarget) => void }) {
+function OrderCard({ order }: { order: ApiOrder }) {
   const firstItem = order.items[0];
   const extraItemCount = order.items.length - 1;
   const totalQuantity = order.items.reduce((sum, item) => sum + item.quantity, 0);
@@ -37,21 +31,31 @@ function OrderCard({ order, onAddReview }: { order: ApiOrder; onAddReview: (targ
   return (
     <div className="rounded-2xl border border-[#f2dfe2] bg-white p-3 shadow-[0_4px_16px_rgba(190,120,130,0.06)]">
       <div className="flex gap-3">
-        <Link
-          href={`/products/detail?slug=${encodeURIComponent(firstItem.product.slug)}`}
-          className="relative h-[110px] w-[90px] shrink-0 overflow-hidden rounded-xl bg-[#f4f2ee]"
-        >
-          <Image src={firstItem.image_url} alt={firstItem.product.name} fill sizes="90px" className="object-cover" />
-          {order.items.length > 1 && (
-            <span className="absolute -bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full bg-accent-soft px-2 py-1 text-[10px] font-medium whitespace-nowrap text-accent shadow-[0_2px_6px_rgba(190,120,130,0.25)]">
-              <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <path d="M6 8h12l-1 12a1.5 1.5 0 01-1.5 1.4h-7A1.5 1.5 0 017 20L6 8z" strokeLinejoin="round" />
-                <path d="M9 8V6a3 3 0 016 0v2" strokeLinecap="round" />
-              </svg>
-              {order.items.length} Items
+        <div className="relative h-[110px] w-[90px] shrink-0">
+          {[...order.items.slice(0, 3)].reverse().map((item, revIndex, arr) => {
+            const idxFromFront = arr.length - 1 - revIndex;
+            const offset = idxFromFront * 10;
+            const rotation = idxFromFront === 0 ? 0 : idxFromFront % 2 === 0 ? -6 : 6;
+            return (
+              <Link
+                key={item.id}
+                href={`/products/detail?slug=${encodeURIComponent(item.product.slug)}`}
+                className="absolute inset-0 overflow-hidden rounded-xl border-2 border-white bg-[#f4f2ee] shadow-[0_3px_10px_rgba(0,0,0,0.12)]"
+                style={{
+                  transform: `translate(${offset}px, ${-offset}px) rotate(${rotation}deg)`,
+                  zIndex: arr.length - idxFromFront,
+                }}
+              >
+                <Image src={item.image_url} alt={item.product.name} fill sizes="90px" className="object-cover" />
+              </Link>
+            );
+          })}
+          {order.items.length > 3 && (
+            <span className="absolute -bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center rounded-full bg-accent-soft px-2 py-1 leading-none whitespace-nowrap text-accent shadow-[0_2px_6px_rgba(190,120,130,0.25)]">
+              <span className="text-[10px] font-medium">+{order.items.length - 3} more</span>
             </span>
           )}
-        </Link>
+        </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <span className="flex items-center gap-1 rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-medium text-accent">
@@ -82,29 +86,19 @@ function OrderCard({ order, onAddReview }: { order: ApiOrder; onAddReview: (targ
         </div>
       </div>
 
-      <div className="mt-3 flex items-center justify-between border-t border-[#f2dfe2] pt-3">
-        <Link
-          href={`/orders/detail?id=${encodeURIComponent(order.id)}`}
-          className="flex items-center gap-1 text-sm font-medium text-accent"
-        >
-          View Details
-          <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </Link>
+      <div className="mt-3 flex items-center justify-end border-t border-[#f2dfe2] pt-3">
         <span className="text-base font-semibold text-accent">{formatPrice(totalAmount)}</span>
       </div>
 
-      <button
-        type="button"
-        onClick={() => onAddReview({ productName: firstItem.product.name, productImage: firstItem.image_url })}
+      <Link
+        href={`/orders/detail?id=${encodeURIComponent(order.id)}`}
         className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-full border border-accent/30 py-2 text-xs font-medium text-accent"
       >
-        <svg className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M10 1.5l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.2-5.4 3.2 1.3-6-4.6-4.1 6.1-.6z" />
+        View Details
+        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        Add Review
-      </button>
+      </Link>
     </div>
   );
 }
@@ -119,7 +113,6 @@ export default function ProfilePageClient() {
   const [saveError, setSaveError] = useState("");
   const [name, setName] = useState("");
   const [orders, setOrders] = useState<ApiOrder[]>([]);
-  const [reviewTarget, setReviewTarget] = useState<ReviewTarget | null>(null);
 
   useEffect(() => {
     if (!hydrated || !hasBackendSession || !accessToken) return;
@@ -247,18 +240,10 @@ export default function ProfilePageClient() {
 
           <div className="mt-4 flex flex-col gap-4">
             {visibleOrders.map((order) => (
-              <OrderCard key={order.id} order={order} onAddReview={setReviewTarget} />
+              <OrderCard key={order.id} order={order} />
             ))}
           </div>
         </section>
-      )}
-
-      {reviewTarget && (
-        <AddReviewModal
-          productName={reviewTarget.productName}
-          productImage={reviewTarget.productImage}
-          onClose={() => setReviewTarget(null)}
-        />
       )}
     </div>
   );

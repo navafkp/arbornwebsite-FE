@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
@@ -34,11 +33,9 @@ function SprigIcon({ className }: { className?: string }) {
 // TEMPORARY: static UI only — nothing is submitted to the backend yet.
 export default function AddReviewModal({
   productName,
-  productImage,
   onClose,
 }: {
   productName: string;
-  productImage?: string;
   onClose: () => void;
 }) {
   const { user } = useAuth();
@@ -50,7 +47,7 @@ export default function AddReviewModal({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    showToast("Thank you for your review!");
+    showToast(`Thank you for reviewing ${productName}!`);
     onClose();
   }
 
@@ -82,36 +79,8 @@ export default function AddReviewModal({
           <span className="h-px w-16 bg-accent/40" />
         </div>
 
-        <div className="mt-5 flex items-center gap-3">
-          <div className="relative h-[92px] w-[92px] shrink-0 overflow-hidden rounded-2xl bg-[#f4f2ee]">
-            {productImage ? (
-              <Image src={productImage} alt={productName} fill sizes="92px" className="object-cover" />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-accent/40">
-                <HeartIcon filled className="h-8 w-8" />
-              </div>
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-serif text-xl">{productName}</p>
-            <div className="mt-2 border-t border-dashed border-accent/25 pt-2">
-              <p className="flex items-center gap-2 text-sm font-medium text-accent">
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-                  <path d="M6 8h12l-1 12a1.5 1.5 0 01-1.5 1.4h-7A1.5 1.5 0 017 20L6 8z" strokeLinejoin="round" />
-                  <path d="M9 8V6a3 3 0 016 0v2" strokeLinecap="round" />
-                </svg>
-                Thank you for your purchase!
-              </p>
-              <p className="mt-1.5 flex items-center gap-1 text-xs text-[var(--muted)]">
-                Your feedback helps us &amp; other shoppers.
-                <HeartIcon filled className="h-3 w-3 text-accent" />
-              </p>
-            </div>
-          </div>
-        </div>
-
         <form onSubmit={handleSubmit} className="mt-5">
-          <div className="border-t border-dashed border-accent/25 pt-4">
+          <div className="pt-1">
             <p className="flex items-center gap-1.5 text-sm font-medium text-accent">
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
                 <circle cx="12" cy="8.5" r="4" />

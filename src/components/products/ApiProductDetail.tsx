@@ -29,6 +29,7 @@ import { HeartIcon, SparkleIcon } from "@/components/ui/decor";
 import BustSizeBanner from "@/components/home/BustSizeBanner";
 import FeatureStrip from "@/components/home/FeatureStrip";
 import LoginModal from "@/components/auth/LoginModal";
+import AddReviewModal from "@/components/orders/AddReviewModal";
 
 // Approximates the "torn paper" edge at the bottom of the main product
 // image: a zigzag clip-path so it isn't a plain straight-edged rectangle.
@@ -120,6 +121,7 @@ export default function ApiProductDetail() {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [addToCartError, setAddToCartError] = useState<string | null>(null);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
 
   const [product, setProduct] = useState<ApiProductDetailData | null>(null);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error" | "not-found" | "unavailable">(
@@ -751,6 +753,9 @@ export default function ApiProductDetail() {
               onClose={() => setLoginModalOpen(false)}
               onSuccess={addCurrentToCart}
             />
+            {reviewModalOpen && (
+              <AddReviewModal productName={product.name} onClose={() => setReviewModalOpen(false)} />
+            )}
 
             <div className="relative overflow-hidden rounded-3xl bg-accent-soft/40 p-6">
               {product.description && (
@@ -878,6 +883,7 @@ export default function ApiProductDetail() {
 
           <button
             type="button"
+            onClick={() => setReviewModalOpen(true)}
             aria-label="Add your review"
             className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#f3c8d5] bg-[#fff1f5] px-3 py-1.5 text-xs font-medium text-[#b94f71] transition-colors hover:border-[#e9a8bd] hover:bg-[#ffe7ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d95f88]"
           >
