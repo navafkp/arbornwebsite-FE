@@ -103,6 +103,7 @@ export default function ApiProductDetail() {
   const [addingToCart, setAddingToCart] = useState(false);
   const [addToCartError, setAddToCartError] = useState<string | null>(null);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [pendingReviewSlug, setPendingReviewSlug] = useState<string | null>(null);
 
   const [product, setProduct] = useState<ApiProductDetailData | null>(null);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error" | "not-found" | "unavailable">(
@@ -145,11 +146,6 @@ export default function ApiProductDetail() {
             ? (initialVariant?.sizes.find(s => preferredCodes.includes(s.size_code))?.size_code ?? preferredCodes[0])
             : (initialVariant?.sizes[0]?.size_code ?? null);
 
-        // A previously-pending review for this product just came back
-        // verified — this device no longer needs to show the pending note.
-        if (data.reviews.some((r) => r.verification_status === "verified" && r.reviewer_name === user?.name)) {
-          clearPendingReview(slug);
-        }
         setProduct(data);
         setPreferredSizeCodes(preferredCodes);
         setManualVariantIndex(null);
@@ -168,6 +164,42 @@ export default function ApiProductDetail() {
     loadProduct(getPreferredSizes());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
+
+  // `pendingReviewSlug` mirrors pending-review state into React state —
+  // reading localStorage directly during render isn't reactive, so updating
+  // it elsewhere would never trigger a re-render on its own.
+
+  // Seeds it immediately from the local flag right after the product loads,
+  // for the brief window before `user` has hydrated (below effect needs the
+  // name to check real data) and right after a fresh submit (before the next
+  // refetch includes the new review).
+  useEffect(() => {
+    if (product) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPendingReviewSlug(hasPendingReview(product.slug) ? product.slug : null);
+    }
+  }, [product]);
+
+  // Once we know who's asking, fresh review data from the API becomes the
+  // authority over the local flag — covers the review being verified,
+  // rejected, reverted back to pending, or deleted outright, on every load.
+  useEffect(() => {
+    if (!product || !user?.name) return;
+    const myName = user.name.trim().toLowerCase();
+    const stillPending = product.reviews.some(
+      (r) =>
+        r.reviewer_name?.trim().toLowerCase() === myName &&
+        (!r.verification_status || r.verification_status === "pending"),
+    );
+    if (stillPending) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPendingReviewSlug(product.slug);
+    } else {
+      clearPendingReview(product.slug);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPendingReviewSlug(null);
+    }
+  }, [product, user]);
 
   function scrollToImage(index: number) {
     const el = galleryRef.current;
@@ -743,7 +775,10 @@ export default function ApiProductDetail() {
               <AddReviewModal
                 productName={product.name}
                 productSlug={product.slug}
-                onClose={() => setReviewModalOpen(false)}
+                onClose={() => {
+                  setReviewModalOpen(false);
+                  setPendingReviewSlug(hasPendingReview(product.slug) ? product.slug : null);
+                }}
               />
             )}
 
@@ -871,7 +906,7 @@ export default function ApiProductDetail() {
             </span>
           </h2>
 
-          {hasPendingReview(product.slug) ? (
+          {pendingReviewSlug === product.slug ? (
             <span
               aria-label="Your review is pending verification"
               className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-black/10 bg-black/5 px-3 py-1.5 text-xs font-medium text-[var(--muted)]"
