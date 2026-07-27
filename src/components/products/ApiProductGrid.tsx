@@ -163,7 +163,7 @@ export default function ApiProductGrid({
   const seoHeading = category ? humanize(category) : tag ? (activeTagName ?? humanize(tag)) : "Shop All Products";
 
   return (
-    <div className="mx-auto max-w-7xl px-3 pt-4 pb-10 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-3 pt-0.5 pb-10 sm:px-6 lg:px-8">
       <h1 className="sr-only">{seoHeading}</h1>
       <BustSizeBanner />
       <ShopByCollectionSection activeCategory={category} activeTag={tag} />

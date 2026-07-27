@@ -413,7 +413,7 @@ export default function ApiProductDetail() {
 
   return (
     <div>
-      <div className="mx-auto max-w-7xl px-4 pt-1.5 pb-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 pt-0.5 pb-10 sm:px-6 lg:px-8">
         <BustSizeBanner large />
 
         <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2">
