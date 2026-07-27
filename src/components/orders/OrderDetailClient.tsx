@@ -44,7 +44,7 @@ export default function OrderDetailClient() {
   const { hydrated, hasBackendSession, accessToken, refreshSession } = useAuth();
   const [order, setOrder] = useState<ApiOrder | null>(null);
   const [loadState, setLoadState] = useState<"loading" | "ready" | "error">("loading");
-  const [reviewProductName, setReviewProductName] = useState<string | null>(null);
+  const [reviewTarget, setReviewTarget] = useState<{ name: string; slug: string } | null>(null);
 
   useEffect(() => {
     if (!hydrated || !hasBackendSession || !accessToken || !orderId) return;
@@ -181,7 +181,7 @@ export default function OrderDetailClient() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => setReviewProductName(item.product.name)}
+                  onClick={() => setReviewTarget({ name: item.product.name, slug: item.product.slug })}
                   className="mt-1.5 flex items-center gap-1 text-xs font-medium text-accent"
                 >
                   <svg className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
@@ -237,8 +237,12 @@ export default function OrderDetailClient() {
         </a>
       </div>
 
-      {reviewProductName && (
-        <AddReviewModal productName={reviewProductName} onClose={() => setReviewProductName(null)} />
+      {reviewTarget && (
+        <AddReviewModal
+          productName={reviewTarget.name}
+          productSlug={reviewTarget.slug}
+          onClose={() => setReviewTarget(null)}
+        />
       )}
     </div>
   );

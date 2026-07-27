@@ -10,12 +10,12 @@ import {
   ApiError,
   type ApiProductDetail as ApiProductDetailData,
   type ApiProduct,
-  type ApiReview,
   type ApiProductVariant,
   type BackendSize,
 } from "@/lib/api-client";
 import { cn, formatPrice } from "@/lib/utils";
 import { getPreferredSizes } from "@/lib/preferred-size";
+import { hasPendingReview, clearPendingReview } from "@/lib/pending-reviews";
 import { buildOrderInquiryMessage, buildWhatsAppLink } from "@/lib/whatsapp";
 import { markContactedViaWhatsApp } from "@/lib/whatsapp-contacted";
 import ColorSwatch from "@/components/ui/ColorSwatch";
@@ -81,25 +81,6 @@ function squigglePath() {
   return "M0 5 Q 12 0, 25 5 T 50 5 T 75 5 T 100 5";
 }
 
-// Temporary local fallback while product reviews are not available from the API.
-// These are intentionally only used for products with no backend reviews.
-const SAMPLE_REVIEWS: ApiReview[] = [
-  {
-    id: -1,
-    user_name: "Maya R.",
-    rating: 5,
-    title: "Soft enough for slow mornings",
-    review: "The fabric feels lovely against the skin and the fit is easy without looking oversized. My new weekend favourite.",
-  },
-  {
-    id: -2,
-    user_name: "Anika S.",
-    rating: 4,
-    title: "Pretty, comfortable and light",
-    review: "The print is even sweeter in person. It is breathable for sleeping and still polished enough for a lazy breakfast at home.",
-  },
-];
-
 // Which color variants to show: only the ones that offer the user's saved
 // size, so a product with e.g. an XL-only red and an L-available blue only
 // shows blue. Falls back to every variant if none of them have that size
@@ -164,6 +145,11 @@ export default function ApiProductDetail() {
             ? (initialVariant?.sizes.find(s => preferredCodes.includes(s.size_code))?.size_code ?? preferredCodes[0])
             : (initialVariant?.sizes[0]?.size_code ?? null);
 
+        // A previously-pending review for this product just came back
+        // verified — this device no longer needs to show the pending note.
+        if (data.reviews.some((r) => r.verification_status === "verified" && r.reviewer_name === user?.name)) {
+          clearPendingReview(slug);
+        }
         setProduct(data);
         setPreferredSizeCodes(preferredCodes);
         setManualVariantIndex(null);
@@ -407,7 +393,7 @@ export default function ApiProductDetail() {
     addCurrentToCart();
   }
 
-  const displayedReviews = product.reviews.length > 0 ? product.reviews : SAMPLE_REVIEWS;
+  const displayedReviews = product.reviews.filter((r) => r.verification_status === "verified");
   const instagramReelUrl = product.instagram_reel_url;
   const instagramThumbnailUrl = product.instagram_thumbnail_url;
 
@@ -754,7 +740,11 @@ export default function ApiProductDetail() {
               onSuccess={addCurrentToCart}
             />
             {reviewModalOpen && (
-              <AddReviewModal productName={product.name} onClose={() => setReviewModalOpen(false)} />
+              <AddReviewModal
+                productName={product.name}
+                productSlug={product.slug}
+                onClose={() => setReviewModalOpen(false)}
+              />
             )}
 
             <div className="relative overflow-hidden rounded-3xl bg-accent-soft/40 p-6">
@@ -881,23 +871,36 @@ export default function ApiProductDetail() {
             </span>
           </h2>
 
-          <button
-            type="button"
-            onClick={() => setReviewModalOpen(true)}
-            aria-label="Add your review"
-            className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#f3c8d5] bg-[#fff1f5] px-3 py-1.5 text-xs font-medium text-[#b94f71] transition-colors hover:border-[#e9a8bd] hover:bg-[#ffe7ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d95f88]"
-          >
-            <svg aria-hidden="true" viewBox="0 0 16 16" className="size-3.5" fill="none">
-              <path
-                d="M9.9 2.1 13.9 6l-7 7-4.1.7.8-4.1 7-7Z"
-                stroke="currentColor"
-                strokeWidth="1.35"
-                strokeLinejoin="round"
-              />
-              <path d="m8.5 3.5 4 3.9" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
-            </svg>
-            Add your review
-          </button>
+          {hasPendingReview(product.slug) ? (
+            <span
+              aria-label="Your review is pending verification"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-black/10 bg-black/5 px-3 py-1.5 text-xs font-medium text-[var(--muted)]"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7.5V12l3 2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Review Pending
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setReviewModalOpen(true)}
+              aria-label="Add your review"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#f3c8d5] bg-[#fff1f5] px-3 py-1.5 text-xs font-medium text-[#b94f71] transition-colors hover:border-[#e9a8bd] hover:bg-[#ffe7ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d95f88]"
+            >
+              <svg aria-hidden="true" viewBox="0 0 16 16" className="size-3.5" fill="none">
+                <path
+                  d="M9.9 2.1 13.9 6l-7 7-4.1.7.8-4.1 7-7Z"
+                  stroke="currentColor"
+                  strokeWidth="1.35"
+                  strokeLinejoin="round"
+                />
+                <path d="m8.5 3.5 4 3.9" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" />
+              </svg>
+              Add your review
+            </button>
+          )}
         </div>
 
         {/* {!isLoggedIn && (
@@ -911,9 +914,15 @@ export default function ApiProductDetail() {
           </div>
         )} */}
 
+        {displayedReviews.length === 0 ? (
+          <p className="mt-6 flex items-center gap-1.5 text-sm text-[var(--muted)]">
+            No reviews yet. Be the first to review this product
+            <HeartIcon filled className="h-3.5 w-3.5 text-accent" />
+          </p>
+        ) : (
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
           {displayedReviews.map((review, i) => {
-            const reviewerName = review.user_name?.trim() || "Arborn customer";
+            const reviewerName = review.reviewer_name?.trim() || "Arborn customer";
             const initials = reviewerName
               .split(/\s+/)
               .map((part) => part[0])
@@ -956,6 +965,7 @@ export default function ApiProductDetail() {
             );
           })}
         </div>
+        )}
       </div>
     </div>
   );

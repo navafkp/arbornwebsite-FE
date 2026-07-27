@@ -263,7 +263,8 @@ export interface ApiReview {
   rating: number;
   title?: string;
   review?: string;
-  user_name?: string;
+  reviewer_name?: string;
+  verification_status?: string | null;
   created_at?: string;
 }
 
@@ -298,6 +299,20 @@ export async function getProductDetail(slug: string, sizes?: number[]) {
   const qs = query.toString();
   const res = await request<{ data: ApiProductDetail }>(`/products/${slug}/${qs ? `?${qs}` : ""}`, {
     baseUrl: CATALOG_BASE_URL,
+  });
+  return res.data;
+}
+
+export async function postProductReview(
+  slug: string,
+  accessToken: string,
+  data: { rating: number; title: string; review: string },
+) {
+  const res = await request<{ data: ApiReview }>(`/products/${slug}/reviews/`, {
+    method: "POST",
+    baseUrl: CATALOG_BASE_URL,
+    accessToken,
+    body: data,
   });
   return res.data;
 }

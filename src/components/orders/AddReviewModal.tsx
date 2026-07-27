@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/lib/toast-context";
 import { HeartIcon } from "@/components/ui/decor";
+import { postProductReview, ApiError } from "@/lib/api-client";
+import { markReviewPending } from "@/lib/pending-reviews";
 
 const REVIEW_MAX_LENGTH = 500;
 
@@ -30,25 +32,49 @@ function SprigIcon({ className }: { className?: string }) {
   );
 }
 
-// TEMPORARY: static UI only — nothing is submitted to the backend yet.
 export default function AddReviewModal({
   productName,
+  productSlug,
   onClose,
 }: {
   productName: string;
+  productSlug: string;
   onClose: () => void;
 }) {
-  const { user } = useAuth();
+  const { user, accessToken, refreshSession } = useAuth();
   const { showToast } = useToast();
   const [reviewerName, setReviewerName] = useState(user?.name || "Arborn customer");
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
+  const [title, setTitle] = useState("");
   const [text, setText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
-  function handleSubmit(e: React.FormEvent) {
+  async function submitReview(token: string, canRefresh = true): Promise<void> {
+    try {
+      await postProductReview(productSlug, token, { rating, title, review: text });
+      markReviewPending(productSlug);
+      showToast(`Thank you for reviewing ${productName}! Your review is in review.`);
+      onClose();
+    } catch (err) {
+      if (canRefresh && err instanceof ApiError && err.status === 401) {
+        return submitReview(await refreshSession(), false);
+      }
+      setSubmitError(err instanceof ApiError ? err.message : "Couldn't submit your review. Please try again.");
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    showToast(`Thank you for reviewing ${productName}!`);
-    onClose();
+    if (!accessToken) return;
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      await submitReview(accessToken);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -65,7 +91,7 @@ export default function AddReviewModal({
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-accent-soft text-accent"
+          className="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-accent text-white transition hover:bg-accent-dark"
         >
           <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
@@ -144,11 +170,26 @@ export default function AddReviewModal({
               <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
                 <path d="M4 5h16v10H9l-4 4v-4H4z" strokeLinejoin="round" />
               </svg>
+              Review Title
+            </p>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Sum up your experience"
+              className="mt-1.5 w-full rounded-xl border border-accent/20 bg-white px-3 py-2 text-[11px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
+            />
+          </div>
+
+          <div className="mt-3 border-t border-dashed border-accent/25 pt-3">
+            <p className="flex items-center gap-1 text-[11px] font-medium text-accent">
+              <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <path d="M4 5h16v10H9l-4 4v-4H4z" strokeLinejoin="round" />
+              </svg>
               Your Review
             </p>
             <div className="relative mt-1.5">
               <textarea
-                required
                 value={text}
                 onChange={(e) => setText(e.target.value.slice(0, REVIEW_MAX_LENGTH))}
                 maxLength={REVIEW_MAX_LENGTH}
@@ -163,16 +204,22 @@ export default function AddReviewModal({
             </p>
           </div>
 
+          {submitError && (
+            <p className="mt-2 text-center text-[10px] text-red-600" role="alert">
+              {submitError}
+            </p>
+          )}
+
           <button
             type="submit"
-            disabled={rating === 0 || text.trim().length === 0}
+            disabled={submitting || rating === 0}
             className="mt-1.5 flex w-full items-center justify-center gap-[6px] rounded-full bg-accent py-[11px] text-[10px] font-semibold text-white shadow-[0_10px_24px_rgba(185,62,91,0.3)] disabled:opacity-50"
           >
             <svg className="h-[11px] w-[11px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
               <path d="M22 2L11 13" strokeLinecap="round" />
               <path d="M22 2l-7 20-4-9-9-4z" strokeLinejoin="round" />
             </svg>
-            Submit Review
+            {submitting ? "Submitting…" : "Submit Review"}
           </button>
 
           <p className="mt-2.5 flex items-center justify-center gap-1 text-center text-[10px] text-[var(--muted)]">
