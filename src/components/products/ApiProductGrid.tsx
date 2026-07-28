@@ -134,7 +134,10 @@ export default function ApiProductGrid({
       page_size: PAGE_SIZE,
     })
       .then((data) => {
-        setProducts((prev) => [...prev, ...data.items]);
+        setProducts((prev) => {
+          const seenIds = new Set(prev.map((product) => product.id));
+          return [...prev, ...data.items.filter((product) => !seenIds.has(product.id))];
+        });
         setHasNext(data.has_next);
         setPage(nextPage);
       })

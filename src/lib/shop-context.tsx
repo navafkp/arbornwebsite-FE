@@ -46,6 +46,7 @@ interface ShopContextValue {
   cartSubtotal: number;
   toggleWishlist: (productId: number) => Promise<void>;
   isWishlisted: (productId: number) => boolean;
+  isWishlistPending: (productId: number) => boolean;
   clearWishlist: () => Promise<void>;
   wishlistCount: number;
 }
@@ -61,6 +62,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   const [wishlist, setWishlist] = useState<ApiWishlistItem[]>([]);
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [wishlistError, setWishlistError] = useState(false);
+  const [wishlistPendingIds, setWishlistPendingIds] = useState<Set<number>>(new Set());
 
   // Shared by every cart/wishlist action: on a 401 (expired access token —
   // it only lasts 30 minutes), try the 14-day refresh token to get a new
@@ -171,18 +173,31 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   async function toggleWishlist(productId: number) {
     if (!accessToken) return;
     const isCurrentlyWishlisted = wishlist.some((p) => p.id === productId);
-    await runAuthedAction(accessToken, async (t) => {
-      if (isCurrentlyWishlisted) {
-        await removeWishlistItem(t, productId);
-      } else {
-        await addWishlistItem(t, productId);
-      }
-      await refreshWishlist(t);
-    });
+    setWishlistPendingIds((prev) => new Set(prev).add(productId));
+    try {
+      await runAuthedAction(accessToken, async (t) => {
+        if (isCurrentlyWishlisted) {
+          await removeWishlistItem(t, productId);
+        } else {
+          await addWishlistItem(t, productId);
+        }
+        await refreshWishlist(t);
+      });
+    } finally {
+      setWishlistPendingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(productId);
+        return next;
+      });
+    }
   }
 
   function isWishlisted(productId: number) {
     return wishlist.some((p) => p.id === productId);
+  }
+
+  function isWishlistPending(productId: number) {
+    return wishlistPendingIds.has(productId);
   }
 
   // No bulk-delete endpoint on the backend for wishlist (unlike cart) — just
@@ -213,6 +228,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     cartSubtotal: cartTotals.subtotal,
     toggleWishlist,
     isWishlisted,
+    isWishlistPending,
     clearWishlist,
     wishlistCount: wishlist.length,
   };

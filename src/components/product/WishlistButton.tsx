@@ -12,12 +12,12 @@ interface WishlistButtonProps {
 }
 
 export default function WishlistButton({ productId, className, size = "sm" }: WishlistButtonProps) {
-  const { isWishlisted, toggleWishlist, wishlistLoading } = useShop();
+  const { isWishlisted, toggleWishlist, isWishlistPending } = useShop();
   const { hasBackendSession, hydrated } = useAuth();
   const router = useRouter();
   const numericId = Number(productId);
   const active = isWishlisted(numericId);
-  const ready = hydrated && (!hasBackendSession || !wishlistLoading);
+  const ready = hydrated && (!hasBackendSession || !isWishlistPending(numericId));
   const dimension = size === "sm" ? "h-4 w-4" : "h-5 w-5";
 
   return (
