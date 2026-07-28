@@ -10,6 +10,8 @@ const LOGO_IMAGE = withBasePath("/arborn.webp");
 const ABOUT_US_IMAGE = withBasePath("/images/about-us.png");
 const MISSION_IMAGE = withBasePath("/images/mission-arborn.png");
 const VISION_IMAGE = withBasePath("/images/vission-arborn.png");
+const QUALITY_IMAGE = withBasePath("/images/arbron-qaulity-assurance.png");
+const CONTACT_IMAGE = withBasePath("/images/contact-arborn.png");
 
 export const metadata: Metadata = {
   title: "About Arborn",
@@ -36,20 +38,10 @@ function SectionHeading({ children, showHeart = true }: { children: React.ReactN
   );
 }
 
-// Placeholder art for sections without real photography yet — swap these
-// for actual images whenever they're available.
-function PlaceholderArt({ className }: { className?: string }) {
-  return (
-    <div className={`flex items-center justify-center bg-gradient-to-br from-accent-soft to-[#f3e6da] ${className}`}>
-      <HeartIcon filled className="h-8 w-8 text-accent/40" />
-    </div>
-  );
-}
-
 export default function AboutPage() {
   return (
     <div>
-      <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-accent-soft to-[#f3e6da]">
+      <section className="relative overflow-hidden bg-gradient-to-br from-accent-soft to-[#f3e6da]">
         <BackButton className="absolute top-4 left-4 z-20 h-9 w-9 rounded-full bg-white/90 text-accent shadow-sm hover:bg-white" />
 
         <div className="grid grid-cols-[1.2fr_1fr] items-stretch pt-16 sm:grid-cols-[1fr_1.4fr] sm:pt-0">
@@ -89,7 +81,7 @@ export default function AboutPage() {
         </section>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <section id="our-vision" className="scroll-mt-24 overflow-hidden rounded-3xl bg-white shadow-[0_8px_20px_rgba(91,53,61,0.06)]">
+          <section id="our-vision" className="scroll-mt-24 overflow-hidden rounded-3xl bg-accent-soft/60">
             <div className="p-4 sm:p-6">
               <SectionHeading>Our Vision</SectionHeading>
               <p className="mt-2 text-sm text-[var(--muted)]">
@@ -102,7 +94,7 @@ export default function AboutPage() {
             </div>
           </section>
 
-          <section id="our-mission" className="scroll-mt-24 overflow-hidden rounded-3xl bg-white shadow-[0_8px_20px_rgba(91,53,61,0.06)]">
+          <section id="our-mission" className="scroll-mt-24 overflow-hidden rounded-3xl bg-accent-soft/60">
             <div className="p-4 sm:p-6">
               <SectionHeading>Our Mission</SectionHeading>
               <p className="mt-2 text-sm text-[var(--muted)]">
@@ -123,10 +115,12 @@ export default function AboutPage() {
               the best.
             </p>
           </div>
-          <PlaceholderArt className="h-32 w-full sm:h-full" />
+          <div className="relative aspect-square w-full bg-accent-soft/40 sm:aspect-auto sm:h-full">
+            <Image src={QUALITY_IMAGE} alt="Quality promise" fill className="object-contain" />
+          </div>
         </section>
 
-        <section id="contact-us" className="scroll-mt-24 grid overflow-hidden rounded-3xl bg-white shadow-[0_8px_20px_rgba(91,53,61,0.06)] sm:grid-cols-[1fr_1.3fr]">
+        <section id="contact-us" className="scroll-mt-24 grid overflow-hidden rounded-3xl bg-accent-soft/60 sm:grid-cols-[1fr_1.3fr]">
           <div className="p-4 sm:p-6">
           <SectionHeading>Contact Us</SectionHeading>
           <p className="mt-2 text-sm text-[var(--muted)]">We&rsquo;re here to help you!</p>
@@ -165,7 +159,9 @@ export default function AboutPage() {
             </a>
           </div>
           </div>
-          <PlaceholderArt className="h-32 w-full sm:h-full" />
+          <div className="relative aspect-square w-full bg-accent-soft/40 sm:aspect-auto sm:h-full">
+            <Image src={CONTACT_IMAGE} alt="Contact Arborn" fill className="object-contain" />
+          </div>
         </section>
 
         <section id="faqs" className="scroll-mt-24 overflow-hidden rounded-3xl bg-[#fdf8f2] p-4 sm:p-6">
