@@ -115,35 +115,40 @@ export default function FounderPage() {
           Every step we take is for your comfort, confidence and happiness.
         </p>
 
-        <div className="mt-8">
-          {VALUES.map(({ label, body, Icon }, index) => (
-            <div key={label}>
-              <div className="flex gap-4">
-                <span className="flex h-[86px] w-[86px] shrink-0 items-center justify-center rounded-full bg-accent-soft/70 text-accent">
-                  <Icon className="h-8 w-8" />
-                </span>
-                <div className="flex-1 rounded-2xl bg-white p-4 shadow-[0_8px_20px_rgba(91,53,61,0.06)]">
-                  <div className="flex items-center gap-2">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-soft text-xs font-semibold text-accent">
+        <div className="relative mt-8">
+          <span
+            aria-hidden
+            className="absolute top-[43px] bottom-[43px] left-[43px] w-px border-l-2 border-dashed border-accent/25"
+          />
+
+          <div className="space-y-1">
+            {VALUES.map(({ label, body, Icon }, index) => (
+              <div key={label}>
+                <div className="flex items-start gap-3">
+                  <span className="relative z-10 flex h-[86px] w-[86px] shrink-0 items-center justify-center rounded-full bg-accent-soft/70 text-accent">
+                    <Icon className="h-8 w-8" />
+                  </span>
+                  <div className="relative flex-1 rounded-2xl bg-white p-4 shadow-[0_8px_20px_rgba(91,53,61,0.06)]">
+                    <span className="absolute -top-2 -left-3 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-accent-soft text-xs font-semibold text-accent shadow-sm">
                       {index + 1}
                     </span>
                     <p className="font-serif text-lg font-semibold text-foreground">{label}</p>
+                    <p className="mt-1 text-sm text-[var(--muted)]">{body}</p>
                   </div>
-                  <p className="mt-1.5 text-sm text-[var(--muted)]">{body}</p>
                 </div>
-              </div>
 
-              {index < VALUES.length - 1 && (
-                <div className="my-1 flex w-[86px] justify-center">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full border border-accent/30 bg-white text-accent">
-                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M12 4v14M6 13l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </span>
-                </div>
-              )}
-            </div>
-          ))}
+                {index < VALUES.length - 1 && (
+                  <div className="flex w-[86px] justify-center py-1">
+                    <span className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full border border-accent/30 bg-white text-accent">
+                      <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 4v14M6 13l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="mt-6 flex items-center gap-4 rounded-3xl bg-accent-dark p-5 text-white">
