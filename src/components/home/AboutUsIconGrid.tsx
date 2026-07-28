@@ -15,14 +15,18 @@ export default function AboutUsIconGrid() {
       </div>
 
       <div className="mt-6 grid grid-cols-4 gap-x-2 gap-y-6">
-        {ABOUT_SECTIONS.map(({ id, label, Icon }) => (
-          <Link key={id} href={`/about#${id}`} className="flex flex-col items-center gap-2 text-center">
-            <span className="flex h-[67px] w-[67px] items-center justify-center rounded-full bg-accent-soft/60 text-accent sm:h-[73.9px] sm:w-[73.9px]">
-              <Icon className="h-7 w-7 sm:h-8 sm:w-8" />
-            </span>
-            <span className="text-xs leading-tight font-medium text-foreground sm:text-sm">{label}</span>
-          </Link>
-        ))}
+        {ABOUT_SECTIONS.map((section) => {
+          const { id, label, Icon } = section;
+          const href = "href" in section ? section.href : `/about#${id}`;
+          return (
+            <Link key={id} href={href} className="flex flex-col items-center gap-2 text-center">
+              <span className="flex h-[67px] w-[67px] items-center justify-center rounded-full bg-accent-soft/60 text-accent sm:h-[73.9px] sm:w-[73.9px]">
+                <Icon className="h-7 w-7 sm:h-8 sm:w-8" />
+              </span>
+              <span className="text-xs leading-tight font-medium text-foreground sm:text-sm">{label}</span>
+            </Link>
+          );
+        })}
       </div>
     </section>
   );

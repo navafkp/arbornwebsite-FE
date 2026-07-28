@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Cormorant_Garamond } from "next/font/google";
+import { Inter, Cormorant_Garamond, Dancing_Script } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import BottomNavSpacer from "@/components/layout/BottomNavSpacer";
@@ -21,6 +21,13 @@ const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
+
+const dancingScript = Dancing_Script({
+  variable: "--font-dancing-script",
+  subsets: ["latin"],
+  weight: ["400", "700"],
   display: "swap",
 });
 
@@ -73,7 +80,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${cormorant.variable} h-full`}>
+    <html lang="en" className={`${inter.variable} ${cormorant.variable} ${dancingScript.variable} h-full`}>
       <body className="flex min-h-full flex-col bg-background text-foreground antialiased">
         <SplashScreen />
         <AuthProvider>

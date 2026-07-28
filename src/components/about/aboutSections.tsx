@@ -79,7 +79,7 @@ export const ABOUT_SECTIONS = [
   { id: "contact-us", label: "Contact Us", Icon: PhoneIcon },
   { id: "our-vision", label: "Our Vision", Icon: EyeIcon },
   { id: "our-mission", label: "Our Mission", Icon: TargetIcon },
-  { id: "meet-the-founder", label: "Meet the Founder", Icon: SparkleHairIcon },
+  { id: "meet-the-founder", label: "Meet the Founder", Icon: SparkleHairIcon, href: "/about/founder" },
   { id: "our-journey", label: "Our Journey", Icon: BookIcon },
   { id: "quality-promise", label: "Quality Promise", Icon: ShieldCheckIcon },
   { id: "faqs", label: "FAQs", Icon: FaqIcon },
