@@ -194,8 +194,8 @@ function StepCard({ step }: { step: Step }) {
 function StepRow({ step }: { step: Step }) {
   const alignRight = step.cardSide === "right";
   return (
-    <div className="relative py-1">
-      <div className={`w-[78%] ${alignRight ? "ml-auto" : "mr-auto"}`}>
+    <div className="relative py-4">
+      <div className={`w-[83%] ${alignRight ? "ml-auto" : "mr-auto"}`}>
         <StepCard step={step} />
       </div>
       <span
@@ -258,11 +258,11 @@ export default function JourneyPage() {
             className="absolute inset-0 z-0 h-full w-full text-accent"
           >
             <path
-              d="M78,0 C50,50 50,50 22,100 C50,150 50,150 78,200 C50,250 50,250 22,300 C50,350 50,350 78,400 C50,450 50,450 22,500 L22,600 C50,650 50,650 78,700"
+              d="M78,0 C78,40 22,60 22,100 C22,140 78,160 78,200 C78,240 22,260 22,300 C22,340 78,360 78,400 C78,440 22,460 22,500 L22,600 C22,640 78,660 78,700"
               fill="none"
               stroke="currentColor"
               strokeWidth="3"
-              strokeDasharray="0.5 9"
+              strokeDasharray="1 7"
               strokeLinecap="round"
               vectorEffect="non-scaling-stroke"
             />
@@ -274,17 +274,13 @@ export default function JourneyPage() {
             <circle cx="22" cy="600" r="1.6" fill="currentColor" />
           </svg>
 
-          <svg aria-hidden viewBox="0 0 24 24" className="absolute top-0 right-6 z-10 h-5 w-5 text-accent/50">
-            <path d="M4 4l3 3M20 4l-3 3M4 12h4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          </svg>
-
           <div className="relative z-10">
             {STEPS.map((step) => (
               <StepRow key={step.number} step={step} />
             ))}
           </div>
 
-        <div className="relative z-10 mt-2 rounded-[26px] bg-white p-4 shadow-[0_8px_20px_rgba(91,53,61,0.06)]">
+        <div className="relative z-10 mt-4 rounded-[26px] bg-white p-4 shadow-[0_8px_20px_rgba(91,53,61,0.06)]">
           <span className="absolute top-1/2 left-[22%] z-10 flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-accent text-[11px] font-semibold text-white shadow-sm">
             07
           </span>
@@ -320,7 +316,7 @@ export default function JourneyPage() {
           </div>
         </div>
 
-        <div className="relative z-10 mt-2 rounded-[26px] bg-white p-4 shadow-[0_8px_20px_rgba(91,53,61,0.06)]">
+        <div className="relative z-10 mt-4 rounded-[26px] bg-white p-4 shadow-[0_8px_20px_rgba(91,53,61,0.06)]">
           <span className="absolute top-1/2 left-[78%] z-10 flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-accent text-[11px] font-semibold text-white shadow-sm">
             08
           </span>

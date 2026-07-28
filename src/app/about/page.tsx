@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import AccordionItem from "@/components/product/AccordionItem";
 import BackButton from "@/components/ui/BackButton";
 import { HeartIcon } from "@/components/ui/decor";
@@ -85,33 +84,6 @@ export default function AboutPage() {
           <div className="relative h-56 w-full sm:h-full">
             <Image src={ABOUT_US_IMAGE} alt="Arborn nightwear on display" fill className="object-cover" />
           </div>
-        </section>
-
-        <section id="meet-the-founder" className="scroll-mt-24 rounded-3xl bg-white p-4 shadow-[0_8px_20px_rgba(91,53,61,0.06)] sm:p-6">
-          <SectionHeading>Meet the Founder</SectionHeading>
-          <p className="mt-2 text-sm text-[var(--muted)]">
-            Hi, I&rsquo;m the heart behind Arborn. A dreamer, a believer and a woman who truly
-            understands the need for comfortable and beautiful nightwear.
-          </p>
-          <Link href="/about/founder" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-accent">
-            Read her story
-            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </Link>
-        </section>
-
-        <section id="our-journey" className="scroll-mt-24 rounded-3xl bg-[#fdf8f2] p-4 sm:p-6">
-          <SectionHeading>Our Journey</SectionHeading>
-          <p className="mt-2 text-sm text-[var(--muted)]">
-            From a small idea to a growing brand, our journey is built on your love and trust.
-          </p>
-          <Link href="/about/journey" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-accent">
-            See her full journey
-            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </Link>
         </section>
 
         <div className="grid gap-4 sm:grid-cols-2">
