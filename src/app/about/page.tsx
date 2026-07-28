@@ -101,15 +101,17 @@ export default function AboutPage() {
           </Link>
         </section>
 
-        <section id="our-journey" className="scroll-mt-24 grid overflow-hidden rounded-3xl bg-[#fdf8f2] sm:grid-cols-[1fr_1.3fr]">
-          <div className="p-4 sm:p-6">
-            <SectionHeading>Our Journey</SectionHeading>
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              From a small idea to a growing brand, our journey is built on your love and trust.
-              Every step forward is because of you.
-            </p>
-          </div>
-          <PlaceholderArt className="h-32 w-full sm:h-full" />
+        <section id="our-journey" className="scroll-mt-24 rounded-3xl bg-[#fdf8f2] p-4 sm:p-6">
+          <SectionHeading>Our Journey</SectionHeading>
+          <p className="mt-2 text-sm text-[var(--muted)]">
+            From a small idea to a growing brand, our journey is built on your love and trust.
+          </p>
+          <Link href="/about/journey" className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-accent">
+            See her full journey
+            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
         </section>
 
         <div className="grid gap-4 sm:grid-cols-2">

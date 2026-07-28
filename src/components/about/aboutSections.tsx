@@ -80,7 +80,7 @@ export const ABOUT_SECTIONS = [
   { id: "our-vision", label: "Our Vision", Icon: EyeIcon },
   { id: "our-mission", label: "Our Mission", Icon: TargetIcon },
   { id: "meet-the-founder", label: "Meet the Founder", Icon: SparkleHairIcon, href: "/about/founder" },
-  { id: "our-journey", label: "Our Journey", Icon: BookIcon },
+  { id: "our-journey", label: "Our Journey", Icon: BookIcon, href: "/about/journey" },
   { id: "quality-promise", label: "Quality Promise", Icon: ShieldCheckIcon },
   { id: "faqs", label: "FAQs", Icon: FaqIcon },
 ] as const;
