@@ -8,6 +8,8 @@ import { withBasePath } from "@/lib/asset-path";
 
 const LOGO_IMAGE = withBasePath("/arborn.webp");
 const ABOUT_US_IMAGE = withBasePath("/images/about-us.png");
+const MISSION_IMAGE = withBasePath("/images/mission-arborn.png");
+const VISION_IMAGE = withBasePath("/images/vission-arborn.png");
 
 export const metadata: Metadata = {
   title: "About Arborn",
@@ -95,7 +97,9 @@ export default function AboutPage() {
                 style and affordability.
               </p>
             </div>
-            <PlaceholderArt className="h-28 w-full" />
+            <div className="relative aspect-square w-full bg-accent-soft/40">
+              <Image src={VISION_IMAGE} alt="Our vision" fill className="object-contain" />
+            </div>
           </section>
 
           <section id="our-mission" className="scroll-mt-24 overflow-hidden rounded-3xl bg-white shadow-[0_8px_20px_rgba(91,53,61,0.06)]">
@@ -105,7 +109,9 @@ export default function AboutPage() {
                 To make comfortable, beautiful and affordable nightwear accessible to every woman.
               </p>
             </div>
-            <PlaceholderArt className="h-28 w-full" />
+            <div className="relative aspect-square w-full bg-accent-soft/40">
+              <Image src={MISSION_IMAGE} alt="Our mission" fill className="object-contain" />
+            </div>
           </section>
         </div>
 

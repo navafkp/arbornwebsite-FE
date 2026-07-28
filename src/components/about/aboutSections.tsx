@@ -36,6 +36,25 @@ function TargetIcon({ className }: { className?: string }) {
   );
 }
 
+function SparkleHairIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M9 4c-3 1-4.5 4-4 8 .3 2.5 1.7 5 4 7" strokeLinecap="round" />
+      <circle cx="12" cy="10" r="4" />
+      <path d="M18 6l.8 1.6L20 8l-1.2.6L18 10l-.6-1.4L16 8l1.4-.4z" />
+    </svg>
+  );
+}
+
+function BookIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M12 6.5c-1.8-1.2-4.3-1.5-7.5-1v13c3.2-.5 5.7-.2 7.5 1 1.8-1.2 4.3-1.5 7.5-1v-13c-3.2-.5-5.7-.2-7.5 1z" strokeLinejoin="round" />
+      <path d="M12 6.5v13" />
+    </svg>
+  );
+}
+
 function ShieldCheckIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -60,6 +79,8 @@ export const ABOUT_SECTIONS = [
   { id: "contact-us", label: "Contact Us", Icon: PhoneIcon },
   { id: "our-vision", label: "Our Vision", Icon: EyeIcon },
   { id: "our-mission", label: "Our Mission", Icon: TargetIcon },
+  { id: "meet-the-founder", label: "Meet the Founder", Icon: SparkleHairIcon, href: "/about/founder" },
+  { id: "our-journey", label: "Our Journey", Icon: BookIcon, href: "/about/journey" },
   { id: "quality-promise", label: "Quality Promise", Icon: ShieldCheckIcon },
   { id: "faqs", label: "FAQs", Icon: FaqIcon },
 ] as const;
