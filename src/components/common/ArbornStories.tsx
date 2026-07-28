@@ -158,7 +158,7 @@ export default function ArbornStories({ compactBubbles = false }: { compactBubbl
         {circles.map((circle, index) => (
           <button key={circle.id} type="button" onClick={(event) => openStory(index, event.currentTarget)} aria-label={`Open story: ${circle.label}`} className={`group flex shrink-0 snap-start flex-col items-center gap-1.5 rounded-lg outline-none ${compactBubbles ? "w-[41.6px] sm:w-[49.1px]" : "w-[69.3px] sm:w-[81.9px]"}`}>
             <span className={`rounded-full bg-gradient-to-br ${RING_GRADIENT} p-[2px] transition-transform duration-200 group-hover:scale-[1.04] group-focus-visible:scale-[1.04]`}>
-              <span className={`relative flex items-center justify-center overflow-hidden rounded-full border-[3px] border-white bg-[#fffaf5] shadow-[0_2px_8px_rgba(121,68,80,0.12)] ${compactBubbles ? "h-[29.6px] w-[29.6px] sm:h-[32.6px] sm:w-[32.6px]" : "h-[60.9px] w-[60.9px] sm:h-[67.2px] sm:w-[67.2px]"}`}>
+              <span className={`relative flex items-center justify-center overflow-hidden rounded-full border-[3px] border-white bg-[#fffaf5] shadow-[0_2px_8px_rgba(121,68,80,0.12)] ${compactBubbles ? "h-[29.6px] w-[29.6px] sm:h-[32.6px] sm:w-[32.6px]" : "h-[67px] w-[67px] sm:h-[73.9px] sm:w-[73.9px]"}`}>
                 <Image src={circle.cover_image_url} alt="" fill sizes="80px" className="object-cover" />
               </span>
             </span>
