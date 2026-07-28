@@ -7,6 +7,7 @@ import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { withBasePath } from "@/lib/asset-path";
 
 const LOGO_IMAGE = withBasePath("/arborn.webp");
+const ABOUT_US_IMAGE = withBasePath("/images/about-us.png");
 
 export const metadata: Metadata = {
   title: "About Arborn",
@@ -80,7 +81,9 @@ export default function AboutPage() {
               and made with love.
             </p>
           </div>
-          <PlaceholderArt className="h-32 w-full sm:h-full" />
+          <div className="relative h-56 w-full sm:h-full">
+            <Image src={ABOUT_US_IMAGE} alt="Arborn nightwear on display" fill className="object-cover" />
+          </div>
         </section>
 
         <section id="meet-the-founder" className="scroll-mt-24 grid overflow-hidden rounded-3xl bg-white shadow-[0_8px_20px_rgba(91,53,61,0.06)] sm:grid-cols-[1.3fr_1fr]">
