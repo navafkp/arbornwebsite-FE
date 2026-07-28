@@ -242,7 +242,7 @@ export default function JourneyPage() {
             className="absolute inset-0 z-0 h-full w-full text-accent"
           >
             <path
-              d="M78,0 C78,40 22,60 22,100 C22,140 78,160 78,200 C78,240 22,260 22,300 C22,340 78,360 78,400 C78,440 22,460 22,500 L22,600 C22,640 78,660 78,700"
+              d="M78,50 C78,70 22,85 22,100 C22,140 78,160 78,200 C78,240 22,260 22,300 C22,340 78,360 78,400 C78,440 22,460 22,500 L22,600 C22,640 78,660 78,700"
               fill="none"
               stroke="currentColor"
               strokeWidth="3"
