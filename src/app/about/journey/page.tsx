@@ -32,23 +32,29 @@ function ComputerIcon({ className }: { className?: string }) {
   );
 }
 
-function FlowerIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
-      <circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none" />
-      <circle cx="12" cy="6.5" r="3" />
-      <circle cx="12" cy="17.5" r="3" />
-      <circle cx="6.5" cy="12" r="3" />
-      <circle cx="17.5" cy="12" r="3" />
-    </svg>
-  );
-}
-
 function SearchIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
       <circle cx="10.5" cy="10.5" r="6.5" />
       <path d="M20 20l-4.8-4.8" strokeLinecap="round" />
+      <path
+        d="M10.5 13.2s-3.2-1.9-3.2-4c0-1.2.9-2 1.9-2 .8 0 1.3.5 1.3.5s.5-.5 1.3-.5c1 0 1.9.8 1.9 2 0 2.1-3.2 4-3.2 4z"
+        fill="currentColor"
+        stroke="none"
+      />
+    </svg>
+  );
+}
+
+function CloudHeartIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M7 18a4 4 0 01-.5-7.97A5 5 0 0116.3 9 4.5 4.5 0 0117 18H7z" strokeLinejoin="round" />
+      <path
+        d="M12 15.5s-2.2-1.3-2.2-2.7c0-.8.6-1.3 1.3-1.3.5 0 .9.3.9.3s.4-.3.9-.3c.7 0 1.3.5 1.3 1.3 0 1.4-2.2 2.7-2.2 2.7z"
+        fill="currentColor"
+        stroke="none"
+      />
     </svg>
   );
 }
@@ -84,6 +90,8 @@ type Step = {
   visual?: Visual;
   visualSide: "left" | "right";
   cardSide: "left" | "right";
+  heartAccent?: boolean;
+  underlineAccent?: boolean;
 };
 
 const STEPS: Step[] = [
@@ -110,12 +118,13 @@ const STEPS: Step[] = [
     visual: { type: "image", src: ABOUT_US_IMAGE },
     visualSide: "left",
     cardSide: "left",
+    heartAccent: true,
   },
   {
     number: "04",
     title: "Comfort Matters",
     body: "Every woman deserves to feel beautiful and comfortable.",
-    visual: { type: "placeholder", Icon: FlowerIcon },
+    visual: { type: "placeholder", Icon: CloudHeartIcon },
     visualSide: "right",
     cardSide: "right",
   },
@@ -126,6 +135,7 @@ const STEPS: Step[] = [
     visual: { type: "icon", Icon: SearchIcon },
     visualSide: "left",
     cardSide: "left",
+    underlineAccent: true,
   },
   {
     number: "06",
@@ -141,19 +151,19 @@ function StepVisual({ visual }: { visual?: Visual }) {
   if (!visual) return null;
   if (visual.type === "icon") {
     return (
-      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-accent-soft/70 text-accent">
-        <visual.Icon className="h-5 w-5" />
+      <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-accent-soft/70 text-accent">
+        <visual.Icon className="h-6 w-6" />
       </span>
     );
   }
   if (visual.type === "image") {
     return (
-      <div className="relative h-16 w-20 shrink-0 overflow-hidden rounded-2xl">
+      <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-2xl">
         <Image src={visual.src} alt="" fill className="object-cover" />
       </div>
     );
   }
-  return <MediaPlaceholder Icon={visual.Icon} className="h-16 w-20 shrink-0 rounded-2xl" />;
+  return <MediaPlaceholder Icon={visual.Icon} className="h-20 w-24 shrink-0 rounded-2xl" />;
 }
 
 function StepCard({ step }: { step: Step }) {
@@ -169,6 +179,12 @@ function StepCard({ step }: { step: Step }) {
         <p className="font-serif text-sm font-semibold text-accent">{step.title}</p>
         {step.lead && <p className="mt-0.5 text-xs font-semibold text-foreground">{step.lead}</p>}
         {step.body && <p className="mt-0.5 text-xs leading-snug text-[var(--muted)]">{step.body}</p>}
+        {step.heartAccent && <HeartIcon filled className="mt-1.5 h-3.5 w-3.5 text-accent" />}
+        {step.underlineAccent && (
+          <svg viewBox="0 0 90 8" className="mt-0.5 h-2 w-20 text-accent/50">
+            <path d="M2 5c8-5 16-5 22 0s16 5 22 0 16-5 22 0 16 5 20 0" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        )}
       </div>
       {step.visualSide === "right" && <StepVisual visual={step.visual} />}
     </div>
@@ -178,8 +194,8 @@ function StepCard({ step }: { step: Step }) {
 function StepRow({ step }: { step: Step }) {
   const alignRight = step.cardSide === "right";
   return (
-    <div className="relative py-2">
-      <div className={`w-[76%] ${alignRight ? "ml-auto" : "mr-auto"}`}>
+    <div className="relative py-1">
+      <div className={`w-[78%] ${alignRight ? "ml-auto" : "mr-auto"}`}>
         <StepCard step={step} />
       </div>
       <span
@@ -245,11 +261,21 @@ export default function JourneyPage() {
               d="M78,0 C50,50 50,50 22,100 C50,150 50,150 78,200 C50,250 50,250 22,300 C50,350 50,350 78,400 C50,450 50,450 22,500 L22,600 C50,650 50,650 78,700"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2.5"
-              strokeDasharray="6 6"
+              strokeWidth="3"
+              strokeDasharray="0.5 9"
               strokeLinecap="round"
               vectorEffect="non-scaling-stroke"
             />
+            <circle cx="22" cy="100" r="1.6" fill="currentColor" />
+            <circle cx="78" cy="200" r="1.6" fill="currentColor" />
+            <circle cx="22" cy="300" r="1.6" fill="currentColor" />
+            <circle cx="78" cy="400" r="1.6" fill="currentColor" />
+            <circle cx="22" cy="500" r="1.6" fill="currentColor" />
+            <circle cx="22" cy="600" r="1.6" fill="currentColor" />
+          </svg>
+
+          <svg aria-hidden viewBox="0 0 24 24" className="absolute top-0 right-6 z-10 h-5 w-5 text-accent/50">
+            <path d="M4 4l3 3M20 4l-3 3M4 12h4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
           </svg>
 
           <div className="relative z-10">
