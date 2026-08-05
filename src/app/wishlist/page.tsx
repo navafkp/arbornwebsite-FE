@@ -103,8 +103,10 @@ function InspirationRail({ items, loading, error, retry }: { items: Inspiration[
 
 function SavedCard({ product }: { product: ApiWishlistItem }) {
   const { toggleWishlist } = useShop();
-  const price = Number(product.base_discount_price ?? product.base_price);
-  const original = product.base_discount_price ? Number(product.base_price) : null;
+  const rawDiscountPrice = product.base_discount_price ? Number(product.base_discount_price) : null;
+  const hasDiscount = rawDiscountPrice !== null && rawDiscountPrice > 0;
+  const price = hasDiscount ? rawDiscountPrice : Number(product.base_price);
+  const original = hasDiscount ? Number(product.base_price) : null;
   const colorCount = product.variants.length;
   const sizeCount = new Set(product.variants.flatMap((v) => v.sizes.map((s) => s.size_code))).size;
   // Same reasoning as the product detail page: only call it out of stock

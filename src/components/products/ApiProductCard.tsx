@@ -58,7 +58,8 @@ export default function ApiProductCard({
   compactPatternPreviews?: boolean;
 }) {
   const price = Number(product.base_price);
-  const discountPrice = product.base_discount_price ? Number(product.base_discount_price) : null;
+  const rawDiscountPrice = product.base_discount_price ? Number(product.base_discount_price) : null;
+  const discountPrice = rawDiscountPrice && rawDiscountPrice > 0 ? rawDiscountPrice : null;
 
   // Rendered straight from the listing response now — no extra per-card
   // detail fetch. colors and related_product_images are two independent

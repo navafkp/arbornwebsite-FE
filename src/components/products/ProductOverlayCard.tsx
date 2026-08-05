@@ -6,14 +6,16 @@ import type { ApiProduct } from "@/lib/api-client";
 
 export default function ProductOverlayCard({ product }: { product: ApiProduct }) {
   const price = Number(product.base_price);
-  const discountPrice = product.base_discount_price ? Number(product.base_discount_price) : null;
+  const rawDiscountPrice = product.base_discount_price ? Number(product.base_discount_price) : null;
+  const discountPrice = rawDiscountPrice && rawDiscountPrice > 0 ? rawDiscountPrice : null;
+  const cardImage = product.thumbnail_image ?? product.image_url;
 
   return (
     <Link href={`/products/detail?slug=${product.slug}`} className="group block w-36 shrink-0 sm:w-44">
       <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-[#f4f2ee]">
-        {product.image_url && (
+        {cardImage && (
           <Image
-            src={product.image_url}
+            src={cardImage}
             alt={product.name}
             fill
             sizes="176px"

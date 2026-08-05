@@ -327,11 +327,12 @@ export default function ApiProductDetail() {
   }
 
   const price = Number(variant?.price ?? product.base_price);
-  const discountPrice = variant?.discount_price
+  const rawDiscountPrice = variant?.discount_price
     ? Number(variant.discount_price)
     : product.base_discount_price
       ? Number(product.base_discount_price)
       : null;
+  const discountPrice = rawDiscountPrice && rawDiscountPrice > 0 ? rawDiscountPrice : null;
 
   const selectedSize = variant?.sizes.find((s) => s.size_code === selectedSizeCode);
   const inStock = (selectedSize?.stock_quantity ?? 0) > 0;
